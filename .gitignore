@@ -1,0 +1,45 @@
+# Ignore macOS files
+.DS_Store
+
+# Django settings
+*.pyc
+__pycache__/
+
+# SQLite database file
+db.sqlite3
+
+# Media files
+media/
+
+# Static files
+static/
+
+# Environments
+.env
+.venv/
+
+# IDE files
+*.idea/
+*.vscode/
+
+# Debug toolbar settings
+debug_toolbar/
+
+# User-uploaded files
+media_root/
+media_url/
+
+# Credentials
+*.env
+*.json
+
+# Documentation
+docs/
+
+# Test reports
+htmlcov/
+*.xml
+
+# Logs
+log/
+*.log

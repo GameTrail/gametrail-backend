@@ -9,8 +9,9 @@
 - Create a project directory `mkdir gametrail-env`
 - Move to env directory with `cd gametrail-env`
 - Create virtual enviroment `virtualenv venv -p python3.11`
-- **(MacOS)** Activate virtual enviroment with `source venv/bin/activate` 
-- For Windows users follow this guide to activate the virtualenv https://linuxhint.com/activate-virtualenv-windows/
+- Activate virtual enviroment
+    - **(MacOS)** with `source venv/bin/activate` 
+    - **(Windows)** follow this guide https://linuxhint.com/activate-virtualenv-windows/
 - Clone gametrail-backend repository `git clone https://github.com/GameTrail/gametrail-backend.git`
 - Move to gametrail repo with `cd gametrail-backend`
 - Install project dependencies `pip install -r requirements.txt`

@@ -1,4 +1,4 @@
-## Getting started
+# Getting started
 
 Follow this guide to setup the project
 

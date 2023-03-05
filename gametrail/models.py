@@ -41,8 +41,8 @@ class User(models.Model):
     
     username = models.CharField(max_length=50, unique=True)
     email = models.EmailField(unique=True)
-    avatar = models.CharField()
-    password = models.CharField()
+    avatar = models.CharField(max_length=255)
+    password = models.CharField(max_length=50)
 
     plan = models.CharField(
         max_length=10,
@@ -56,9 +56,9 @@ class User(models.Model):
 class Rating(models.Model):
     
     rating = models.IntegerField()
-    type = models.CharField(choices=TYPE_CHOICES)
-    ratedUser = models.ForeignKey('User', on_delete=models.CASCADE)
-    userWhoRate = models.ForeignKey('User', on_delete=models.CASCADE)
+    type = models.CharField(max_length=255,choices=TYPE_CHOICES)
+    ratedUser = models.ForeignKey('User', on_delete=models.CASCADE, related_name='rate_recieved')
+    userWhoRate = models.ForeignKey('User', on_delete=models.CASCADE, related_name='rate_made')
 
     def __str__(self):
         return f'{self.userWhoRate.username} rated {self.ratedUser.username} with {self.rating} for {self.type}'
@@ -73,19 +73,19 @@ class GameList(models.Model):
 class Game(models.Model):
 
     name = models.CharField(max_length=100)
-    releaseDate = models.DateField()
-    image = models.CharField()
-    photos = models.CharField()
-    description = models.TextField()
+    releaseDate = models.DateField(null=True, blank=True)
+    image = models.CharField(max_length=255, null=True, blank=True)
+    photos = models.CharField(max_length=255, null=True, blank=True)
+    description = models.TextField(default='Lorem Ipsum')
 
     def __str__(self):
         return self.name
 
 class Comment(models.Model):
     commentText = models.TextField()
-    userWhoComments = models.ForeignKey(User, on_delete=models.CASCADE)
-    userCommented = models.ForeignKey(User, on_delete=models.CASCADE, blank=True)
-    game = models.ForeignKey(Game, on_delete=models.CASCADE, blank=True)
+    userWhoComments = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments_made')
+    userCommented = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='comments_received')
+    game = models.ForeignKey(Game, on_delete=models.CASCADE, blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
@@ -96,7 +96,7 @@ class GameInList(models.Model):
     lastModified = models.DateTimeField(default=timezone.now)
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     gameList = models.ForeignKey(GameList, on_delete=models.CASCADE, related_name='games_in_list')
-    status = models.CharField(choices=STATUS_CHOICES)
+    status = models.CharField(max_length=255, choices=STATUS_CHOICES)
 
     def __str__(self):
         return f"{self.game} in {self.gameList} ({self.status})"

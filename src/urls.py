@@ -2,9 +2,9 @@ from django.contrib import admin
 from django.urls import path, include
 
 # Importar rutas de la API de prueba 'demoapi'
-from demoapi.api.router import router_demoapi
+from gametrail.api.routers import router_api
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('demoapi/', include(router_demoapi.urls)),
+    path('api/', include(router_api.urls)),
 ]

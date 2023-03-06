@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.core.validators import MaxValueValidator, MinValueValidator 
 
 
 #Enum declarations
@@ -55,7 +56,7 @@ class User(models.Model):
 
 class Rating(models.Model):
     
-    rating = models.IntegerField()
+    rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     type = models.CharField(max_length=255,choices=TYPE_CHOICES)
     ratedUser = models.ForeignKey('User', on_delete=models.CASCADE, related_name='rate_recieved')
     userWhoRate = models.ForeignKey('User', on_delete=models.CASCADE, related_name='rate_made')
@@ -113,7 +114,7 @@ class Trail(models.Model):
     description = models.TextField()
     startDate = models.DateField()
     finishDate = models.DateField()
-    maxPlayers = models.IntegerField()
+    maxPlayers = models.IntegerField(validators=[MinValueValidator(1)])
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -125,6 +126,16 @@ class UserInTrail(models.Model):
 
     def __str__(self):
         return f"{self.user.username} in {self.trail.name}"
+    
+class GameInTrail(models.Model):
+    game = models.ForeignKey(Game, on_delete=models.CASCADE)
+    trail = models.ForeignKey(Trail, on_delete=models.CASCADE)
+    message = models.TextField()
+    priority = models.IntegerField(validators=[MinValueValidator(1)])
+    status = models.CharField(max_length=255, choices=STATUS_CHOICES)
+
+    def __str__(self):
+        return f"{self.game.name} in {self.trail.name}"
     
 class Platform(models.Model):
     platform = models.CharField(max_length=40)
@@ -151,7 +162,7 @@ class SabiasQue(models.Model):
     
 class MinRatingTrail(models.Model):
     
-    minRating = models.IntegerField()
+    minRating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     trail = models.ForeignKey(Trail, on_delete=models.SET_NULL, null=True, blank=True)
     ratingType = models.CharField(max_length=50, choices=TYPE_CHOICES)
 

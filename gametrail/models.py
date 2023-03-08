@@ -104,7 +104,7 @@ class GameInList(models.Model):
     
 class Genre(models.Model):
     genre = models.CharField(max_length=100)
-    game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name='genres')
+    game = models.ManyToManyField(Game)
 
     def __str__(self):
         return self.genre
@@ -139,8 +139,8 @@ class GameInTrail(models.Model):
     
 class Platform(models.Model):
     platform = models.CharField(max_length=40)
-    game = models.ForeignKey(Game, on_delete=models.CASCADE, blank=True, null=True)
-    trail = models.ForeignKey(Trail, on_delete=models.CASCADE, blank=True, null=True)
+    game = models.ManyToManyField(Game)
+    trail = models.ManyToManyField(Trail)
 
     def __str__(self):
         return self.platform

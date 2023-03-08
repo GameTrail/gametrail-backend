@@ -18,7 +18,7 @@ def populate_database(populate=True, base_json="./develop_database.json"):
             print("Invalid json, aborting action.")
             return None
 
-        parse_data(data)
+        return parse_data(data)
 
 
 def open_json_handler(base_json,encoding="utf-8"):

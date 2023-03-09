@@ -70,3 +70,39 @@ def parse_data(data):
 
     print("Database population finished!")
     return True
+
+def populate_genres(populate=True, base_json="./develop_database_genres.json"):
+    if(populate):
+        print("\nPopulating batabase...")
+        print("File ' "+ str(base_json) +"' will be used to populate.")
+
+        file = open_json_handler(base_json)
+        if (file == None):
+            return None
+        
+        try:
+            data = json.loads(file)
+            print("Number of genres that will be use to populate: " + str(len(data)))
+        except:
+            print("Invalid json, aborting action.")
+            return None
+
+        return parse_genres(data)
+    
+def parse_genres(data):
+    try:
+        for d in data:
+            if d.get("name") == None:
+                dname = ""
+            else:
+                dname = str(d.get("name"))
+
+            genre = models.Genre.objects.create(
+                genre = dname)
+            genre.save()
+    except:
+        print("Genres were not stored successfully")
+        return False
+
+    print("Genres population finished!")
+    return True

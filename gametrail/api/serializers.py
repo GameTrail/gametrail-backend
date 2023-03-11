@@ -1,5 +1,5 @@
 from rest_framework.serializers import ModelSerializer
-from gametrail.models import Game, Rating, MinRatingTrail
+from gametrail.models import *
 
 class GameSerializer(ModelSerializer):
     class Meta:
@@ -14,4 +14,9 @@ class RatingSerializer(ModelSerializer):
 class MinRatingTrailSerializer(ModelSerializer):
     class Meta:
         model = MinRatingTrail
+        fields = '__all__'
+
+class TrailSerializer(ModelSerializer):
+    class Meta:
+        model = Trail
         fields = '__all__'

@@ -1,11 +1,17 @@
 from rest_framework.viewsets import ModelViewSet
+
 from gametrail.models import *
 from gametrail.api.serializers import *
 from django_filters.rest_framework import DjangoFilterBackend
 
+
 class GameApiViewSet(ModelViewSet):
     serializer_class = GameSerializer
     queryset = Game.objects.all()
+
+class SabiasqueApiViewSet(ModelViewSet):
+    serializer_class = SabiasQueSerializer
+    queryset = SabiasQue.objects.all()
 
 class TrailApiViewSet(ModelViewSet):
     serializer_class = TrailSerializer
@@ -25,3 +31,4 @@ class MinRatingTrailApiViewSet(ModelViewSet):
     queryset = MinRatingTrail.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_fields  = ['trail']
+

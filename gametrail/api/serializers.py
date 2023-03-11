@@ -6,6 +6,13 @@ class GameSerializer(ModelSerializer):
         model = Game
         fields = '__all__'
 
+
+
+class SabiasQueSerializer(ModelSerializer):
+    class Meta:
+        model = SabiasQue
+        fields = '__all__'
+
 class RatingSerializer(ModelSerializer):
     class Meta:
         model = Rating

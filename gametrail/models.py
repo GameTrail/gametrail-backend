@@ -123,6 +123,9 @@ class Trail(models.Model):
 class UserInTrail(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     trail = models.ForeignKey(Trail, on_delete=models.CASCADE)
+    
+    class Meta:
+        unique_together = ('user', 'trail',)
 
     def __str__(self):
         return f"{self.user.username} in {self.trail.name}"

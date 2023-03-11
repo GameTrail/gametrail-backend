@@ -7,10 +7,6 @@ class GameApiViewSet(ModelViewSet):
     serializer_class = GameSerializer
     queryset = Game.objects.all()
 
-"""class UserApiViewSet(ModelViewSet):
-    serializer_class = UserSerializer
-    queryset = User.objects.all()"""
-
 class TrailApiViewSet(ModelViewSet):
     serializer_class = TrailSerializer
     queryset = Trail.objects.all()

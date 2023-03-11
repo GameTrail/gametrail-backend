@@ -3,7 +3,8 @@ from . import models
 from datetime import datetime
 
 def populate(populate=True, base_json="./src/population/develop_database.json"):
-    return(populate_genres() & populate_platforms() & populate_database(base_json="./src/population/develop_database_little.json"))
+    #Change develop_database.json to database.json to have all games 
+    return(populate_genres() & populate_platforms() & populate_database(base_json="./src/population/develop_database.json"))
 
 
 def populate_database(populate=True, base_json="./src/population/develop_database.json"):
@@ -45,7 +46,10 @@ def parse_data(data):
             else:
                 if d.get("release_dates")[0].get("date") != None:
                     releaseDate = d.get("release_dates")[0].get("date")
-                    dreleaseDate = datetime.fromtimestamp(float(str(releaseDate))).strftime('%Y-%m-%d')
+                    if float(str(releaseDate)) < 0:
+                        dreleaseDate = datetime.fromtimestamp(float(str(1))).strftime('%Y-%m-%d')
+                    else:
+                        dreleaseDate = datetime.fromtimestamp(float(str(releaseDate))).strftime('%Y-%m-%d')
             if d.get("cover") == None:
                 dimage = "https://images.igdb.com/igdb/image/upload/t_original/nocover.png"
             else:

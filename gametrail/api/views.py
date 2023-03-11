@@ -9,7 +9,7 @@ class GameApiViewSet(ModelViewSet):
     queryset = Game.objects.all()
 
 def populate_database_little(request):
-    result = functions.populate_database(True,base_json="./develop_database_little.json")
+    result = functions.populate_database(True,base_json="./src/population/develop_database_little.json")
     if result:
         html = '<html><body>Database populated successfully with low data</body></html>'
     else:
@@ -18,7 +18,7 @@ def populate_database_little(request):
     return HttpResponse(html)
 
 def populate_database_big(request):
-    result = functions.populate_database(True,base_json="./develop_database.json")
+    result = functions.populate_database(True,base_json="./src/population/develop_database.json")
     if result:
         html = '<html><body>Database populated successfully with a lot of data</body></html>'
     else:
@@ -27,7 +27,7 @@ def populate_database_big(request):
     return HttpResponse(html)
 
 def populate_genres(request):
-    result = functions.populate_genres(True,base_json="./develop_database_genres.json")
+    result = functions.populate_genres(True,base_json="./src/population/develop_database_genres.json")
     if result:
         html = '<html><body>Database populated successfully with a lot of genres</body></html>'
     else:

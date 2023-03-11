@@ -34,3 +34,12 @@ def populate_genres(request):
         html = '<html><body>Database not populated<br>Maybe population is disabled.</body></html>' 
 
     return HttpResponse(html)
+
+def populate(request):
+    result = functions.populate(True,base_json="./src/population/develop_database_little.json")
+    if result:
+        html = '<html><body>Database populated successfully with a lot of genres, games, and platforms</body></html>'
+    else:
+        html = '<html><body>Database not populated<br>Maybe population is disabled.</body></html>' 
+
+    return HttpResponse(html)

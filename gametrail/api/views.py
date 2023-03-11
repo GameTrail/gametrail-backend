@@ -1,8 +1,9 @@
 from rest_framework.viewsets import ModelViewSet
-from gametrail.models import Game
-from gametrail.api.serializers import GameSerializer
 from django.http import HttpResponse
 from gametrail import functions
+from gametrail.models import Game, Rating, MinRatingTrail
+from gametrail.api.serializers import GameSerializer, RatingSerializer, MinRatingTrailSerializer
+from django_filters.rest_framework import DjangoFilterBackend
 
 class GameApiViewSet(ModelViewSet):
     serializer_class = GameSerializer
@@ -43,3 +44,16 @@ def populate(request):
         html = '<html><body>Database not populated<br>Maybe population is disabled.</body></html>' 
 
     return HttpResponse(html)
+
+class RatingApiViewSet(ModelViewSet):
+    serializer_class = RatingSerializer
+    queryset = Rating.objects.all()
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields  = ['ratedUser', 'userWhoRate']
+
+
+class MinRatingTrailApiViewSet(ModelViewSet):
+    serializer_class = MinRatingTrailSerializer
+    queryset = MinRatingTrail.objects.all()
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields  = ['trail']

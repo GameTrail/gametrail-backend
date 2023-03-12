@@ -28,7 +28,7 @@ class GameInTrailSerializer(ModelSerializer):
         fields = '__all__'
 
 class GamesInTrailsSerializer(ModelSerializer):
-    id = serializers.IntegerField(source='trail.id')
+    id = serializers.IntegerField(source='game.id')
     TrailName=serializers.CharField(source='trail.name')
     GameName = serializers.CharField(source='game.name')
 

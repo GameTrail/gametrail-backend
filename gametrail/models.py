@@ -74,7 +74,7 @@ class GameList(models.Model):
 class Game(models.Model):
 
     name = models.CharField(max_length=100)
-    releasedate = models.DateField(null=True, blank=True)
+    releaseDate = models.DateField(null=True, blank=True)
     image = models.CharField(max_length=255, null=True, blank=True)
     photos = models.CharField(max_length=255, null=True, blank=True)
     description = models.TextField(default='Lorem Ipsum')

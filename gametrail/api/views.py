@@ -25,3 +25,17 @@ class MinRatingTrailApiViewSet(ModelViewSet):
     queryset = MinRatingTrail.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_fields  = ['trail']
+
+class GameInTrailViewSet(ModelViewSet):
+    serializer_class = GameInTrailSerializer
+    queryset = UserInTrail.objects.all()
+
+class GamesInTrailViewSet(ModelViewSet):
+
+    http_method_names = ['get']
+
+
+    serializer_class = GamesInTrailsSerializer
+    queryset = GameInTrail.objects.all()
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ['trail']

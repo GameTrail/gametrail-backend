@@ -137,6 +137,9 @@ class GameInTrail(models.Model):
     priority = models.IntegerField(validators=[MinValueValidator(1)])
     status = models.CharField(max_length=255, choices=STATUS_CHOICES)
 
+    class Meta:
+        unique_together = ('game', 'trail',)
+
     def __str__(self):
         return f"{self.game.name} in {self.trail.name}"
     

@@ -7,5 +7,8 @@ router_api.register(prefix='user', viewset=UserApiViewSet, basename='user')
 router_api.register(prefix='createUser', viewset=CreateUserApiViewSet, basename='createUser')
 router_api.register(prefix='createList', viewset=GameListApiViewSet, basename='createList')
 router_api.register(prefix='gameList', viewset=GameInListApiViewSet, basename='gameList')
-
-
+router_api.register(prefix='trail', viewset=TrailApiViewSet, basename='trail')
+router_api.register(prefix='rating', viewset=RatingApiViewSet, basename='rating')
+router_api.register(prefix='minRating', viewset=MinRatingTrailApiViewSet, basename='minRating')
+router_api.register(prefix='allGamesInTrail', viewset=GamesInTrailViewSet, basename='allGamesInTrail')
+router_api.register(prefix='gameInTrail', viewset=GameInTrailViewSet, basename='gameInTrail')

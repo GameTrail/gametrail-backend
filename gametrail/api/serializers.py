@@ -9,4 +9,19 @@ class GameSerializer(ModelSerializer):
 class UserSerializer(ModelSerializer):
     class Meta:
         model = User
+        fields = ['id', 'username', 'email', 'avatar', 'plan']
+
+class CreateUserSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = '__all__'
+    
+class GameListSerializer(ModelSerializer):
+    class Meta:
+        model = GameList
+        fields = '__all__'
+
+class GameInListSerializer(ModelSerializer):
+    class Meta:
+        model = GameInList
         fields = '__all__'

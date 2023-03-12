@@ -7,4 +7,6 @@ from gametrail.api.routers import router_api
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router_api.urls)),
+    path('auth/', include('gametrail.api.auth.urls')),
+    
 ]

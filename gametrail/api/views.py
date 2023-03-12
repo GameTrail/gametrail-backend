@@ -28,7 +28,7 @@ class MinRatingTrailApiViewSet(ModelViewSet):
 
 class GameInTrailViewSet(ModelViewSet):
     serializer_class = GameInTrailSerializer
-    queryset = UserInTrail.objects.all()
+    queryset = GameInTrail.objects.all()
 
 class GamesInTrailViewSet(ModelViewSet):
 

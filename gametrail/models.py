@@ -66,7 +66,7 @@ class Rating(models.Model):
     
 class GameList(models.Model):
 
-    user = models.OneToOneField('User',on_delete=models.CASCADE)
+    user = models.OneToOneField('User',on_delete=models.CASCADE, unique=True)
     
     def __str__(self):
         return f'{self.user.username}\'s game list'
@@ -98,6 +98,9 @@ class GameInList(models.Model):
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     gameList = models.ForeignKey(GameList, on_delete=models.CASCADE, related_name='games_in_list')
     status = models.CharField(max_length=255, choices=STATUS_CHOICES)
+
+    class Meta:
+        unique_together = ('game', 'gameList',)
 
     def __str__(self):
         return f"{self.game} in {self.gameList} ({self.status})"
@@ -133,6 +136,9 @@ class GameInTrail(models.Model):
     message = models.TextField()
     priority = models.IntegerField(validators=[MinValueValidator(1)])
     status = models.CharField(max_length=255, choices=STATUS_CHOICES)
+
+    class Meta:
+        unique_together = ('game', 'trail',)
 
     def __str__(self):
         return f"{self.game.name} in {self.trail.name}"

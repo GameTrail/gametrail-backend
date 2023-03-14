@@ -30,7 +30,6 @@ class GameInListApiViewSet(ModelViewSet):
     queryset = GameInList.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ['gameList__user']
-    queryset = Game.objects.all()
 
 def populate_database_little(request):
     result = functions.populate_database(True,base_json="./src/population/develop_database_little.json")

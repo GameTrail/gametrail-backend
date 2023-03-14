@@ -43,3 +43,10 @@ htmlcov/
 # Logs
 log/
 *.log
+
+#Deploy
+.env
+
+#Migrations
+migrations
+__init__.py

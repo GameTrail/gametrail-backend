@@ -73,10 +73,10 @@ class GameList(models.Model):
     
 class Game(models.Model):
 
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=1000)
     releaseDate = models.DateField(null=True, blank=True)
-    image = models.CharField(max_length=255, null=True, blank=True)
-    photos = models.CharField(max_length=255, null=True, blank=True)
+    image = models.CharField(max_length=1000, null=True, blank=True)
+    photos = models.CharField(max_length=2000, null=True, blank=True)
     description = models.TextField(default='Lorem Ipsum')
 
     def __str__(self):
@@ -106,7 +106,7 @@ class GameInList(models.Model):
         return f"{self.game} in {self.gameList} ({self.status})"
     
 class Genre(models.Model):
-    genre = models.CharField(max_length=100)
+    genre = models.CharField(max_length=500)
     game = models.ManyToManyField(Game)
 
     def __str__(self):
@@ -147,7 +147,7 @@ class GameInTrail(models.Model):
         return f"{self.game.name} in {self.trail.name}"
     
 class Platform(models.Model):
-    platform = models.CharField(max_length=40)
+    platform = models.CharField(max_length=500)
     game = models.ManyToManyField(Game)
     trail = models.ManyToManyField(Trail)
 

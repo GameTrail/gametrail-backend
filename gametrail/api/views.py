@@ -4,20 +4,39 @@ from gametrail import functions
 from gametrail.models import *
 from gametrail.api.serializers import *
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import status, viewsets
 
 class GameApiViewSet(ModelViewSet):
     queryset = Game.objects.all()
     serializer_class = GameSerializer
 
-class UserApiViewSet(ModelViewSet):
-    http_method_names = ['get', 'delete']
+class UserApiViewSet(viewsets.GenericViewSet):
+    queryset = User.objects.filter(is_active=True)
     serializer_class = UserSerializer
-    queryset = User.objects.all()
+    
+    @action(detail=False, methods=['post'])
+    def login(self, request):
+        """User sign in."""
+        serializer = UserLoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user, token = serializer.save()
+        data = {
+            'user': UserSerializer(user).data,
+            'access_token': token
+        }
+        return Response(data, status=status.HTTP_201_CREATED)
 
-class CreateUserApiViewSet(ModelViewSet):
-    http_method_names = ['post', 'put']
-    serializer_class = CreateUserSerializer
-    queryset = User.objects.all()
+class CreateUserApiViewSet(viewsets.GenericViewSet):
+    @action(detail=False, methods=['post'])
+    def signup(self, request):
+        """User sign up."""
+        serializer = CreateUserSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        data = UserSerializer(user).data
+        return Response(data, status=status.HTTP_201_CREATED)
 
 class GameListApiViewSet(ModelViewSet):
     http_method_names = ['post']

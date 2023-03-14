@@ -43,3 +43,7 @@ htmlcov/
 # Logs
 log/
 *.log
+
+#Migrate
+
+migrations

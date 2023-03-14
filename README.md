@@ -24,5 +24,6 @@ Follow this guide to setup the project
 - `./manage.py createsuperuser` or `manage.py makemigrations`
 
 ### Done! now run the app
+### Done! now run the app
 - Run the API `./manage.py runserver` or `manage.py runserver`
 - Access to the DEMO API on `http://127.0.0.1:8000/demoapi/`

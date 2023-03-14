@@ -8,5 +8,4 @@ from gametrail.api import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router_api.urls)),    
-    path('api/populate/', views.populate),
 ]

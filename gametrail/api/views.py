@@ -32,7 +32,6 @@ class GameInListApiViewSet(ModelViewSet):
     filterset_fields = ['gameList__user']
     queryset = Game.objects.all()
 
-
 def populate_database_little(request):
     result = functions.populate_database(True,base_json="./src/population/develop_database_little.json")
     if result:
@@ -97,5 +96,17 @@ class GamesInTrailViewSet(ModelViewSet):
     http_method_names = ['get']
     serializer_class = GamesInTrailsSerializer
     queryset = GameInTrail.objects.all()
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ['trail']
+   
+class UserInTrailViewSet(ModelViewSet):
+    serializer_class = UserInTrailSerializer
+    queryset = UserInTrail.objects.all()
+
+class AllUserInTrailViewSet(ModelViewSet):
+
+    http_method_names = ['get']
+    serializer_class = AllUsersInTrailsSerializer
+    queryset = UserInTrail.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ['trail']

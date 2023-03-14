@@ -7,26 +7,35 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status, viewsets
+from rest_framework.views import APIView
+from rest_framework.authentication import TokenAuthentication
 
 class GameApiViewSet(ModelViewSet):
     queryset = Game.objects.all()
     serializer_class = GameSerializer
+    authentication_classes = [TokenAuthentication]
+
 
 class UserApiViewSet(viewsets.GenericViewSet):
     queryset = User.objects.filter(is_active=True)
     serializer_class = UserSerializer
-    
-    @action(detail=False, methods=['post'])
-    def login(self, request):
-        """User sign in."""
-        serializer = UserLoginSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user, token = serializer.save()
-        data = {
-            'user': UserSerializer(user).data,
-            'access_token': token
-        }
-        return Response(data, status=status.HTTP_201_CREATED)
+
+    # @action(detail=False, methods=['post'])
+    # def login(self, request):
+    #     """User sign in."""
+    #     serializer = UserLoginSerializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     user, token = serializer.save()
+    #     data = {
+    #         'user': UserSerializer(user).data,
+    #         'access_token': token
+    #     }
+    #     return Response(data, status=status.HTTP_201_CREATED)
+
+class Logout(APIView):
+    def post(self,request, format = None):
+        request.user.auth_token.delete()
+        return Response(status = status.HTTP_200_OK)
 
 class CreateUserApiViewSet(viewsets.GenericViewSet):
     @action(detail=False, methods=['post'])

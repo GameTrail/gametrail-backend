@@ -61,7 +61,6 @@ class UserManager(BaseUserManager):
 
         if not username:
             raise ValueError('El usuario debe tener un nombre de usuario')
-        #VALIDAR CONTRASEÑA??
 
         userDjango = UserDjango()
         userDjango.username = username
@@ -74,7 +73,6 @@ class UserManager(BaseUserManager):
             email=self.normalize_email(email),
             username=username,
             avatar=avatar,
-            user = userDjango
         )
 
         user.set_password(password)
@@ -93,7 +91,6 @@ class User(AbstractBaseUser):
         choices=PLAN_CHOICES,
         default=STANDARD,
     )
-    user = models.OneToOneField(UserDjango, on_delete=models.CASCADE)
     is_active               = models.BooleanField(default=False)
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email']

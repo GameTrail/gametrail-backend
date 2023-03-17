@@ -4,6 +4,11 @@ from gametrail import functions
 from gametrail.models import *
 from gametrail.api.serializers import *
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import status, viewsets
+from rest_framework.views import APIView
+from rest_framework.authentication import TokenAuthentication
 
 class GameApiViewSet(ModelViewSet):
     queryset = Game.objects.all()
@@ -11,13 +16,23 @@ class GameApiViewSet(ModelViewSet):
 
 class UserApiViewSet(ModelViewSet):
     http_method_names = ['get', 'delete']
-    serializer_class = UserSerializer
+    serializer_class = GetUserSerializer
     queryset = User.objects.all()
 
-class CreateUserApiViewSet(ModelViewSet):
-    http_method_names = ['post', 'put']
-    serializer_class = CreateUserSerializer
-    queryset = User.objects.all()
+class Logout(APIView):
+    def post(self,request, format = None):
+        request.user.auth_token.delete()
+        return Response(status = status.HTTP_200_OK)
+
+class CreateUserApiViewSet(viewsets.GenericViewSet):
+    @action(detail=False, methods=['post'])
+    def register(self, request):
+        """User sign up."""
+        serializer = CreateUserSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        data = UserSerializer(user).data
+        return Response(data, status=status.HTTP_201_CREATED)
 
 class GameListApiViewSet(ModelViewSet):
     http_method_names = ['post']

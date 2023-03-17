@@ -1,7 +1,8 @@
 from django.db import models
 from django.utils import timezone
 from django.core.validators import MaxValueValidator, MinValueValidator 
-
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import User as UserDjango
 
 #Enum declarations
 
@@ -38,21 +39,68 @@ TYPE_CHOICES = [
 ]
 
 # Create your models here.
-class User(models.Model):
+# Create your models here.
+class UserManager(BaseUserManager):
+    def create_superuser(self, email, username, avatar, password):
+        user = self.create_user(
+            email = self.normalize_email(email),
+            username = username,
+            password = password,
+            avatar = avatar
+        )
+        user.is_admin = True
+        user.is_active = True
+        user.is_staff = True
+        user.is_superadmin = True
+        user.save(using=self._db)
+        return user
     
+    def create_user(self, username, email, avatar,password=None):
+        if not email:
+            raise ValueError('El usuario debe tener un email')
+
+        if not username:
+            raise ValueError('El usuario debe tener un nombre de usuario')
+        #VALIDAR CONTRASEÑA??
+
+        userDjango = UserDjango()
+        userDjango.username = username
+        userDjango.set_password(password)
+        userDjango.is_active = True
+        userDjango.save()
+
+
+        user = self.model(
+            email=self.normalize_email(email),
+            username=username,
+            avatar=avatar,
+            user = userDjango
+        )
+
+        user.set_password(password)
+        user.save(using=self._db)
+        user.is_active = True
+        return user
+
+class User(AbstractBaseUser):
+
     username = models.CharField(max_length=50, unique=True)
     email = models.EmailField(unique=True)
     avatar = models.CharField(max_length=255)
     password = models.CharField(max_length=50)
-
     plan = models.CharField(
         max_length=10,
         choices=PLAN_CHOICES,
         default=STANDARD,
     )
+    user = models.OneToOneField(UserDjango, on_delete=models.CASCADE)
+    is_active               = models.BooleanField(default=False)
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['email']
+    objects = UserManager()
 
     def __str__(self):
-        return self.username
+        return f'{self.username}'
 
 class Rating(models.Model):
     

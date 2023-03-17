@@ -2,12 +2,12 @@ import json
 from . import models
 from datetime import datetime
 
-def populate(populate=True, base_json="./src/population/develop_database.json"):
-    #Change develop_database.json to database.json to have all games 
-    return(populate_genres() & populate_platforms() & populate_database(base_json="./src/population/develop_database.json"))
+def populate(populate=True, base_json="./src/population/database.json"):
+    #Change database.json to database.json to have all games 
+    return(populate_genres() & populate_platforms() & populate_database(base_json="./src/population/database.json"))
 
 
-def populate_database(populate=True, base_json="./src/population/develop_database.json"):
+def populate_database(populate=True, base_json="./src/population/database.json"):
     if(populate):
         print("\nPopulating batabase...")
         print("File ' "+ str(base_json) +"' will be used to populate.")

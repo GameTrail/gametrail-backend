@@ -9,7 +9,6 @@ from rest_framework.authtoken import views as token_views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router_api.urls)),    
-    path('api/populate/', views.populate),
     path('api/auth/logout', Logout.as_view()),
     path('api/auth/login', token_views.obtain_auth_token, name='token_obtain_pair'),
 ]

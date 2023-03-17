@@ -69,12 +69,12 @@ class UserManager(BaseUserManager):
         userDjango.is_active = True
         userDjango.save()
 
+        username_gameTrail = username + " "
 
         user = self.model(
             email=self.normalize_email(email),
-            username=username,
-            avatar=avatar,
-            user = userDjango
+            username=username_gameTrail,
+            avatar=avatar
         )
 
         user.set_password(password)
@@ -93,7 +93,6 @@ class User(AbstractBaseUser):
         choices=PLAN_CHOICES,
         default=STANDARD,
     )
-    user = models.OneToOneField(UserDjango, on_delete=models.CASCADE)
     is_active               = models.BooleanField(default=False)
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email']

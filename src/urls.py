@@ -10,7 +10,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router_api.urls)),    
     path('api/populate/', views.populate),
-    path('logout/', Logout.as_view()),
-    path('login/', token_views.obtain_auth_token, name='token_obtain_pair'),
-
+    path('api/auth/logout', Logout.as_view()),
+    path('api/auth/login', token_views.obtain_auth_token, name='token_obtain_pair'),
 ]

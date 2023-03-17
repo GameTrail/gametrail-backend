@@ -15,6 +15,11 @@ class GameSerializer(ModelSerializer):
         model = Game
         fields = '__all__'
 
+class GetUserSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'avatar', 'plan']
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -68,7 +73,7 @@ class CreateUserSerializer(serializers.Serializer):
         return user
     
 class GameListSerializer(ModelSerializer):
-    authToken = serializers.CharField()
+    
 
     class Meta:
         model = GameList
@@ -76,35 +81,35 @@ class GameListSerializer(ModelSerializer):
 
 class GameInListSerializer(ModelSerializer):
 
-    authToken = serializers.CharField()
+    
 
     class Meta:
         model = GameInList
         fields = '__all__'
         
 class RatingSerializer(ModelSerializer):
-    authToken = serializers.CharField()
+    
 
     class Meta:
         model = Rating
         fields = '__all__'
 
 class MinRatingTrailSerializer(ModelSerializer):
-    authToken = serializers.CharField()
+    
 
     class Meta:
         model = MinRatingTrail
         fields = '__all__'
 
 class TrailSerializer(ModelSerializer):
-    authToken = serializers.CharField()
+    
 
     class Meta:
         model = Trail
         fields = '__all__'
 
 class GameInTrailSerializer(ModelSerializer):
-    authToken = serializers.CharField()
+    
 
     class Meta:
         model = GameInTrail
@@ -120,7 +125,7 @@ class GamesInTrailsSerializer(ModelSerializer):
         fields = ('id','TrailName','GameName')
 
 class UserInTrailSerializer(ModelSerializer):
-    authToken = serializers.CharField()
+    
 
     class Meta:
         model = UserInTrail

@@ -13,24 +13,11 @@ from rest_framework.authentication import TokenAuthentication
 class GameApiViewSet(ModelViewSet):
     queryset = Game.objects.all()
     serializer_class = GameSerializer
-    authentication_classes = [TokenAuthentication]
 
-
-class UserApiViewSet(viewsets.GenericViewSet):
-    queryset = User.objects.filter(is_active=True)
-    serializer_class = UserSerializer
-
-    # @action(detail=False, methods=['post'])
-    # def login(self, request):
-    #     """User sign in."""
-    #     serializer = UserLoginSerializer(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
-    #     user, token = serializer.save()
-    #     data = {
-    #         'user': UserSerializer(user).data,
-    #         'access_token': token
-    #     }
-    #     return Response(data, status=status.HTTP_201_CREATED)
+class UserApiViewSet(ModelViewSet):
+    http_method_names = ['get', 'delete']
+    serializer_class = GetUserSerializer
+    queryset = User.objects.all()
 
 class Logout(APIView):
     def post(self,request, format = None):
@@ -39,7 +26,7 @@ class Logout(APIView):
 
 class CreateUserApiViewSet(viewsets.GenericViewSet):
     @action(detail=False, methods=['post'])
-    def signup(self, request):
+    def register(self, request):
         """User sign up."""
         serializer = CreateUserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)

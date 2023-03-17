@@ -68,11 +68,12 @@ class UserManager(BaseUserManager):
         userDjango.is_active = True
         userDjango.save()
 
+        username_gameTrail = username + " "
 
         user = self.model(
             email=self.normalize_email(email),
-            username=username,
-            avatar=avatar,
+            username=username_gameTrail,
+            avatar=avatar
         )
 
         user.set_password(password)

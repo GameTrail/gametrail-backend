@@ -61,7 +61,6 @@ class UserManager(BaseUserManager):
 
         if not username:
             raise ValueError('El usuario debe tener un nombre de usuario')
-        #VALIDAR CONTRASEÑA??
 
         userDjango = UserDjango()
         userDjango.username = username

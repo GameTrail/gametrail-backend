@@ -76,6 +76,7 @@ class UserManager(BaseUserManager):
         )
 
         user.set_password(password)
+        user.last_login = None
         user.save(using=self._db)
         user.is_active = True
         return user

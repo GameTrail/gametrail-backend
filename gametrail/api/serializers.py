@@ -15,6 +15,11 @@ class GameSerializer(ModelSerializer):
         model = Game
         fields = '__all__'
 
+class SabiasQueSerializer(ModelSerializer):
+    class Meta:
+        model = SabiasQue
+        fields = '__all__'
+
 class GetUserSerializer(ModelSerializer):
     class Meta:
         model = User
@@ -87,6 +92,7 @@ class GameInListSerializer(ModelSerializer):
         model = GameInList
         fields = '__all__'
         
+
 class RatingSerializer(ModelSerializer):
     
 
@@ -164,4 +170,17 @@ class CommentsByUserIdSerializer(ModelSerializer):
         model = Comment
         fields = ['id','text','commentedUser','userWhoComments']
 
+class CommentsOfAGameSerializer(ModelSerializer):
     
+    userWhoComments = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Comment
+        fields = ('id','commentText','game','userWhoComments')
+
+    def get_userWhoComments(self, obj):
+        return {
+            'user_id': obj.userWhoComments.id,
+            'username': obj.userWhoComments.username,
+            'avatar': obj.userWhoComments.avatar,
+        }

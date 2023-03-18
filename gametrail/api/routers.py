@@ -14,3 +14,4 @@ router_api.register(prefix='allGamesInTrail', viewset=GamesInTrailViewSet, basen
 router_api.register(prefix='gameInTrail', viewset=GameInTrailViewSet, basename='gameInTrail')
 router_api.register(prefix='allUsersInTrail', viewset=AllUserInTrailViewSet, basename='allUsersInTrail')
 router_api.register(prefix='userInTrail', viewset=UserInTrailViewSet, basename='userInTrail')
+router_api.register(prefix='comment/user', viewset=CommentsByUserId, basename='commentsByUserId')

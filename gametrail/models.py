@@ -1,7 +1,8 @@
 from django.db import models
 from django.utils import timezone
 from django.core.validators import MaxValueValidator, MinValueValidator 
-
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import User as UserDjango
 
 #Enum declarations
 
@@ -38,21 +39,66 @@ TYPE_CHOICES = [
 ]
 
 # Create your models here.
-class User(models.Model):
+# Create your models here.
+class UserManager(BaseUserManager):
+    def create_superuser(self, email, username, avatar, password):
+        user = self.create_user(
+            email = self.normalize_email(email),
+            username = username,
+            password = password,
+            avatar = avatar
+        )
+        user.is_admin = True
+        user.is_active = True
+        user.is_staff = True
+        user.is_superadmin = True
+        user.save(using=self._db)
+        return user
     
+    def create_user(self, username, email, avatar,password=None):
+        if not email:
+            raise ValueError('El usuario debe tener un email')
+
+        if not username:
+            raise ValueError('El usuario debe tener un nombre de usuario')
+
+        userDjango = UserDjango()
+        userDjango.username = username
+        userDjango.set_password(password)
+        userDjango.is_active = True
+        userDjango.save()
+
+        username_gameTrail = username + " "
+
+        user = self.model(
+            email=self.normalize_email(email),
+            username=username_gameTrail,
+            avatar=avatar
+        )
+
+        user.set_password(password)
+        user.save(using=self._db)
+        user.is_active = True
+        return user
+
+class User(AbstractBaseUser):
+
     username = models.CharField(max_length=50, unique=True)
     email = models.EmailField(unique=True)
     avatar = models.CharField(max_length=255)
     password = models.CharField(max_length=50)
-
     plan = models.CharField(
         max_length=10,
         choices=PLAN_CHOICES,
         default=STANDARD,
     )
+    is_active               = models.BooleanField(default=False)
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['email']
+    objects = UserManager()
 
     def __str__(self):
-        return self.username
+        return f'{self.username}'
 
 class Rating(models.Model):
     
@@ -73,10 +119,10 @@ class GameList(models.Model):
     
 class Game(models.Model):
 
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=1000)
     releaseDate = models.DateField(null=True, blank=True)
-    image = models.CharField(max_length=255, null=True, blank=True)
-    photos = models.CharField(max_length=255, null=True, blank=True)
+    image = models.CharField(max_length=1000, null=True, blank=True)
+    photos = models.CharField(max_length=2000, null=True, blank=True)
     description = models.TextField(default='Lorem Ipsum')
 
     def __str__(self):
@@ -106,7 +152,7 @@ class GameInList(models.Model):
         return f"{self.game} in {self.gameList} ({self.status})"
     
 class Genre(models.Model):
-    genre = models.CharField(max_length=100)
+    genre = models.CharField(max_length=500)
     game = models.ManyToManyField(Game)
 
     def __str__(self):
@@ -126,6 +172,9 @@ class Trail(models.Model):
 class UserInTrail(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     trail = models.ForeignKey(Trail, on_delete=models.CASCADE)
+    
+    class Meta:
+        unique_together = ('user', 'trail',)
 
     def __str__(self):
         return f"{self.user.username} in {self.trail.name}"
@@ -144,7 +193,7 @@ class GameInTrail(models.Model):
         return f"{self.game.name} in {self.trail.name}"
     
 class Platform(models.Model):
-    platform = models.CharField(max_length=40)
+    platform = models.CharField(max_length=500)
     game = models.ManyToManyField(Game)
     trail = models.ManyToManyField(Trail)
 

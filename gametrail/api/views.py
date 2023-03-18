@@ -5,6 +5,11 @@ from gametrail import functions
 from gametrail.models import *
 from gametrail.api.serializers import *
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import status, viewsets
+from rest_framework.views import APIView
+from rest_framework.authentication import TokenAuthentication
 
 
 class GameApiViewSet(ModelViewSet):
@@ -13,13 +18,23 @@ class GameApiViewSet(ModelViewSet):
 
 class UserApiViewSet(ModelViewSet):
     http_method_names = ['get', 'delete']
-    serializer_class = UserSerializer
+    serializer_class = GetUserSerializer
     queryset = User.objects.all()
 
-class CreateUserApiViewSet(ModelViewSet):
-    http_method_names = ['post', 'put']
-    serializer_class = CreateUserSerializer
-    queryset = User.objects.all()
+class Logout(APIView):
+    def post(self,request, format = None):
+        request.user.auth_token.delete()
+        return Response(status = status.HTTP_200_OK)
+
+class CreateUserApiViewSet(viewsets.GenericViewSet):
+    @action(detail=False, methods=['post'])
+    def register(self, request):
+        """User sign up."""
+        serializer = CreateUserSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        data = UserSerializer(user).data
+        return Response(data, status=status.HTTP_201_CREATED)
 
 class GameListApiViewSet(ModelViewSet):
     http_method_names = ['post']
@@ -32,8 +47,6 @@ class GameInListApiViewSet(ModelViewSet):
     queryset = GameInList.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ['gameList__user']
-    queryset = Game.objects.all()
-
 
 def populate_database_little(request):
     result = functions.populate_database(True,base_json="./src/population/develop_database_little.json")
@@ -45,7 +58,7 @@ def populate_database_little(request):
     return HttpResponse(html)
 
 def populate_database_big(request):
-    result = functions.populate_database(True,base_json="./src/population/develop_database.json")
+    result = functions.populate_database(True,base_json="./src/population/database.json")
     if result:
         html = '<html><body>Database populated successfully with a lot of data</body></html>'
     else:
@@ -63,7 +76,7 @@ def populate_genres(request):
     return HttpResponse(html)
 
 def populate(request):
-    result = functions.populate(True,base_json="./src/population/develop_database_little.json")
+    result = functions.populate(True,base_json="./src/population/database.json")
     if result:
         html = '<html><body>Database populated successfully with a lot of genres, games, and platforms</body></html>'
     else:
@@ -108,3 +121,15 @@ class GamesInTrailViewSet(ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ['trail']
 
+   
+class UserInTrailViewSet(ModelViewSet):
+    serializer_class = UserInTrailSerializer
+    queryset = UserInTrail.objects.all()
+
+class AllUserInTrailViewSet(ModelViewSet):
+
+    http_method_names = ['get']
+    serializer_class = AllUsersInTrailsSerializer
+    queryset = UserInTrail.objects.all()
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ['trail']

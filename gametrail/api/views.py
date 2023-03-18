@@ -133,3 +133,12 @@ class AllUserInTrailViewSet(ModelViewSet):
     queryset = UserInTrail.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ['trail']
+
+class GameCommentAPIView(ModelViewSet):
+    http_method_names = ['get']
+    serializer_class = CommentsOfAGameSerializer
+
+    def get_queryset(self):
+        game_id = self.request.query_params.get('game_id', None)
+        queryset = Comment.objects.filter(game_id=game_id)
+        return queryset

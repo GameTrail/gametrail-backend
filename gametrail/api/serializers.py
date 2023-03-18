@@ -148,6 +148,28 @@ class AllUsersInTrailsSerializer(ModelSerializer):
         model = UserInTrail
         fields = ('id','username','email','avatar','plan')
 
+class CommentsByUserIdSerializer(ModelSerializer):
+    userWhoComments = serializers.SerializerMethodField()
+    commentedUser = serializers.SerializerMethodField()
+    text = serializers.CharField(source='commentText')
+
+    def get_userWhoComments(self,obj):
+        return {
+            'id': obj.userWhoComments.id,
+            'username' : obj.userWhoComments.username,
+            'avatar': obj.userWhoComments.avatar,
+        }
+    
+    def get_commentedUser(self,obj):
+        return {
+            'id': obj.userCommented.id,
+            'username': obj.userCommented.username,
+            'avatar': obj.userCommented.avatar,
+        }
+    class Meta:
+        model = Comment
+        fields = ['id','text','commentedUser','userWhoComments']
+
 class CommentsOfAGameSerializer(ModelSerializer):
     
     userWhoComments = serializers.SerializerMethodField()

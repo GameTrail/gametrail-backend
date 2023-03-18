@@ -134,6 +134,14 @@ class AllUserInTrailViewSet(ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ['trail']
 
+class CommentsByUserId(ModelViewSet):    
+    http_method_names = ['get']
+    def get_queryset(self):
+        commentQueryset = Comment.objects.filter(userCommented_id=self.request.headers.get("userId"))
+        return commentQueryset 
+
+    serializer_class = CommentsByUserIdSerializer
+
 class GameCommentAPIView(ModelViewSet):
     http_method_names = ['get']
     serializer_class = CommentsOfAGameSerializer

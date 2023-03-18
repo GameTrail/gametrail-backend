@@ -84,6 +84,15 @@ def populate(request):
 
     return HttpResponse(html)
 
+def populate_sabias_que(request):
+    result = functions.populate_sabias_que()
+    if result:
+        html = '<html><body>Database populated successfully with "Sabias que"</body></html>'
+    else:
+        html = '<html><body>Database not populated<br>Maybe population is disabled.</body></html>'
+
+    return HttpResponse(html)
+
 
 class TrailApiViewSet(ModelViewSet):
     serializer_class = TrailSerializer

@@ -15,6 +15,11 @@ class GameSerializer(ModelSerializer):
         model = Game
         fields = '__all__'
 
+class SabiasQueSerializer(ModelSerializer):
+    class Meta:
+        model = SabiasQue
+        fields = '__all__'
+
 class GetUserSerializer(ModelSerializer):
     class Meta:
         model = User
@@ -87,6 +92,7 @@ class GameInListSerializer(ModelSerializer):
         model = GameInList
         fields = '__all__'
         
+
 class RatingSerializer(ModelSerializer):
     
 

@@ -10,6 +10,7 @@ router_api.register(prefix='gameList', viewset=GameInListApiViewSet, basename='g
 router_api.register(prefix='trail', viewset=TrailApiViewSet, basename='trail')
 router_api.register(prefix='rating', viewset=RatingApiViewSet, basename='rating')
 router_api.register(prefix='minRating', viewset=MinRatingTrailApiViewSet, basename='minRating')
+router_api.register(prefix='sabiasque', viewset=SabiasqueApiViewSet, basename='sabiasque')
 router_api.register(prefix='allGamesInTrail', viewset=GamesInTrailViewSet, basename='allGamesInTrail')
 router_api.register(prefix='gameInTrail', viewset=GameInTrailViewSet, basename='gameInTrail')
 router_api.register(prefix='allUsersInTrail', viewset=AllUserInTrailViewSet, basename='allUsersInTrail')

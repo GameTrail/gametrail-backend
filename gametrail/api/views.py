@@ -1,6 +1,7 @@
 from rest_framework.viewsets import ModelViewSet
 from django.http import HttpResponse
 from gametrail import functions
+
 from gametrail.models import *
 from gametrail.api.serializers import *
 from django_filters.rest_framework import DjangoFilterBackend
@@ -9,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework import status, viewsets
 from rest_framework.views import APIView
 from rest_framework.authentication import TokenAuthentication
+
 
 class GameApiViewSet(ModelViewSet):
     queryset = Game.objects.all()
@@ -82,6 +84,7 @@ def populate(request):
 
     return HttpResponse(html)
 
+
 class TrailApiViewSet(ModelViewSet):
     serializer_class = TrailSerializer
     queryset = Trail.objects.all()
@@ -100,6 +103,11 @@ class MinRatingTrailApiViewSet(ModelViewSet):
     queryset = MinRatingTrail.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_fields  = ['trail']
+    
+class SabiasqueApiViewSet(ModelViewSet):
+    serializer_class = SabiasQueSerializer
+    queryset = SabiasQue.objects.all()
+
 
 class GameInTrailViewSet(ModelViewSet):
     serializer_class = GameInTrailSerializer
@@ -112,6 +120,7 @@ class GamesInTrailViewSet(ModelViewSet):
     queryset = GameInTrail.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ['trail']
+
    
 class UserInTrailViewSet(ModelViewSet):
     serializer_class = UserInTrailSerializer

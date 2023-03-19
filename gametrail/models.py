@@ -73,28 +73,26 @@ class UserManager(BaseUserManager):
         user = self.model(
             email=self.normalize_email(email),
             username=username_gameTrail,
-            avatar=avatar
+            avatar=avatar,
         )
 
         user.set_password(password)
-        user.last_login = None
-        user.save(using=self._db)
-        user.is_active = True
+        print(user.password)
+        user.save()
         return user
 
 class User(AbstractBaseUser):
 
-    username = models.CharField(max_length=50, unique=True)
+    username = models.CharField(max_length=400, unique=True)
     email = models.EmailField(unique=True)
     avatar = models.CharField(max_length=255)
-    password = models.CharField(max_length=50)
+    password = models.CharField(max_length=500)
     plan = models.CharField(
         max_length=10,
         choices=PLAN_CHOICES,
         default=STANDARD,
     )
 
-    is_active = models.BooleanField(default=False)
     last_login = None
 
     USERNAME_FIELD = 'username'

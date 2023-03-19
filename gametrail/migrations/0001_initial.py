@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=100)),
-                ('releasedate', models.DateField(blank=True, null=True)),
+                ('releaseDate', models.DateField(blank=True, null=True)),
                 ('image', models.CharField(blank=True, max_length=255, null=True)),
                 ('photos', models.CharField(blank=True, max_length=255, null=True)),
                 ('description', models.TextField(default='Lorem Ipsum')),
@@ -47,10 +47,10 @@ class Migration(migrations.Migration):
             name='User',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('username', models.CharField(max_length=50, unique=True)),
+                ('username', models.CharField(max_length=400, unique=True)),
                 ('email', models.EmailField(max_length=254, unique=True)),
                 ('avatar', models.CharField(max_length=255)),
-                ('password', models.CharField(max_length=50)),
+                ('password', models.CharField(max_length=500)),
                 ('plan', models.CharField(choices=[('PREMIUM', 'Premium'), ('STANDARD', 'Standard')], default='STANDARD', max_length=10)),
             ],
         ),

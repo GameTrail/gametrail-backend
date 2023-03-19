@@ -11,4 +11,5 @@ urlpatterns = [
     path('api/', include(router_api.urls)),    
     path('api/auth/logout', Logout.as_view()),
     path('api/auth/login', token_views.obtain_auth_token, name='token_obtain_pair'),
+    path('api/comment', views.CUDCommentsAPIViewSet.as_view()),
 ]

@@ -184,3 +184,8 @@ class CommentsOfAGameSerializer(ModelSerializer):
             'username': obj.userWhoComments.username,
             'avatar': obj.userWhoComments.avatar,
         }
+    
+class CUDCommentsSerializer(ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = '__all__'

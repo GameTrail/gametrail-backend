@@ -65,7 +65,6 @@ class UserManager(BaseUserManager):
         userDjango = UserDjango()
         userDjango.username = username
         userDjango.set_password(password)
-        userDjango.save()
         userDjango.is_active = True
 
         username_gameTrail = username + " "

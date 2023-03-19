@@ -12,9 +12,59 @@ from rest_framework.views import APIView
 from rest_framework.authentication import TokenAuthentication
 
 
-class GameApiViewSet(ModelViewSet):
-    queryset = Game.objects.all()
-    serializer_class = GameSerializer
+def check_user_is_admin(request):
+    user = request.user
+    if user.is_staff:
+        return True
+    else:
+        return False
+
+class CUDGameApiViewSet(APIView):
+    http_method_names = ['post', 'put', 'delete']
+    serializer_class = CUDGameSerializer
+
+    def post(self, request, format = None):
+        is_user_admin = check_user_is_admin(request)
+
+        if is_user_admin == False:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            serializer = CUDGameSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, format = None):
+        is_user_admin = check_user_is_admin(request)
+
+        if is_user_admin == False:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            try:
+                game = Game.objects.get(pk=request.data['id'])
+            except Game.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            
+            serializer = CUDGameSerializer(game, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, format = None):
+        is_user_admin = check_user_is_admin(request)
+        if is_user_admin == False:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            try:
+                game = Game.objects.get(pk=request.data['id'])
+            except Game.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            
+            game.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class UserApiViewSet(ModelViewSet):
     http_method_names = ['get', 'delete']

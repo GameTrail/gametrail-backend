@@ -121,7 +121,7 @@ class Game(models.Model):
 
     name = models.CharField(max_length=1000)
     releaseDate = models.DateField(null=True, blank=True)
-    image = models.CharField(max_length=1000, null=True, blank=True)
+    image = models.URLField(max_length=1000, null=True, blank=True)
     photos = models.CharField(max_length=2000, null=True, blank=True)
     description = models.TextField(default='Lorem Ipsum')
 

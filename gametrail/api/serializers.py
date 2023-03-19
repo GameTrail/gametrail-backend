@@ -10,7 +10,7 @@ from django.conf import settings
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
-class GameSerializer(ModelSerializer):
+class CUDGameSerializer(ModelSerializer):
     class Meta:
         model = Game
         fields = '__all__'

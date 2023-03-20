@@ -12,10 +12,12 @@ from rest_framework.views import APIView
 from rest_framework.authentication import TokenAuthentication
 
 
-
 class GameApiViewSet(ModelViewSet):
+    http_method_names = ['get','post', 'delete']
     queryset = Game.objects.all()
     serializer_class = GameSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ['platforms__platform','genres__genre']
 
 class UserApiViewSet(ModelViewSet):
     http_method_names = ['get', 'delete']
@@ -87,6 +89,7 @@ def populate(request):
 
 
 class TrailApiViewSet(ModelViewSet):
+    http_method_names = ['get','post', 'delete']
     serializer_class = TrailSerializer
     queryset = Trail.objects.all()
     filter_backends = (DjangoFilterBackend,)

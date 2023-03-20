@@ -153,7 +153,7 @@ class GameInList(models.Model):
     
 class Genre(models.Model):
     genre = models.CharField(max_length=500)
-    game = models.ManyToManyField(Game)
+    game = models.ManyToManyField(Game,related_name='genres')
 
     def __str__(self):
         return self.genre
@@ -194,7 +194,7 @@ class GameInTrail(models.Model):
     
 class Platform(models.Model):
     platform = models.CharField(max_length=500)
-    game = models.ManyToManyField(Game)
+    game = models.ManyToManyField(Game,related_name='platforms')
     trail = models.ManyToManyField(Trail,related_name='platforms')
 
     def __str__(self):

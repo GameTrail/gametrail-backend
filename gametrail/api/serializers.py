@@ -10,10 +10,6 @@ from django.conf import settings
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
-class GameSerializer(ModelSerializer):
-    class Meta:
-        model = Game
-        fields = '__all__'
 
 class SabiasQueSerializer(ModelSerializer):
     class Meta:
@@ -86,7 +82,6 @@ class GameListSerializer(ModelSerializer):
 
 class GameInListSerializer(ModelSerializer):
 
-    
 
     class Meta:
         model = GameInList
@@ -145,17 +140,18 @@ class GameInTrailSerializer(ModelSerializer):
         model = GameInTrail
         fields = '__all__'
 
-class GameInTrailSerializer(ModelSerializer):
-    
-    class Meta:
-        model = GameInTrail
-        fields = '__all__'
 
 class PlatformSerializer(ModelSerializer):
     
     class Meta:
         model = Platform
         fields = ['platform']
+
+class GenreSerializer(ModelSerializer):
+    
+    class Meta:
+        model = Genre
+        fields = ['genre']
 
 
 class TrailSerializer(ModelSerializer):
@@ -166,3 +162,12 @@ class TrailSerializer(ModelSerializer):
     class Meta:
         model = Trail
         fields = ['id', 'name', 'description', 'startDate','finishDate','maxPlayers','owner','platforms','games','users']
+
+
+
+class GameSerializer(ModelSerializer):
+    platforms=PlatformSerializer(many=True,read_only=True)
+    genres=GenreSerializer(many=True,read_only=True)
+    class Meta:
+        model = Game
+        fields = ['id','name','releaseDate','image','photos','description','platforms','genres']

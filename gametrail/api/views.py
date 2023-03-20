@@ -5,20 +5,26 @@ from gametrail import functions
 from gametrail.models import *
 from gametrail.api.serializers import *
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status, viewsets
 from rest_framework.views import APIView
 from rest_framework.authentication import TokenAuthentication
-
+from itertools import chain
+from django.db.models.query import QuerySet
 
 def check_user_is_admin(request):
     user = request.user
-    if user.is_staff:
-        return True
-    else:
-        return False
+    return user.is_staff
 
+class GetGameApiViewSet(ModelViewSet):
+    http_method_names = ['get']
+    serializer_class = GetGameSerializer
+    queryset = Game.objects.all()
+    filter_backends = [SearchFilter]
+    search_fields = ['name']
+    
 class CUDGameApiViewSet(APIView):
     http_method_names = ['post', 'put', 'delete']
     serializer_class = CUDGameSerializer
@@ -164,13 +170,11 @@ class GameInTrailViewSet(ModelViewSet):
     queryset = GameInTrail.objects.all()
 
 class GamesInTrailViewSet(ModelViewSet):
-
     http_method_names = ['get']
     serializer_class = GamesInTrailsSerializer
     queryset = GameInTrail.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ['trail']
-
    
 class UserInTrailViewSet(ModelViewSet):
     serializer_class = UserInTrailSerializer

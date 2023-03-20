@@ -10,6 +10,24 @@ from django.conf import settings
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
+class GenreSerializer(ModelSerializer):
+    class Meta:
+        model = Genre
+        fields = ['genre']
+
+class PlatformSerializer(ModelSerializer):
+    class Meta:
+        model = Platform
+        fields = ['platform']
+
+class GetGameSerializer(ModelSerializer):
+    genres = GenreSerializer(many=True, read_only=True)
+    platforms = PlatformSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = Game
+        fields = ['id', 'name', 'releaseDate', 'image', 'photos', 'description', 'genres', 'platforms']
+
 class CUDGameSerializer(ModelSerializer):
     class Meta:
         model = Game
@@ -78,61 +96,44 @@ class CreateUserSerializer(serializers.Serializer):
         return user
     
 class GameListSerializer(ModelSerializer):
-    
-
     class Meta:
         model = GameList
         fields = '__all__'
 
 class GameInListSerializer(ModelSerializer):
-
-    
-
     class Meta:
         model = GameInList
         fields = '__all__'
         
 
 class RatingSerializer(ModelSerializer):
-    
-
     class Meta:
         model = Rating
         fields = '__all__'
 
 class MinRatingTrailSerializer(ModelSerializer):
-    
-
     class Meta:
         model = MinRatingTrail
         fields = '__all__'
 
 class TrailSerializer(ModelSerializer):
-    
-
     class Meta:
         model = Trail
         fields = '__all__'
 
 class GameInTrailSerializer(ModelSerializer):
-    
-
     class Meta:
         model = GameInTrail
         fields = '__all__'
 
 class GamesInTrailsSerializer(ModelSerializer):
-    id = serializers.IntegerField(source='game.id')
-    TrailName=serializers.CharField(source='trail.name')
-    GameName = serializers.CharField(source='game.name')
+    games = GetGameSerializer(source='game', read_only=True)
 
     class Meta:
         model = GameInTrail
-        fields = ('id','TrailName','GameName')
+        fields = ('games',)
 
 class UserInTrailSerializer(ModelSerializer):
-    
-
     class Meta:
         model = UserInTrail
         fields = '__all__'

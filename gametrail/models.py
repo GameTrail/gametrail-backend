@@ -39,7 +39,6 @@ TYPE_CHOICES = [
 ]
 
 # Create your models here.
-# Create your models here.
 class UserManager(BaseUserManager):
     def create_superuser(self, email, username, avatar, password):
         user = self.create_user(
@@ -65,34 +64,35 @@ class UserManager(BaseUserManager):
         userDjango = UserDjango()
         userDjango.username = username
         userDjango.set_password(password)
-        userDjango.is_active = True
         userDjango.save()
+        userDjango.is_active = True
 
-        username_gameTrail = username + " "
+        username_gameTrail = username
 
         user = self.model(
             email=self.normalize_email(email),
             username=username_gameTrail,
-            avatar=avatar
+            avatar=avatar,
         )
 
         user.set_password(password)
-        user.save(using=self._db)
-        user.is_active = True
+        user.save()
         return user
 
 class User(AbstractBaseUser):
 
-    username = models.CharField(max_length=50, unique=True)
+    username = models.CharField(max_length=400, unique=True)
     email = models.EmailField(unique=True)
     avatar = models.CharField(max_length=255)
-    password = models.CharField(max_length=50)
+    password = models.CharField(max_length=500)
     plan = models.CharField(
         max_length=10,
         choices=PLAN_CHOICES,
         default=STANDARD,
     )
-    is_active               = models.BooleanField(default=False)
+
+    last_login = None
+
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email']
     objects = UserManager()
@@ -121,7 +121,7 @@ class Game(models.Model):
 
     name = models.CharField(max_length=1000)
     releaseDate = models.DateField(null=True, blank=True)
-    image = models.CharField(max_length=1000, null=True, blank=True)
+    image = models.URLField(max_length=1000, null=True, blank=True)
     photos = models.CharField(max_length=2000, null=True, blank=True)
     description = models.TextField(default='Lorem Ipsum')
 
@@ -153,7 +153,7 @@ class GameInList(models.Model):
     
 class Genre(models.Model):
     genre = models.CharField(max_length=500)
-    game = models.ManyToManyField(Game)
+    game = models.ManyToManyField(Game, related_name="genres")
 
     def __str__(self):
         return self.genre
@@ -194,7 +194,7 @@ class GameInTrail(models.Model):
     
 class Platform(models.Model):
     platform = models.CharField(max_length=500)
-    game = models.ManyToManyField(Game)
+    game = models.ManyToManyField(Game, related_name="platforms")
     trail = models.ManyToManyField(Trail,related_name='platforms')
 
     def __str__(self):

@@ -10,7 +10,25 @@ from django.conf import settings
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
-class GameSerializer(ModelSerializer):
+class GenreSerializer(ModelSerializer):
+    class Meta:
+        model = Genre
+        fields = ['genre']
+
+class PlatformSerializer(ModelSerializer):
+    class Meta:
+        model = Platform
+        fields = ['platform']
+
+class GetGameSerializer(ModelSerializer):
+    genres = GenreSerializer(many=True, read_only=True)
+    platforms = PlatformSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = Game
+        fields = ['id', 'name', 'releaseDate', 'image', 'photos', 'description', 'genres', 'platforms']
+
+class CUDGameSerializer(ModelSerializer):
     class Meta:
         model = Game
         fields = '__all__'
@@ -78,16 +96,11 @@ class CreateUserSerializer(serializers.Serializer):
         return user
     
 class GameListSerializer(ModelSerializer):
-    
-
     class Meta:
         model = GameList
         fields = '__all__'
 
 class GameInListSerializer(ModelSerializer):
-
-    
-
     class Meta:
         model = GameInList
         fields = '__all__'
@@ -95,22 +108,16 @@ class GameInListSerializer(ModelSerializer):
 
 
 class RatingSerializer(ModelSerializer):
-    
-
     class Meta:
         model = Rating
         fields = '__all__'
 
 class MinRatingTrailSerializer(ModelSerializer):
-    
-
     class Meta:
         model = MinRatingTrail
         fields = '__all__'
 
-
 class UserInTrailSerializer(ModelSerializer):
-
     class Meta:
         model = UserInTrail
         fields = '__all__'
@@ -125,41 +132,27 @@ class AllUsersInTrailsSerializer(ModelSerializer):
     class Meta:
         model = UserInTrail
         fields = ('id','username','email','avatar','plan')
-
-class AllGamesInTrailsSerializer(ModelSerializer):
-    id = serializers.IntegerField(source='game.id')
-    name = serializers.CharField(source='game.name')
-    releaseDate = serializers.CharField(source='game.releaseDate')
-    image = serializers.CharField(source='game.image')
-    photos = serializers.CharField(source='game.photos')
-    description = serializers.CharField(source='game.description')
-
-    class Meta:
-        model = GameInTrail
-        fields = ('id','name','releaseDate','image','photos', 'description')
-
-
+        
 class GameInTrailSerializer(ModelSerializer):
-    
     class Meta:
         model = GameInTrail
         fields = '__all__'
 
-class GameInTrailSerializer(ModelSerializer):
-    
+class GamesInTrailsSerializer(ModelSerializer):
+    games = GetGameSerializer(source='game', read_only=True)
+
     class Meta:
         model = GameInTrail
-        fields = '__all__'
+        fields = ('games',)
 
 class PlatformSerializer(ModelSerializer):
-    
     class Meta:
         model = Platform
         fields = ['platform']
 
 
 class TrailSerializer(ModelSerializer):
-    games= AllGamesInTrailsSerializer(many=True,read_only=True)
+    games= GamesInTrailsSerializer(read_only=True)
     users=AllUsersInTrailsSerializer(many=True,read_only=True)
     platforms=PlatformSerializer(many=True,read_only=True)
            

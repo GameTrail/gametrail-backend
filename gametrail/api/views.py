@@ -5,17 +5,72 @@ from gametrail import functions
 from gametrail.models import *
 from gametrail.api.serializers import *
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status, viewsets
 from rest_framework.views import APIView
 from rest_framework.authentication import TokenAuthentication
+from itertools import chain
+from django.db.models.query import QuerySet
 
+def check_user_is_admin(request):
+    user = request.user
+    return user.is_staff
 
-
-class GameApiViewSet(ModelViewSet):
+class GetGameApiViewSet(ModelViewSet):
+    http_method_names = ['get']
+    serializer_class = GetGameSerializer
     queryset = Game.objects.all()
-    serializer_class = GameSerializer
+    filter_backends = [SearchFilter]
+    search_fields = ['name']
+    
+class CUDGameApiViewSet(APIView):
+    http_method_names = ['post', 'put', 'delete']
+    serializer_class = CUDGameSerializer
+
+    def post(self, request, format = None):
+        is_user_admin = check_user_is_admin(request)
+
+        if is_user_admin == False:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            serializer = CUDGameSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, format = None):
+        is_user_admin = check_user_is_admin(request)
+
+        if is_user_admin == False:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            try:
+                game = Game.objects.get(pk=request.data['id'])
+            except Game.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            
+            serializer = CUDGameSerializer(game, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, format = None):
+        is_user_admin = check_user_is_admin(request)
+        if is_user_admin == False:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            try:
+                game = Game.objects.get(pk=request.data['id'])
+            except Game.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            
+            game.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class UserApiViewSet(ModelViewSet):
     http_method_names = ['get', 'delete']
@@ -111,6 +166,17 @@ class SabiasqueApiViewSet(ModelViewSet):
     queryset = SabiasQue.objects.all()
 
 
+class GameInTrailViewSet(ModelViewSet):
+    serializer_class = GameInTrailSerializer
+    queryset = GameInTrail.objects.all()
+
+class GamesInTrailViewSet(ModelViewSet):
+    http_method_names = ['get']
+    serializer_class = GamesInTrailsSerializer
+    queryset = GameInTrail.objects.all()
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ['trail']
+   
 class UserInTrailViewSet(ModelViewSet):
     serializer_class = UserInTrailSerializer
     queryset = UserInTrail.objects.all()

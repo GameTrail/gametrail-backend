@@ -106,6 +106,7 @@ class GameInListSerializer(ModelSerializer):
         fields = '__all__'
         
 
+
 class RatingSerializer(ModelSerializer):
     class Meta:
         model = Rating
@@ -115,23 +116,6 @@ class MinRatingTrailSerializer(ModelSerializer):
     class Meta:
         model = MinRatingTrail
         fields = '__all__'
-
-class TrailSerializer(ModelSerializer):
-    class Meta:
-        model = Trail
-        fields = '__all__'
-
-class GameInTrailSerializer(ModelSerializer):
-    class Meta:
-        model = GameInTrail
-        fields = '__all__'
-
-class GamesInTrailsSerializer(ModelSerializer):
-    games = GetGameSerializer(source='game', read_only=True)
-
-    class Meta:
-        model = GameInTrail
-        fields = ('games',)
 
 class UserInTrailSerializer(ModelSerializer):
     class Meta:
@@ -148,3 +132,30 @@ class AllUsersInTrailsSerializer(ModelSerializer):
     class Meta:
         model = UserInTrail
         fields = ('id','username','email','avatar','plan')
+        
+class GameInTrailSerializer(ModelSerializer):
+    class Meta:
+        model = GameInTrail
+        fields = '__all__'
+
+class GamesInTrailsSerializer(ModelSerializer):
+    games = GetGameSerializer(source='game', read_only=True)
+
+    class Meta:
+        model = GameInTrail
+        fields = ('games',)
+
+class PlatformSerializer(ModelSerializer):
+    class Meta:
+        model = Platform
+        fields = ['platform']
+
+
+class TrailSerializer(ModelSerializer):
+    games= GamesInTrailsSerializer(read_only=True)
+    users=AllUsersInTrailsSerializer(many=True,read_only=True)
+    platforms=PlatformSerializer(many=True,read_only=True)
+           
+    class Meta:
+        model = Trail
+        fields = ['id', 'name', 'description', 'startDate','finishDate','maxPlayers','owner','platforms','games','users']

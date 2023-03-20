@@ -145,7 +145,8 @@ class TrailApiViewSet(ModelViewSet):
     serializer_class = TrailSerializer
     queryset = Trail.objects.all()
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields  = ['owner']
+    filterset_fields  = ['games__game','users__user']
+
 
 class RatingApiViewSet(ModelViewSet):
     serializer_class = RatingSerializer

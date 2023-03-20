@@ -167,6 +167,7 @@ class SabiasqueApiViewSet(ModelViewSet):
 
 
 class GameInTrailViewSet(ModelViewSet):
+    http_method_names = ['post', 'put']
     serializer_class = GameInTrailSerializer
     queryset = GameInTrail.objects.all()
 

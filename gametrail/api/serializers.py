@@ -152,7 +152,7 @@ class PlatformSerializer(ModelSerializer):
 
 
 class TrailSerializer(ModelSerializer):
-    games= GamesInTrailsSerializer(read_only=True)
+    games= GamesInTrailsSerializer(many=True,read_only=True)
     users=AllUsersInTrailsSerializer(many=True,read_only=True)
     platforms=PlatformSerializer(many=True,read_only=True)
            

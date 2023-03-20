@@ -1,18 +1,77 @@
 from rest_framework.viewsets import ModelViewSet
 from django.http import HttpResponse
 from gametrail import functions
+
 from gametrail.models import *
 from gametrail.api.serializers import *
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status, viewsets
 from rest_framework.views import APIView
 from rest_framework.authentication import TokenAuthentication
+from itertools import chain
+from django.db.models.query import QuerySet
 
-class GameApiViewSet(ModelViewSet):
+def check_user_is_admin(request):
+    user = request.user
+    return user.is_staff
+
+class GetGameApiViewSet(ModelViewSet):
+    http_method_names = ['get']
+    serializer_class = GetGameSerializer
     queryset = Game.objects.all()
-    serializer_class = GameSerializer
+    filter_backends = [SearchFilter, DjangoFilterBackend]
+    search_fields = ['name']
+    filterset_fields = ['platforms__platform','genres__genre']
+
+    
+class CUDGameApiViewSet(APIView):
+    http_method_names = ['post', 'put', 'delete']
+    serializer_class = CUDGameSerializer
+
+    def post(self, request, format = None):
+        is_user_admin = check_user_is_admin(request)
+
+        if is_user_admin == False:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            serializer = CUDGameSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, format = None):
+        is_user_admin = check_user_is_admin(request)
+
+        if is_user_admin == False:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            try:
+                game = Game.objects.get(pk=request.data['id'])
+            except Game.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            
+            serializer = CUDGameSerializer(game, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, format = None):
+        is_user_admin = check_user_is_admin(request)
+        if is_user_admin == False:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            try:
+                game = Game.objects.get(pk=request.data['id'])
+            except Game.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            
+            game.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
 class UserApiViewSet(ModelViewSet):
     http_method_names = ['get', 'delete']
@@ -82,11 +141,23 @@ def populate(request):
 
     return HttpResponse(html)
 
+def populate_sabias_que(request):
+    result = functions.populate_sabias_que()
+    if result:
+        html = '<html><body>Database populated successfully with "Sabias que"</body></html>'
+    else:
+        html = '<html><body>Database not populated<br>Maybe population is disabled.</body></html>'
+
+    return HttpResponse(html)
+
+
 class TrailApiViewSet(ModelViewSet):
+    http_method_names = ['get','post', 'delete']
     serializer_class = TrailSerializer
     queryset = Trail.objects.all()
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields  = ['owner']
+    filterset_fields  = ['games__game','users__user']
+
 
 class RatingApiViewSet(ModelViewSet):
     serializer_class = RatingSerializer
@@ -100,13 +171,18 @@ class MinRatingTrailApiViewSet(ModelViewSet):
     queryset = MinRatingTrail.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_fields  = ['trail']
+    
+class SabiasqueApiViewSet(ModelViewSet):
+    serializer_class = SabiasQueSerializer
+    queryset = SabiasQue.objects.all()
+
 
 class GameInTrailViewSet(ModelViewSet):
+    http_method_names = ['post', 'put']
     serializer_class = GameInTrailSerializer
     queryset = GameInTrail.objects.all()
 
 class GamesInTrailViewSet(ModelViewSet):
-
     http_method_names = ['get']
     serializer_class = GamesInTrailsSerializer
     queryset = GameInTrail.objects.all()
@@ -124,3 +200,50 @@ class AllUserInTrailViewSet(ModelViewSet):
     queryset = UserInTrail.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ['trail']
+
+class CommentsByUserId(ModelViewSet):    
+    http_method_names = ['get']
+    def get_queryset(self):
+        commentQueryset = Comment.objects.filter(userCommented_id=self.request.query_params.get("user_id"))
+        return commentQueryset 
+
+    serializer_class = CommentsByUserIdSerializer
+
+class GameCommentAPIView(ModelViewSet):
+    http_method_names = ['get']
+    serializer_class = CommentsOfAGameSerializer
+
+    def get_queryset(self):
+        game_id = self.request.query_params.get('game_id', None)
+        queryset = Comment.objects.filter(game_id=game_id)
+        return queryset
+        
+class CUDCommentsAPIViewSet(APIView):
+    http_method_names = ['post', 'delete']
+    serializer_class = CUDCommentsSerializer
+    
+    def post(self, request, format=None):
+        userWhoComments = User.objects.filter(id=request.data['userWhoComments'])
+        is_user_valid = request.user.username == userWhoComments[0].username
+
+        if is_user_valid == False:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        elif is_user_valid == True:
+            serializer = CUDCommentsSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+
+    def delete(self, request, format=None):
+        if not request.user.is_staff:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            try:
+                comment = Comment.objects.get(id=request.data['commentId'])
+            except:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            
+            comment.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)

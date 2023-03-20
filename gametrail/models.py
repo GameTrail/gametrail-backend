@@ -38,8 +38,6 @@ TYPE_CHOICES = [
     (AVAILABILITY, 'Availability'),
 ]
 
-# Create your models here.
-# Create your models here.
 class UserManager(BaseUserManager):
     def create_superuser(self, email, username, avatar, password):
         user = self.create_user(
@@ -122,7 +120,7 @@ class Game(models.Model):
 
     name = models.CharField(max_length=1000)
     releaseDate = models.DateField(null=True, blank=True)
-    image = models.CharField(max_length=1000, null=True, blank=True)
+    image = models.URLField(max_length=1000, null=True, blank=True)
     photos = models.CharField(max_length=2000, null=True, blank=True)
     description = models.TextField(default='Lorem Ipsum')
 
@@ -130,7 +128,7 @@ class Game(models.Model):
         return self.name
 
 class Comment(models.Model):
-    commentText = models.TextField()
+    commentText = models.TextField(max_length=350)
     userWhoComments = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments_made')
     userCommented = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='comments_received')
     game = models.ForeignKey(Game, on_delete=models.CASCADE, blank=True, null=True)
@@ -154,7 +152,7 @@ class GameInList(models.Model):
     
 class Genre(models.Model):
     genre = models.CharField(max_length=500)
-    game = models.ManyToManyField(Game)
+    game = models.ManyToManyField(Game, related_name="genres")
 
     def __str__(self):
         return self.genre
@@ -172,7 +170,7 @@ class Trail(models.Model):
     
 class UserInTrail(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    trail = models.ForeignKey(Trail, on_delete=models.CASCADE)
+    trail = models.ForeignKey(Trail, on_delete=models.CASCADE,related_name='users')
     
     class Meta:
         unique_together = ('user', 'trail',)
@@ -181,8 +179,8 @@ class UserInTrail(models.Model):
         return f"{self.user.username} in {self.trail.name}"
     
 class GameInTrail(models.Model):
-    game = models.ForeignKey(Game, on_delete=models.CASCADE)
-    trail = models.ForeignKey(Trail, on_delete=models.CASCADE)
+    game = models.ForeignKey(Game, on_delete=models.CASCADE,related_name='trails')
+    trail = models.ForeignKey(Trail, on_delete=models.CASCADE,related_name='games')
     message = models.TextField()
     priority = models.IntegerField(validators=[MinValueValidator(1)])
     status = models.CharField(max_length=255, choices=STATUS_CHOICES)
@@ -195,8 +193,8 @@ class GameInTrail(models.Model):
     
 class Platform(models.Model):
     platform = models.CharField(max_length=500)
-    game = models.ManyToManyField(Game)
-    trail = models.ManyToManyField(Trail)
+    game = models.ManyToManyField(Game, related_name="platforms")
+    trail = models.ManyToManyField(Trail,related_name='platforms')
 
     def __str__(self):
         return self.platform

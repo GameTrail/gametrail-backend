@@ -151,7 +151,6 @@ class AllUsersInTrailsSerializer(ModelSerializer):
 class CommentsByUserIdSerializer(ModelSerializer):
     userWhoComments = serializers.SerializerMethodField()
     commentedUser = serializers.SerializerMethodField()
-    text = serializers.CharField(source='commentText')
 
     def get_userWhoComments(self,obj):
         return {
@@ -168,7 +167,7 @@ class CommentsByUserIdSerializer(ModelSerializer):
         }
     class Meta:
         model = Comment
-        fields = ['id','text','commentedUser','userWhoComments']
+        fields = ['id','commentText','commentedUser','userWhoComments']
 
 class CommentsOfAGameSerializer(ModelSerializer):
     
@@ -180,7 +179,7 @@ class CommentsOfAGameSerializer(ModelSerializer):
 
     def get_userWhoComments(self, obj):
         return {
-            'user_id': obj.userWhoComments.id,
+            'id': obj.userWhoComments.id,
             'username': obj.userWhoComments.username,
             'avatar': obj.userWhoComments.avatar,
         }

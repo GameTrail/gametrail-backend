@@ -137,7 +137,7 @@ class AllUserInTrailViewSet(ModelViewSet):
 class CommentsByUserId(ModelViewSet):    
     http_method_names = ['get']
     def get_queryset(self):
-        commentQueryset = Comment.objects.filter(userCommented_id=self.request.headers.get("userId"))
+        commentQueryset = Comment.objects.filter(userCommented_id=self.request.query_params.get("user_id"))
         return commentQueryset 
 
     serializer_class = CommentsByUserIdSerializer
@@ -156,7 +156,8 @@ class CUDCommentsAPIViewSet(APIView):
     serializer_class = CUDCommentsSerializer
     
     def post(self, request, format=None):
-        is_user_valid = request.user.id == request.data['userWhoComments']
+        userWhoComments = User.objects.filter(id=request.data['userWhoComments'])
+        is_user_valid = request.user.username == userWhoComments[0].username
 
         if is_user_valid == False:
             return Response(status=status.HTTP_401_UNAUTHORIZED)

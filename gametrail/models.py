@@ -38,7 +38,6 @@ TYPE_CHOICES = [
     (AVAILABILITY, 'Availability'),
 ]
 
-# Create your models here.
 class UserManager(BaseUserManager):
     def create_superuser(self, email, username, avatar, password):
         user = self.create_user(
@@ -129,7 +128,7 @@ class Game(models.Model):
         return self.name
 
 class Comment(models.Model):
-    commentText = models.TextField()
+    commentText = models.TextField(max_length=350)
     userWhoComments = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments_made')
     userCommented = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='comments_received')
     game = models.ForeignKey(Game, on_delete=models.CASCADE, blank=True, null=True)

@@ -13,4 +13,5 @@ urlpatterns = [
     path('api/auth/logout', Logout.as_view()),
     path('api/game', CUDGameApiViewSet.as_view()),
     path('api/auth/login', token_views.obtain_auth_token, name='token_obtain_pair'),
+    path('api/comment', views.CUDCommentsAPIViewSet.as_view()),
 ]

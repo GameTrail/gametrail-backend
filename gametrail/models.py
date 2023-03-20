@@ -82,7 +82,7 @@ class User(AbstractBaseUser):
 
     username = models.CharField(max_length=400, unique=True)
     email = models.EmailField(unique=True)
-    avatar = models.CharField(max_length=255)
+    avatar = models.URLField(max_length=255)
     password = models.CharField(max_length=500)
     plan = models.CharField(
         max_length=10,

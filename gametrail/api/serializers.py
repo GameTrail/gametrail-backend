@@ -104,8 +104,6 @@ class GameInListSerializer(ModelSerializer):
     class Meta:
         model = GameInList
         fields = '__all__'
-        
-
 
 class RatingSerializer(ModelSerializer):
     class Meta:
@@ -138,17 +136,13 @@ class GameInTrailSerializer(ModelSerializer):
         model = GameInTrail
         fields = '__all__'
 
+
 class GamesInTrailsSerializer(ModelSerializer):
     games = GetGameSerializer(source='game', read_only=True)
 
     class Meta:
         model = GameInTrail
         fields = ('games',)
-
-class PlatformSerializer(ModelSerializer):
-    class Meta:
-        model = Platform
-        fields = ['platform']
 
 
 class TrailSerializer(ModelSerializer):
@@ -200,4 +194,3 @@ class CUDCommentsSerializer(ModelSerializer):
     class Meta:
         model = Comment
         fields = '__all__'
-

@@ -22,8 +22,10 @@ class GetGameApiViewSet(ModelViewSet):
     http_method_names = ['get']
     serializer_class = GetGameSerializer
     queryset = Game.objects.all()
-    filter_backends = [SearchFilter]
+    filter_backends = [SearchFilter, DjangoFilterBackend]
     search_fields = ['name']
+    filterset_fields = ['platforms__platform','genres__genre']
+
     
 class CUDGameApiViewSet(APIView):
     http_method_names = ['post', 'put', 'delete']
@@ -70,7 +72,6 @@ class CUDGameApiViewSet(APIView):
             
             game.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 class UserApiViewSet(ModelViewSet):
     http_method_names = ['get', 'delete']
@@ -142,6 +143,7 @@ def populate(request):
 
 
 class TrailApiViewSet(ModelViewSet):
+    http_method_names = ['get','post', 'delete']
     serializer_class = TrailSerializer
     queryset = Trail.objects.all()
     filter_backends = (DjangoFilterBackend,)

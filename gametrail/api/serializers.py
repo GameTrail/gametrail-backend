@@ -93,6 +93,7 @@ class GameInListSerializer(ModelSerializer):
         fields = '__all__'
         
 
+
 class RatingSerializer(ModelSerializer):
     
 
@@ -107,31 +108,8 @@ class MinRatingTrailSerializer(ModelSerializer):
         model = MinRatingTrail
         fields = '__all__'
 
-class TrailSerializer(ModelSerializer):
-    
-
-    class Meta:
-        model = Trail
-        fields = '__all__'
-
-class GameInTrailSerializer(ModelSerializer):
-    
-
-    class Meta:
-        model = GameInTrail
-        fields = '__all__'
-
-class GamesInTrailsSerializer(ModelSerializer):
-    id = serializers.IntegerField(source='game.id')
-    TrailName=serializers.CharField(source='trail.name')
-    GameName = serializers.CharField(source='game.name')
-
-    class Meta:
-        model = GameInTrail
-        fields = ('id','TrailName','GameName')
 
 class UserInTrailSerializer(ModelSerializer):
-    
 
     class Meta:
         model = UserInTrail
@@ -147,3 +125,44 @@ class AllUsersInTrailsSerializer(ModelSerializer):
     class Meta:
         model = UserInTrail
         fields = ('id','username','email','avatar','plan')
+
+class AllGamesInTrailsSerializer(ModelSerializer):
+    id = serializers.IntegerField(source='game.id')
+    name = serializers.CharField(source='game.name')
+    releaseDate = serializers.CharField(source='game.releaseDate')
+    image = serializers.CharField(source='game.image')
+    photos = serializers.CharField(source='game.photos')
+    description = serializers.CharField(source='game.description')
+
+    class Meta:
+        model = GameInTrail
+        fields = ('id','name','releaseDate','image','photos', 'description')
+
+
+class GameInTrailSerializer(ModelSerializer):
+    
+    class Meta:
+        model = GameInTrail
+        fields = '__all__'
+
+class GameInTrailSerializer(ModelSerializer):
+    
+    class Meta:
+        model = GameInTrail
+        fields = '__all__'
+
+class PlatformSerializer(ModelSerializer):
+    
+    class Meta:
+        model = Platform
+        fields = ['platform']
+
+
+class TrailSerializer(ModelSerializer):
+    games= AllGamesInTrailsSerializer(many=True,read_only=True)
+    users=AllUsersInTrailsSerializer(many=True,read_only=True)
+    platforms=PlatformSerializer(many=True,read_only=True)
+           
+    class Meta:
+        model = Trail
+        fields = ['id', 'name', 'description', 'startDate','finishDate','maxPlayers','owner','platforms','games','users']

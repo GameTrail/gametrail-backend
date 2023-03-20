@@ -12,6 +12,7 @@ from rest_framework.views import APIView
 from rest_framework.authentication import TokenAuthentication
 
 
+
 class GameApiViewSet(ModelViewSet):
     queryset = Game.objects.all()
     serializer_class = GameSerializer
@@ -89,7 +90,8 @@ class TrailApiViewSet(ModelViewSet):
     serializer_class = TrailSerializer
     queryset = Trail.objects.all()
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields  = ['owner']
+    filterset_fields  = ['games__game','users__user']
+
 
 class RatingApiViewSet(ModelViewSet):
     serializer_class = RatingSerializer
@@ -109,19 +111,6 @@ class SabiasqueApiViewSet(ModelViewSet):
     queryset = SabiasQue.objects.all()
 
 
-class GameInTrailViewSet(ModelViewSet):
-    serializer_class = GameInTrailSerializer
-    queryset = GameInTrail.objects.all()
-
-class GamesInTrailViewSet(ModelViewSet):
-
-    http_method_names = ['get']
-    serializer_class = GamesInTrailsSerializer
-    queryset = GameInTrail.objects.all()
-    filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ['trail']
-
-   
 class UserInTrailViewSet(ModelViewSet):
     serializer_class = UserInTrailSerializer
     queryset = UserInTrail.objects.all()

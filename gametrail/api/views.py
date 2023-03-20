@@ -30,7 +30,7 @@ class UserApiViewSet(ModelViewSet):
 
 class UsersApiViewSet(ModelViewSet):
     http_method_names = ['get']
-    serializer_class = GetUserSerializer
+    serializer_class = GetUsersSerializer
     queryset = User.objects.all()
 
 class Logout(APIView):

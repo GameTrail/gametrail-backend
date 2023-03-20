@@ -20,9 +20,13 @@ class GameApiViewSet(ModelViewSet):
     serializer_class = GameSerializer
 
 class UserApiViewSet(ModelViewSet):
-    http_method_names = ['get', 'delete', 'post']
+    http_method_names = ['get', 'delete']
     serializer_class = GetUserSerializer
-    queryset = User.objects.all()
+
+    def get_queryset(self):
+        userId=self.request.data.get("userId")
+        queryset=User.objects.filter(id=userId)
+        return queryset
 
 class UsersApiViewSet(ModelViewSet):
     http_method_names = ['get']

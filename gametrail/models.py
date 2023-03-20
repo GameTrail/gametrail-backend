@@ -105,6 +105,7 @@ class Rating(models.Model):
     type = models.CharField(max_length=255,choices=TYPE_CHOICES)
     ratedUser = models.ForeignKey('User', on_delete=models.CASCADE, related_name='rate_recieved')
     userWhoRate = models.ForeignKey('User', on_delete=models.CASCADE, related_name='rate_made')
+    user=models.ManyToManyField(User, related_name="rating")
 
     def __str__(self):
         return f'{self.userWhoRate.username} rated {self.ratedUser.username} with {self.rating} for {self.type}'
@@ -123,6 +124,7 @@ class Game(models.Model):
     image = models.CharField(max_length=1000, null=True, blank=True)
     photos = models.CharField(max_length=2000, null=True, blank=True)
     description = models.TextField(default='Lorem Ipsum')
+    user=models.ManyToManyField(User, related_name="games")
 
     def __str__(self):
         return self.name
@@ -133,6 +135,7 @@ class Comment(models.Model):
     userCommented = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='comments_received')
     game = models.ForeignKey(Game, on_delete=models.CASCADE, blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
+    user=models.ManyToManyField(User,related_name="comments")
 
     def __str__(self):
         return self.commentText
@@ -164,6 +167,7 @@ class Trail(models.Model):
     finishDate = models.DateField()
     maxPlayers = models.IntegerField(validators=[MinValueValidator(1)])
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    user=models.ManyToManyField(User, related_name="trails")
 
     def __str__(self):
         return self.name   

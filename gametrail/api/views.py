@@ -11,6 +11,16 @@ from rest_framework import status, viewsets
 from rest_framework.views import APIView
 from rest_framework.authentication import TokenAuthentication
 
+def check_user_is_propetary_ListGame(request):
+    user_who_request = request.user
+    try:
+        user_from_request = User.objects.filter(request.data['userId'])
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if user_who_request == user_from_request:
+        return True
+    else:
+        return False
 
 class GameApiViewSet(ModelViewSet):
     queryset = Game.objects.all()
@@ -47,6 +57,30 @@ class GameInListApiViewSet(ModelViewSet):
     queryset = GameInList.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ['gameList__user']
+
+    def post(self, request, format=None):
+        is_user_valid = check_user_is_propetary_ListGame(request)
+
+        if is_user_valid == False:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            serializer = GameInListSerializer(data = request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(status=status.HTTP_201_CREATED)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        
+    def put(self, request, format=None):
+        is_user_valid = check_user_is_propetary_ListGame(request)
+
+        if is_user_valid == False:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            serializer = GameInListSerializer(data = request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(status=status.HTTP_201_CREATED)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 def populate_database_little(request):
     result = functions.populate_database(True,base_json="./src/population/develop_database_little.json")

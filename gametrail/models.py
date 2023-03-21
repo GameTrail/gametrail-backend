@@ -3,6 +3,8 @@ from django.utils import timezone
 from django.core.validators import MaxValueValidator, MinValueValidator 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import User as UserDjango
+import datetime
+from django.core.exceptions import ValidationError
 
 #Enum declarations
 
@@ -150,6 +152,17 @@ class GameInList(models.Model):
 
     def __str__(self):
         return f"{self.game} in {self.gameList} ({self.status})"
+
+    def clean(self):
+        errors={}
+        actual_date = datetime.datetime.now()
+        if self.creationMoment > self.lastModified:
+            errors['modified_date']= ('The modified date can not before creation date.')
+        if datetime.date.today() < self.lastModified:
+            errors['modified_date_today']= ('The modified date can not be after today.')
+        if errors:
+            raise ValidationError(errors)
+    
     
 class Genre(models.Model):
     genre = models.CharField(max_length=500)

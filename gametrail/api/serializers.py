@@ -86,8 +86,6 @@ class GameListSerializer(ModelSerializer):
 
 class GameInListSerializer(ModelSerializer):
 
-    
-
     class Meta:
         model = GameInList
         fields = '__all__'
@@ -116,7 +114,6 @@ class TrailSerializer(ModelSerializer):
 
 class GameInTrailSerializer(ModelSerializer):
     
-
     class Meta:
         model = GameInTrail
         fields = '__all__'

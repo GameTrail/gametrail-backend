@@ -20,11 +20,6 @@ class SabiasQueSerializer(ModelSerializer):
         model = SabiasQue
         fields = '__all__'
 
-class GetUsersSerializer(ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'email', 'avatar', 'plan']
-
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -196,11 +191,6 @@ class GetUserSerializer(ModelSerializer):
         fields = ['id', 'username', 'email', 'avatar', 'plan', 'games', 'trails', 'rating', 'comments']
 
 class PutUserSerializer(ModelSerializer):
-    games=GameSerializer(many=True, read_only=True)
-    trails= TrailSerializer(many=True, read_only=True)
-    rating=RatingSerializer(many=True, read_only=True)
-    comments=CommentsByUserIdSerializer(many=True, read_only=True)
-
     class Meta:
         model = User
-        fields = ['id', 'email', 'avatar', 'plan', 'games', 'trails', 'rating', 'comments']
+        fields = ['avatar']

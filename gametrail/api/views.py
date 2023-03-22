@@ -22,11 +22,7 @@ class GameApiViewSet(ModelViewSet):
 class UserApiViewSet(ModelViewSet):
     http_method_names = ['get', 'delete', 'put']
     serializer_class = GetUserSerializer
-
-    def get_queryset(self):
-        userId=self.request.data.get("userId")
-        queryset=User.objects.filter(id=userId)
-        return queryset
+    queryset = User.objects.all()
     
     def delete(self, request, format = None):
         is_user_admin = request.user.is_staff
@@ -57,11 +53,6 @@ class UserApiViewSet(ModelViewSet):
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class UsersApiViewSet(ModelViewSet):
-    http_method_names = ['get']
-    serializer_class = GetUsersSerializer
-    queryset = User.objects.all()
 
 class Logout(APIView):
     def post(self,request, format = None):

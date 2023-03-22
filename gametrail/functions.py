@@ -2,6 +2,15 @@ import json
 from . import models
 from datetime import datetime
 
+def populate_sabias_que(base_json="./src/population/sabiasque.json"):
+    file = open_json_handler(base_json,encoding="utf-8")
+    data = json.loads(file)
+    for d in data.get("sabias que"):
+        models.SabiasQue.objects.create(
+            curiosity= str(d.get("curiosity"))
+        )
+    return True
+
 def populate(populate=True, base_json="./src/population/database.json"):
     #Change database.json to database.json to have all games 
     return(populate_genres() & populate_platforms() & populate_database(base_json="./src/population/database.json"))

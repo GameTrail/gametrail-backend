@@ -82,7 +82,7 @@ class User(AbstractBaseUser):
 
     username = models.CharField(max_length=400, unique=True)
     email = models.EmailField(unique=True)
-    avatar = models.CharField(max_length=255)
+    avatar = models.URLField(max_length=255)
     password = models.CharField(max_length=500)
     plan = models.CharField(
         max_length=10,
@@ -111,7 +111,7 @@ class Rating(models.Model):
     
 class GameList(models.Model):
 
-    user = models.OneToOneField('User',on_delete=models.CASCADE, unique=True)
+    user = models.OneToOneField('User',on_delete=models.CASCADE, unique=True, related_name='gameList')
     
     def __str__(self):
         return f'{self.user.username}\'s game list'
@@ -169,7 +169,7 @@ class Trail(models.Model):
         return self.name   
     
 class UserInTrail(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='trails_with_user')
     trail = models.ForeignKey(Trail, on_delete=models.CASCADE,related_name='users')
     
     class Meta:

@@ -96,6 +96,9 @@ class GameListSerializer(ModelSerializer):
         fields = '__all__'
 
 class GameInListSerializer(ModelSerializer):
+
+    game=GetGameSerializer(read_only=True)
+
     class Meta:
         model = GameInList
         fields = '__all__'
@@ -184,16 +187,31 @@ class CommentsOfAGameSerializer(ModelSerializer):
             'username': obj.userWhoComments.username,
             'avatar': obj.userWhoComments.avatar,
         }
-        
+
+
+class TrailFromUser(ModelSerializer):
+    id = serializers.IntegerField(source='trail.id')
+    name = serializers.CharField(source='trail.description')
+    email = serializers.CharField(source='trail.startDate')
+    avatar = serializers.CharField(source='trail.finishDate')
+    plan = serializers.CharField(source='trail.maxPlayers')
+    owner = serializers.CharField(source='trail.owner')
+    games= GamesInTrailsSerializer(many=True,read_only=True, source="trail.games")
+    users=AllUsersInTrailsSerializer(many=True,read_only=True, source="trail.users")
+    platforms=PlatformSerializer(many=True,read_only=True, source="trail.platforms")
+    class Meta:
+        model = UserInTrail
+        fields = ('id','name','email','avatar','plan', 'owner', 'games', 'users', 'platforms')
+  
 class GetUserSerializer(ModelSerializer):
-    games=GameSerializer(many=True, read_only=True)
-    trails= TrailSerializer(many=True, read_only=True)
-    rating=RatingSerializer(many=True, read_only=True)
-    comments=CommentsByUserIdSerializer(many=True, read_only=True)
+    games=GameInListSerializer(many=True,read_only=True, source="gameList.games_in_list")
+    trails=TrailFromUser(many=True,read_only=True,source="trails_with_user")
+    rate_recieved=RatingSerializer(many=True, read_only=True)
+    comments_received=CommentsByUserIdSerializer(many=True, read_only=True)
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'avatar', 'plan', 'games', 'trails', 'rating', 'comments']
+        fields = ['id', 'username', 'email', 'avatar', 'plan', 'games', 'trails', 'rate_recieved', 'comments_received']
 
 class PutUserSerializer(ModelSerializer):
     class Meta:

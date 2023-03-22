@@ -186,7 +186,7 @@ class CommentsOfAGameSerializer(ModelSerializer):
         }
         
 class GetUserSerializer(ModelSerializer):
-    games=GameSerializer(many=True, read_only=True)
+    games=GetGameSerializer(many=True, read_only=True)
     trails= TrailSerializer(many=True, read_only=True)
     rating=RatingSerializer(many=True, read_only=True)
     comments=CommentsByUserIdSerializer(many=True, read_only=True)

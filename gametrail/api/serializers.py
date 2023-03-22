@@ -195,17 +195,18 @@ class CommentsOfAGameSerializer(ModelSerializer):
 
 class TrailFromUser(ModelSerializer):
     id = serializers.IntegerField(source='trail.id')
-    name = serializers.CharField(source='trail.description')
-    email = serializers.CharField(source='trail.startDate')
-    avatar = serializers.CharField(source='trail.finishDate')
-    plan = serializers.CharField(source='trail.maxPlayers')
+    name = serializers.CharField(source='trail.name')
+    description = serializers.CharField(source='trail.description')
+    startDate = serializers.CharField(source='trail.startDate')
+    finishDate = serializers.CharField(source='trail.finishDate')
+    maxPlayers = serializers.CharField(source='trail.maxPlayers')
     owner = OwnerSerializer(source='trail.owner')
     games= GamesInTrailsSerializer(many=True,read_only=True, source="trail.games")
     users=AllUsersInTrailsSerializer(many=True,read_only=True, source="trail.users")
     platforms=PlatformSerializer(many=True,read_only=True, source="trail.platforms")
     class Meta:
         model = UserInTrail
-        fields = ('id','name','email','avatar','plan', 'owner', 'games', 'users', 'platforms')
+        fields = ('id','name','description','startDate','finishDate','maxPlayers', 'owner', 'games', 'users', 'platforms')
   
 class GetUserSerializer(ModelSerializer):
     games=GameInListSerializer(many=True,read_only=True, source="gameList.games_in_list")

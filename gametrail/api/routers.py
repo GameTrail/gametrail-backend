@@ -3,6 +3,7 @@ from gametrail.api.views import *
 
 router_api = DefaultRouter()
 router_api.register(prefix='game', viewset=GetGameApiViewSet, basename='game')
+router_api.register(prefix='recentGames', viewset=GetRecentGames, basename='recentGames')
 router_api.register(prefix='user', viewset=UserApiViewSet, basename='user')
 router_api.register(prefix='auth', viewset=CreateUserApiViewSet, basename='auth')
 router_api.register(prefix='createList', viewset=GameListApiViewSet, basename='createList')

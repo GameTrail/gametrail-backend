@@ -16,6 +16,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from itertools import chain
 from django.db.models.query import QuerySet
+from django.core import serializers
 
 def check_user_is_admin(request):
     user = request.user
@@ -29,6 +30,10 @@ class GetGameApiViewSet(ModelViewSet):
     search_fields = ['name']
     filterset_fields = ['platforms__platform','genres__genre']
 
+class GetRecentGames(ModelViewSet):
+    http_method_names = ['get']
+    serializer_class = GetGameSerializer
+    queryset = Game.objects.all().order_by("-id")[:10]
     
 class CUDGameApiViewSet(APIView):
     http_method_names = ['post', 'put', 'delete']

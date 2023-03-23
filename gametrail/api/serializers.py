@@ -84,12 +84,12 @@ class GameListSerializer(ModelSerializer):
         model = GameList
         fields = '__all__'
 
-class GameInListSerializer(ModelSerializer):
+class CUGameInListSerializer(ModelSerializer):
 
     class Meta:
         model = GameInList
-        fields = '__all__'
-        
+        fields = ['game','status','gameList']
+
 
 class RatingSerializer(ModelSerializer):
     

@@ -11,17 +11,6 @@ from rest_framework import status, viewsets
 from rest_framework.views import APIView
 from rest_framework.authentication import TokenAuthentication
 
-def check_user_is_propetary_ListGame(request):
-    user_who_request = request.user
-    try:
-        user_from_request = User.objects.filter(request.data['userId'])
-    except:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    if user_who_request == user_from_request:
-        return True
-    else:
-        return False
-
 class GameApiViewSet(ModelViewSet):
     queryset = Game.objects.all()
     serializer_class = GameSerializer
@@ -52,31 +41,31 @@ class GameListApiViewSet(ModelViewSet):
     queryset = GameList.objects.all()
 
 class GameInListApiViewSet(ModelViewSet):
-    http_method_names = ['get', 'post', 'put']
-    serializer_class = GameInListSerializer
-    queryset = GameInList.objects.all()
-    filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ['gameList__user']
+    http_method_names = ['post', 'put']
+    serializer_class = CUGameInListSerializer
 
+    
     def post(self, request, format=None):
-        is_user_valid = check_user_is_propetary_ListGame(request)
+        user_from_request = User.objects.filter(id = request.data['user'])
+        is_valid = user_from_request[0].username == request.user.username
 
-        if is_user_valid == False:
+        if is_valid == False:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         else:
-            serializer = GameInListSerializer(data = request.data)
+            serializer = CUGameInListSerializer(data = request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response(status=status.HTTP_201_CREATED)
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
     def put(self, request, format=None):
-        is_user_valid = check_user_is_propetary_ListGame(request)
+        user_from_request = User.objects.filter(id = request.data['user'])
+        is_valid = user_from_request[0].username == request.user.username
 
-        if is_user_valid == False:
+        if is_valid == False:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         else:
-            serializer = GameInListSerializer(data = request.data)
+            serializer = CUGameInListSerializer(data = request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response(status=status.HTTP_201_CREATED)

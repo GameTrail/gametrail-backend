@@ -218,10 +218,10 @@ class TrailApiViewSet(APIView):
         if not check_user_is_authenticated(request):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         else:
-            owner= User.objects.get(pk=request.data['owner']).username
+            owner= User.objects.get(pk=request.data['owner'])
             user = request.user.username
             
-            if user != owner:
+            if user != owner.username:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
         
             serializer = PostTrailSerializer(data=request.data)

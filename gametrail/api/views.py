@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework.viewsets import ModelViewSet
 from django.http import HttpResponse
 from gametrail import functions
@@ -300,3 +301,29 @@ class CUDCommentsAPIViewSet(APIView):
             
             comment.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
+class UpdateSubscriptionAPIViewSet(ModelViewSet):
+    http_method_names = ['put']
+    serializer_class = UserSerializersub
+    @classmethod
+    
+    def put(self, request, format=None):
+        user = request.user
+        user_id = request.data['userId']
+        action = request.data['action']
+        
+        
+        try:
+            user = User.objects.get(id=user_id)
+            if action == 'SUBSCRIBE':
+                user.plan = 'Premium'
+            elif action == 'UNSUBSCRIBE':
+                user.plan = 'Standard'
+            else:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            user.save()
+        except User.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        # Devolver la respuesta con los datos actualizados del usuario
+        serializer = UserSerializersub(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)

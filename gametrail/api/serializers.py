@@ -157,6 +157,12 @@ class TrailSerializer(ModelSerializer):
         model = Trail
         fields = ['id', 'name', 'description', 'startDate','finishDate','maxPlayers','owner','platforms','games','users']
 
+class PostTrailSerializer(ModelSerializer):
+
+    class Meta:
+        model = Trail
+        fields = '__all__'
+
 class CommentsByUserIdSerializer(ModelSerializer):
     userWhoComments = serializers.SerializerMethodField()
     commentedUser = serializers.SerializerMethodField()

@@ -1,4 +1,7 @@
+from datetime import datetime
+from datetime import date
 from django.db import models
+from django.forms import ValidationError
 from django.utils import timezone
 from django.core.validators import MaxValueValidator, MinValueValidator 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
@@ -50,6 +53,7 @@ class UserManager(BaseUserManager):
         user.is_active = True
         user.is_staff = True
         user.is_superadmin = True
+        user.is_authenticated = True
         user.save(using=self._db)
         return user
     
@@ -165,15 +169,31 @@ class Trail(models.Model):
     maxPlayers = models.IntegerField(validators=[MinValueValidator(1)])
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    def clean(self):
+        if self.finishDate < self.startDate:
+            raise ValidationError('La fecha de fin no puede ser anterior a la fecha de inicio!')
+        
+        elif self.startDate < date.today():
+            raise ValidationError('La fecha de inicio no puede ser un dia que ya ha pasado!')
+    
+        return super().clean()
+
     def __str__(self):
+        
         return self.name   
     
 class UserInTrail(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='trails_with_user')
     trail = models.ForeignKey(Trail, on_delete=models.CASCADE,related_name='users')
-    
+
     class Meta:
         unique_together = ('user', 'trail',)
+
+    def clean(self) :
+        numJugadoresTrail=self.trail.users.count()
+        if numJugadoresTrail >= self.trail.maxPlayers:
+            raise ValidationError('El número de Usuarios del Trail no puede superar el número máximo de jugadores!')
+        return super().clean()
 
     def __str__(self):
         return f"{self.user.username} in {self.trail.name}"
@@ -186,7 +206,12 @@ class GameInTrail(models.Model):
     status = models.CharField(max_length=255, choices=STATUS_CHOICES)
 
     class Meta:
-        unique_together = ('game', 'trail',)
+        unique_together = ('game', 'trail')
+
+    def clean(self) :
+        if self.priority > 5:
+            raise ValidationError('La prioridad debe ser inferior o igual a 5!')
+        return super().clean()
 
     def __str__(self):
         return f"{self.game.name} in {self.trail.name}"

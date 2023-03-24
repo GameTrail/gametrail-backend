@@ -1,4 +1,5 @@
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.permissions import IsAuthenticated
 from django.http import HttpResponse
 from gametrail import functions
 
@@ -199,14 +200,54 @@ def populate_sabias_que(request):
     return HttpResponse(html)
 
 
-class TrailApiViewSet(ModelViewSet):
-    http_method_names = ['get','post', 'delete']
+def check_user_is_authenticated(request):
+    user = request.user
+    return user.is_authenticated
+
+class TrailApiViewSet(APIView):
+    
+    http_method_names = ['post', 'delete']
+    serializer_class = TrailSerializer
+
+    def post(self, request, format = None):
+        
+        if not check_user_is_authenticated(request):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            serializer = PostTrailSerializer(data=request.data)
+            if serializer.is_valid():
+                try:
+                 trail=serializer.save()
+                 trail.full_clean()
+                 trail.save()
+                 return Response(serializer.data, status=status.HTTP_201_CREATED)
+                except Exception as e:
+                 return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    def delete(self, request, format = None):
+        is_user_admin = check_user_is_admin(request)
+        if is_user_admin == False:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            try:
+                trail = Trail.objects.get(pk=request.data['id'])
+            except Trail.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            
+            trail.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class GetTrailApiViewSet(ModelViewSet):
+    
+    http_method_names = ['get']
     serializer_class = TrailSerializer
     queryset = Trail.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_fields  = ['games__game','users__user']
 
-
+    
 class RatingApiViewSet(ModelViewSet):
     serializer_class = RatingSerializer
     queryset = Rating.objects.all()
@@ -225,10 +266,53 @@ class SabiasqueApiViewSet(ModelViewSet):
     queryset = SabiasQue.objects.all()
 
 
-class GameInTrailViewSet(ModelViewSet):
+class GameInTrailViewSet(APIView):
     http_method_names = ['post', 'put']
     serializer_class = GameInTrailSerializer
-    queryset = GameInTrail.objects.all()
+    
+    def post(self, request, format=None):
+        owner= Trail.objects.get(pk=request.data['trail']).owner.username
+        user = request.user.username
+        
+        if user != owner:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else :
+            serializer = GameInTrailSerializer(data=request.data)
+            if serializer.is_valid():
+                try:
+                 gameintrail=serializer.save()
+                 gameintrail.full_clean()
+                 gameintrail.save()
+                 return Response(serializer.data, status=status.HTTP_201_CREATED)
+                except Exception as e:
+                 return Response(str(e), status=status.HTTP_400_BAD_REQUEST)          
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    def put(self, request, format = None):
+        owner= Trail.objects.get(pk=request.data['trail']).owner.username
+        user = request.user.username
+
+        if user != owner:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            try:
+                trail = GameInTrail.objects.get(pk=request.data['id'])
+            except GameInTrail.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            
+            serializer = GameInTrailSerializer(trail, data=request.data)
+            if serializer.is_valid():
+                try:
+                 gameintrail=serializer.save()
+                 gameintrail.full_clean()
+                 gameintrail.save()
+                 return Response(serializer.data, status=status.HTTP_201_CREATED)
+                except Exception as e:
+                 return Response(str(e), status=status.HTTP_400_BAD_REQUEST)  
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+            
+
 
 class GamesInTrailViewSet(ModelViewSet):
     http_method_names = ['get']

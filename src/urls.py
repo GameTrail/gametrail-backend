@@ -18,4 +18,7 @@ urlpatterns = [
     path('api/comment', views.CUDCommentsAPIViewSet.as_view()),
     path('api/trail/', views.TrailApiViewSet.as_view()),
     path('api/gameInTrail', views.GameInTrailViewSet.as_view()),
+    path('api/createMinRating', views.CreateMinRatingViewSet.as_view()),
+    path('api/addUserInTrail', views.AddUserInTrailViewSet.as_view()),
+
 ]

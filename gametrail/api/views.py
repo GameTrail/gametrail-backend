@@ -2,7 +2,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from django.http import HttpResponse
 from gametrail import functions
-
+from django.db.models import Avg
 from gametrail.models import *
 from gametrail.api.serializers import *
 from django_filters.rest_framework import DjangoFilterBackend
@@ -21,6 +21,10 @@ from django.db.models.query import QuerySet
 def check_user_is_admin(request):
     user = request.user
     return user.is_staff
+
+def check_user_is_the_same(request,usergametrail):
+    user = request.user
+    return user.username == usergametrail.username
 
 class GetGameApiViewSet(ModelViewSet):
     http_method_names = ['get']
@@ -214,15 +218,23 @@ class TrailApiViewSet(APIView):
         if not check_user_is_authenticated(request):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         else:
+            owner= User.objects.get(pk=request.data['owner']).username
+            user = request.user.username
+            
+            if user != owner:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+        
             serializer = PostTrailSerializer(data=request.data)
             if serializer.is_valid():
                 try:
-                 trail=serializer.save()
-                 trail.full_clean()
-                 trail.save()
-                 return Response(serializer.data, status=status.HTTP_201_CREATED)
+                    trail=serializer.save()
+                    trail.full_clean()
+                    trail.save()
+                    userInTrail = UserInTrail(user = owner, trail = trail)
+                    userInTrail.save()
+                    return Response(serializer.data, status=status.HTTP_201_CREATED)
                 except Exception as e:
-                 return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
+                    return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
     def delete(self, request, format = None):
@@ -254,9 +266,9 @@ class RatingApiViewSet(ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_fields  = ['ratedUser', 'userWhoRate']
 
-
-class MinRatingTrailApiViewSet(ModelViewSet):
-    serializer_class = MinRatingTrailSerializer
+class GetMinRatingTrailApiViewSet(ModelViewSet):
+    http_method_names = ['get']
+    serializer_class = GetMinRatingTrailSerializer
     queryset = MinRatingTrail.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_fields  = ['trail']
@@ -321,7 +333,8 @@ class GamesInTrailViewSet(ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ['trail']
    
-class UserInTrailViewSet(ModelViewSet):
+class GetUserInTrailViewSet(ModelViewSet):
+    http_method_names = ['get']
     serializer_class = UserInTrailSerializer
     queryset = UserInTrail.objects.all()
 
@@ -379,3 +392,68 @@ class CUDCommentsAPIViewSet(APIView):
             
             comment.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
+        
+class CreateMinRatingViewSet(APIView):
+    http_method_names = ['post']
+    serializer_class = GetMinRatingTrailSerializer
+
+    @classmethod
+    def post(self, request, format = None):
+        userGameTrail = User.objects.get(pk = request.data['user'])
+        is_username_same = check_user_is_the_same(request, userGameTrail)
+
+        if is_username_same == False:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            owner = Trail.objects.get(pk = request.data['trail']).owner
+            is_premium = owner.plan == "Premium"
+            if userGameTrail != owner or not is_premium:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                serializer = GetMinRatingTrailSerializer(data=request.data)
+                if serializer.is_valid():
+                    try:
+                        minRating = serializer.save()
+                        minRating.full_clean()
+                        minRating.save()
+                        return Response(serializer.data, status=status.HTTP_201_CREATED)
+                    except Exception as e:
+                        return Response(str(e), status=status.HTTP_400_BAD_REQUEST)     
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+def check_min_ratings(user, trail):
+    min_ratings = MinRatingTrail.objects.filter(trail = trail)
+    for min_rating in min_ratings:
+        min = min_rating.minRating
+        type = min_rating.ratingType
+        ratings_user = Rating.objects.filter(ratedUser_id = user, type = type).aggregate(Avg('rating'))['rating__avg']
+        if ratings_user == None or ratings_user < min:
+            return False
+    return True
+
+class AddUserInTrailViewSet(APIView):
+    http_method_names = ['post']
+    serializer_class = UserInTrailSerializer
+
+    @classmethod
+    def post(self, request, format = None):
+        is__user_authenticated = check_user_is_authenticated(request)
+
+        if is__user_authenticated == False:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            trailId = request.data['trail']
+            num_users = UserInTrail.objects.filter(trail = trailId).count()
+            trail = Trail.objects.get(pk = trailId)
+            if num_users >= trail.maxPlayers:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            is_premium = trail.owner.plan == "Premium"
+            if is_premium:
+                is_valid_user = check_min_ratings(request.data['user'], trailId)
+                if not is_valid_user:
+                    return Response(status=status.HTTP_401_UNAUTHORIZED)
+            serializer = UserInTrailSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

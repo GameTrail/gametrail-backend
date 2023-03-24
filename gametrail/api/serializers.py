@@ -108,7 +108,7 @@ class RatingSerializer(ModelSerializer):
         model = Rating
         fields = '__all__'
 
-class MinRatingTrailSerializer(ModelSerializer):
+class GetMinRatingTrailSerializer(ModelSerializer):
     class Meta:
         model = MinRatingTrail
         fields = '__all__'

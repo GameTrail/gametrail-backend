@@ -244,6 +244,10 @@ class MinRatingTrail(models.Model):
     minRating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     trail = models.ForeignKey(Trail, on_delete=models.SET_NULL, null=True, blank=True)
     ratingType = models.CharField(max_length=50, choices=TYPE_CHOICES)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('trail', 'ratingType')
 
     def __str__(self):
         return f"{self.ratingType} - {self.minRating}"

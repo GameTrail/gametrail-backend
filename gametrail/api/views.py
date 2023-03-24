@@ -52,36 +52,38 @@ class CUGameInListApiViewSet(APIView):
     serializer_class = CUGameInListSerializer
 
     def post(self, request, format=None):
-        user_from_request = User.objects.filter(id = request.data['user'])
-        is_valid = user_from_request[0].username == request.user.username
 
-        gameList_user = GameList.objects.filter(id = request.data['data']).get.user
-        is_valid_owner = gameList_user.username == request.user.username
-
-        if is_valid == False or is_valid_owner == False:
+        if not request.user.is_authenticated:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         else:
-            serializer = CUGameInListSerializer(data = request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(status=status.HTTP_201_CREATED)
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            userName = request.user.username
+            ownerList = GameList.objects.filter(pk = request.data['gameList'])[0].user
+        
+            if userName != ownerList.username:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                serializer = CUGameInListSerializer(data = request.data)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(status=status.HTTP_201_CREATED)
+                return Response(status=status.HTTP_400_BAD_REQUEST)
         
     def put(self, request, format=None):
-        user_from_request = User.objects.filter(id = request.data['user'])
-        is_valid = user_from_request[0].username == request.user.username
 
-        gameList_user = GameList.objects.filter(id = request.data['data']).get.user
-        is_valid_owner = gameList_user.username == request.user.username
-
-        if is_valid == False or is_valid_owner == False:
+        if not request.user.is_authenticated:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         else:
-            serializer = CUGameInListSerializer(data = request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(status=status.HTTP_201_CREATED)
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            userName = request.user.username
+            ownerList = GameList.objects.filter(pk = request.data['gameList'])[0].user
+        
+            if userName != ownerList.username:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                serializer = CUGameInListSerializer(data = request.data)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(status=status.HTTP_201_CREATED)
+                return Response(status=status.HTTP_400_BAD_REQUEST)
 
 def populate_database_little(request):
     result = functions.populate_database(True,base_json="./src/population/develop_database_little.json")

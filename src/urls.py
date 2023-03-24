@@ -11,6 +11,6 @@ urlpatterns = [
     path('api/', include(router_api.urls)),    
     path('api/auth/logout', Logout.as_view()),
     path('api/auth/login', token_views.obtain_auth_token, name='token_obtain_pair'),
-    path('api/gameList/create', CUGameInListApiViewSet.as_view())
+    path('api/gameList/game', CUGameInListApiViewSet.as_view())
 
 ]

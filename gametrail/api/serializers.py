@@ -113,7 +113,7 @@ class RatingSerializer(ModelSerializer):
         model = Rating
         fields = '__all__'
 
-class MinRatingTrailSerializer(ModelSerializer):
+class GetMinRatingTrailSerializer(ModelSerializer):
     class Meta:
         model = MinRatingTrail
         fields = '__all__'
@@ -161,6 +161,12 @@ class TrailSerializer(ModelSerializer):
     class Meta:
         model = Trail
         fields = ['id', 'name', 'description', 'startDate','finishDate','maxPlayers','owner','platforms','games','users']
+
+class PostTrailSerializer(ModelSerializer):
+
+    class Meta:
+        model = Trail
+        fields = '__all__'
 
 class CommentsByUserIdSerializer(ModelSerializer):
     userWhoComments = serializers.SerializerMethodField()

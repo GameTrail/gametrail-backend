@@ -43,6 +43,11 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['username', 'email']
 
+class UserSerializersub(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'plan']
+
 class UserLoginSerializer(serializers.Serializer):
 
     username = serializers.CharField()

@@ -80,6 +80,11 @@ class UserManager(BaseUserManager):
         user.set_password(password)
         user.save(using=self._db)
         user.is_active = True
+
+        gameList = GameList()
+        gameList.user = user
+        gameList.save()
+
         return user
 
 class User(AbstractBaseUser):

@@ -41,15 +41,24 @@ class GameListApiViewSet(ModelViewSet):
     queryset = GameList.objects.all()
 
 class GameInListApiViewSet(ModelViewSet):
+    http_method_names = ['get']
+    serializer_class = GameInListSerializer
+    queryset = GameInList.objects.all()
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ['gameList__user']
+
+class CUGameInListApiViewSet(APIView):
     http_method_names = ['post', 'put']
     serializer_class = CUGameInListSerializer
 
-    
     def post(self, request, format=None):
         user_from_request = User.objects.filter(id = request.data['user'])
         is_valid = user_from_request[0].username == request.user.username
 
-        if is_valid == False:
+        gameList_user = GameList.objects.filter(id = request.data['data']).get.user
+        is_valid_owner = gameList_user.username == request.user.username
+
+        if is_valid == False or is_valid_owner == False:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         else:
             serializer = CUGameInListSerializer(data = request.data)
@@ -62,7 +71,10 @@ class GameInListApiViewSet(ModelViewSet):
         user_from_request = User.objects.filter(id = request.data['user'])
         is_valid = user_from_request[0].username == request.user.username
 
-        if is_valid == False:
+        gameList_user = GameList.objects.filter(id = request.data['data']).get.user
+        is_valid_owner = gameList_user.username == request.user.username
+
+        if is_valid == False or is_valid_owner == False:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         else:
             serializer = CUGameInListSerializer(data = request.data)

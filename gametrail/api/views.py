@@ -213,10 +213,11 @@ class TrailApiViewSet(ModelViewSet):
 
 
 class RatingApiViewSet(ModelViewSet):
+    #http_method_names = ['post']
     serializer_class = RatingSerializer
     queryset = Rating.objects.all()
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields  = ['ratedUser', 'userWhoRate']
+    filterset_fields  = ['ratedUser', 'userWhoRate', 'id']
 
 
 class MinRatingTrailApiViewSet(ModelViewSet):
@@ -300,3 +301,42 @@ class CUDCommentsAPIViewSet(APIView):
             
             comment.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
+        
+class POSTRatingAPIViewSet(APIView):
+
+    http_method_names = ['post']
+    serializer_class = RatingSerializer
+    
+    def post(self, request, format=None): 
+
+        userWhoRate= User.objects.filter(id=request.data['userWhoRate'])
+        is_user_valid = request.user.username == userWhoRate[0].username
+
+        rating_data = request.data.get("rating", None)
+        if is_user_valid:    
+            if rating_data is not None and len(rating_data) <= 5:# and is_user_valid:
+                
+                ratings = []
+
+                for rating_type, rating_value in rating_data.items(): 
+                    rating = {
+                        "ratedUser": request.data.get("ratedUser"),
+                        "userWhoRate": request.data.get("userWhoRate"),
+                        "rating": rating_value,
+                        "type": rating_type
+                    }  
+                    serializer = RatingSerializer(data=rating)
+                    
+                    if serializer.is_valid():
+                        serializer.save()
+                        ratings.append(serializer.data)
+
+                    else:
+                        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                    
+                return Response(ratings, status=status.HTTP_201_CREATED)
+            
+            else:
+                return Response({"error": "You must include between 1 and 5 ratings"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)

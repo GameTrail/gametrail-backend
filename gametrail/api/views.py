@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework.viewsets import ModelViewSet
 from django.http import HttpResponse
 from gametrail import functions
@@ -21,6 +22,9 @@ from django.core import serializers
 def check_user_is_admin(request):
     user = request.user
     return user.is_staff
+def check_user_is_the_same(request,usergametrail):
+    user = request.user
+    return user.username == usergametrail.username
 
 class GetGameApiViewSet(ModelViewSet):
     http_method_names = ['get']
@@ -300,3 +304,32 @@ class CUDCommentsAPIViewSet(APIView):
             
             comment.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
+class UpdateSubscriptionAPIViewSet(ModelViewSet):
+    http_method_names = ['put']
+    serializer_class = UserSerializersub
+    @classmethod
+    
+    def put(self, request, format=None):
+        user_id = request.data['userId']
+        action = request.data['action']
+        usergametrail = User.objects.get(id=user_id)
+        is_user_same = check_user_is_the_same(request,usergametrail)
+
+        if is_user_same == False:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            try:
+                user = User.objects.get(id=user_id)
+                if action == 'SUBSCRIBE':
+                    user.plan = 'Premium'
+                elif action == 'UNSUBSCRIBE':
+                    user.plan = 'Standard'
+                else:
+                    return Response(status=status.HTTP_400_BAD_REQUEST)
+                user.save()
+            except User.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+
+            
+            serializer = UserSerializersub(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)

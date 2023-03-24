@@ -17,6 +17,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from itertools import chain
 from django.db.models.query import QuerySet
+from datetime import datetime
 
 def check_user_is_admin(request):
     user = request.user
@@ -223,13 +224,18 @@ class TrailApiViewSet(APIView):
             
             if user != owner.username:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
+            start_date = request.data['startDate']
+            finish_date = request.data['finishDate']
+            if datetime.strptime(finish_date, '%Y-%m-%d') < datetime.strptime(start_date, '%Y-%m-%d'):
+                return Response('La fecha de fin no puede ser anterior a la fecha de inicio!', status=status.HTTP_400_BAD_REQUEST)
         
+            elif datetime.strptime(start_date, '%Y-%m-%d') < datetime.now():
+                return Response('La fecha de inicio no puede ser un dia que ya ha pasado!', status=status.HTTP_400_BAD_REQUEST)
+            
             serializer = PostTrailSerializer(data=request.data)
             if serializer.is_valid():
                 try:
                     trail=serializer.save()
-                    trail.full_clean()
-                    trail.save()
                     userInTrail = UserInTrail(user = owner, trail = trail)
                     userInTrail.save()
                     return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -289,15 +295,13 @@ class GameInTrailViewSet(APIView):
         if user != owner:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         else :
+            priority = request.data['priority']
+            if priority < 1 or priority > 5:
+                return Response("La prioridad debe estar comprendida entre 1 y 5", status=status.HTTP_400_BAD_REQUEST)          
             serializer = GameInTrailSerializer(data=request.data)
             if serializer.is_valid():
-                try:
-                 gameintrail=serializer.save()
-                 gameintrail.full_clean()
-                 gameintrail.save()
-                 return Response(serializer.data, status=status.HTTP_201_CREATED)
-                except Exception as e:
-                 return Response(str(e), status=status.HTTP_400_BAD_REQUEST)          
+                 serializer.save()
+                 return Response(serializer.data, status=status.HTTP_201_CREATED)         
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
     def put(self, request, format = None):
@@ -312,15 +316,13 @@ class GameInTrailViewSet(APIView):
             except GameInTrail.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
             
+            priority = request.data['priority']
+            if priority < 1 or priority > 5:
+                return Response("La prioridad debe estar comprendida entre 1 y 5", status=status.HTTP_400_BAD_REQUEST)    
             serializer = GameInTrailSerializer(trail, data=request.data)
             if serializer.is_valid():
-                try:
-                 gameintrail=serializer.save()
-                 gameintrail.full_clean()
-                 gameintrail.save()
+                 serializer.save()
                  return Response(serializer.data, status=status.HTTP_201_CREATED)
-                except Exception as e:
-                 return Response(str(e), status=status.HTTP_400_BAD_REQUEST)  
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
             
@@ -446,12 +448,12 @@ class AddUserInTrailViewSet(APIView):
             num_users = UserInTrail.objects.filter(trail = trailId).count()
             trail = Trail.objects.get(pk = trailId)
             if num_users >= trail.maxPlayers:
-                return Response(status=status.HTTP_401_UNAUTHORIZED)
+                return Response("El trail ya está completo", status=status.HTTP_401_UNAUTHORIZED)
             is_premium = trail.owner.plan == "Premium"
             if is_premium:
                 is_valid_user = check_min_ratings(request.data['user'], trailId)
                 if not is_valid_user:
-                    return Response(status=status.HTTP_401_UNAUTHORIZED)
+                    return Response("No cumples los requisitos mínimos para entrar en este Trail con filtros Premium", status=status.HTTP_401_UNAUTHORIZED)
             serializer = UserInTrailSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()

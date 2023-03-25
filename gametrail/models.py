@@ -105,6 +105,11 @@ class Rating(models.Model):
     type = models.CharField(max_length=255,choices=TYPE_CHOICES)
     ratedUser = models.ForeignKey('User', on_delete=models.CASCADE, related_name='rate_recieved')
     userWhoRate = models.ForeignKey('User', on_delete=models.CASCADE, related_name='rate_made')
+    
+    class Meta:
+            unique_together = ('type', 'ratedUser','userWhoRate')
+    
+    
 
     def __str__(self):
         return f'{self.userWhoRate.username} rated {self.ratedUser.username} with {self.rating} for {self.type}'

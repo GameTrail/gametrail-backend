@@ -213,7 +213,6 @@ class TrailApiViewSet(ModelViewSet):
 
 
 class RatingApiViewSet(ModelViewSet):
-    #http_method_names = ['post']
     serializer_class = RatingSerializer
     queryset = Rating.objects.all()
     filter_backends = (DjangoFilterBackend,)

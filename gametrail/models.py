@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.core.validators import MaxValueValidator, MinValueValidator 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import User as UserDjango
+from django.core.exceptions import ValidationError
 
 #Enum declarations
 
@@ -80,6 +81,11 @@ class UserManager(BaseUserManager):
 
         user.set_password(password)
         user.save()
+
+        gameList = GameList()
+        gameList.user = user
+        gameList.save()
+
         return user
 
 class User(AbstractBaseUser):
@@ -153,6 +159,10 @@ class GameInList(models.Model):
 
     def __str__(self):
         return f"{self.game} in {self.gameList} ({self.status})"
+
+    def clean(self):
+        if self.creationMoment > self.lastModified:
+            raise ValidationError('The modified date can not before creation date.')
     
 class Genre(models.Model):
     genre = models.CharField(max_length=500)

@@ -108,6 +108,12 @@ class GameInListSerializer(ModelSerializer):
         model = GameInList
         fields = '__all__'
 
+class CUGameInListSerializer(ModelSerializer):
+
+    class Meta:
+        model = GameInList
+        fields = ['game','status','gameList']
+
 class RatingSerializer(ModelSerializer):
     class Meta:
         model = Rating
@@ -122,6 +128,7 @@ class UserInTrailSerializer(ModelSerializer):
     class Meta:
         model = UserInTrail
         fields = '__all__'
+
 
 class AllUsersInTrailsSerializer(ModelSerializer):
     id = serializers.IntegerField(source='user.id')
@@ -138,7 +145,6 @@ class GameInTrailSerializer(ModelSerializer):
     class Meta:
         model = GameInTrail
         fields = '__all__'
-
 
 class GamesInTrailsSerializer(ModelSerializer):
     games = GetGameSerializer(source='game', read_only=True)

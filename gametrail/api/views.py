@@ -28,10 +28,6 @@ def check_user_is_the_same(request,usergametrail):
     user = request.user
     return user.username == usergametrail.username
 
-def check_user_is_the_same(request,usergametrail):
-    user = request.user
-    return user.username == usergametrail.username
-
 class GetGameApiViewSet(ModelViewSet):
     http_method_names = ['get']
     serializer_class = GetGameSerializer
@@ -162,11 +158,55 @@ class GameListApiViewSet(ModelViewSet):
     queryset = GameList.objects.all()
 
 class GameInListApiViewSet(ModelViewSet):
-    http_method_names = ['get', 'post', 'put']
+    http_method_names = ['get']
     serializer_class = GameInListSerializer
     queryset = GameInList.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ['gameList__user']
+
+class CUGameInListApiViewSet(APIView):
+    http_method_names = ['post', 'put']
+    serializer_class = CUGameInListSerializer
+
+    def post(self, request, format=None):
+
+        if not request.user.is_authenticated:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            userName = request.user.username
+            ownerList = GameList.objects.filter(pk = request.data['gameList'])[0].user
+        
+            if userName != ownerList.username:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                serializer = CUGameInListSerializer(data = request.data)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(status=status.HTTP_201_CREATED)
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+        
+    def put(self, request, format=None):
+
+        if not request.user.is_authenticated:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            userName = request.user.username
+            ownerList = GameList.objects.filter(pk = request.data['gameList'])[0].user
+        
+            if userName != ownerList.username:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                gameInList = GameInList.objects.get(pk = request.data['id'])
+                
+                if gameInList.gameList.id != request.data['gameList']:
+                    return Response(status=status.HTTP_401_UNAUTHORIZED)
+                
+                serializer = CUGameInListSerializer(gameInList, data = request.data)
+
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(status=status.HTTP_201_CREATED)
+                return Response(status=status.HTTP_400_BAD_REQUEST)
 
 def populate_database_little(request):
     result = functions.populate_database(True,base_json="./src/population/develop_database_little.json")

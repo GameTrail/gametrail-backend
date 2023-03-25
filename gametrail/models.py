@@ -1,4 +1,7 @@
+from datetime import datetime
+from datetime import date
 from django.db import models
+from django.forms import ValidationError
 from django.utils import timezone
 from django.core.validators import MaxValueValidator, MinValueValidator 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
@@ -82,7 +85,7 @@ class UserManager(BaseUserManager):
         gameList = GameList()
         gameList.user = user
         gameList.save()
-        
+
         return user
 
 class User(AbstractBaseUser):
@@ -118,7 +121,7 @@ class Rating(models.Model):
     
 class GameList(models.Model):
 
-    user = models.OneToOneField('User',on_delete=models.CASCADE, unique=True)
+    user = models.OneToOneField('User',on_delete=models.CASCADE, unique=True, related_name='gameList')
     
     def __str__(self):
         return f'{self.user.username}\'s game list'
@@ -127,7 +130,7 @@ class Game(models.Model):
 
     name = models.CharField(max_length=1000)
     releaseDate = models.DateField(null=True, blank=True)
-    image = models.CharField(max_length=1000, null=True, blank=True)
+    image = models.URLField(max_length=1000, null=True, blank=True)
     photos = models.CharField(max_length=2000, null=True, blank=True)
     description = models.TextField(default='Lorem Ipsum')
 
@@ -135,7 +138,7 @@ class Game(models.Model):
         return self.name
 
 class Comment(models.Model):
-    commentText = models.TextField()
+    commentText = models.TextField(max_length=350)
     userWhoComments = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments_made')
     userCommented = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='comments_received')
     game = models.ForeignKey(Game, on_delete=models.CASCADE, blank=True, null=True)
@@ -163,7 +166,7 @@ class GameInList(models.Model):
     
 class Genre(models.Model):
     genre = models.CharField(max_length=500)
-    game = models.ManyToManyField(Game)
+    game = models.ManyToManyField(Game, related_name="genres")
 
     def __str__(self):
         return self.genre
@@ -176,36 +179,57 @@ class Trail(models.Model):
     maxPlayers = models.IntegerField(validators=[MinValueValidator(1)])
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    def clean(self):
+        if self.finishDate < self.startDate:
+            raise ValidationError('La fecha de fin no puede ser anterior a la fecha de inicio!')
+        
+        elif self.startDate < date.today():
+            raise ValidationError('La fecha de inicio no puede ser un dia que ya ha pasado!')
+    
+        return super().clean()
+
     def __str__(self):
+        
         return self.name   
     
 class UserInTrail(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    trail = models.ForeignKey(Trail, on_delete=models.CASCADE)
-    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='trails_with_user')
+    trail = models.ForeignKey(Trail, on_delete=models.CASCADE,related_name='users')
+
     class Meta:
         unique_together = ('user', 'trail',)
+
+    def clean(self) :
+        numJugadoresTrail=self.trail.users.count()
+        if numJugadoresTrail >= self.trail.maxPlayers:
+            raise ValidationError('El número de Usuarios del Trail no puede superar el número máximo de jugadores!')
+        return super().clean()
 
     def __str__(self):
         return f"{self.user.username} in {self.trail.name}"
     
 class GameInTrail(models.Model):
-    game = models.ForeignKey(Game, on_delete=models.CASCADE)
-    trail = models.ForeignKey(Trail, on_delete=models.CASCADE)
+    game = models.ForeignKey(Game, on_delete=models.CASCADE,related_name='trails')
+    trail = models.ForeignKey(Trail, on_delete=models.CASCADE,related_name='games')
     message = models.TextField()
     priority = models.IntegerField(validators=[MinValueValidator(1)])
     status = models.CharField(max_length=255, choices=STATUS_CHOICES)
 
     class Meta:
-        unique_together = ('game', 'trail',)
+        unique_together = ('game', 'trail')
+
+    def clean(self) :
+        if self.priority > 5:
+            raise ValidationError('La prioridad debe ser inferior o igual a 5!')
+        return super().clean()
 
     def __str__(self):
         return f"{self.game.name} in {self.trail.name}"
     
 class Platform(models.Model):
     platform = models.CharField(max_length=500)
-    game = models.ManyToManyField(Game)
-    trail = models.ManyToManyField(Trail)
+    game = models.ManyToManyField(Game, related_name="platforms")
+    trail = models.ManyToManyField(Trail,related_name='platforms')
 
     def __str__(self):
         return self.platform
@@ -230,6 +254,10 @@ class MinRatingTrail(models.Model):
     minRating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     trail = models.ForeignKey(Trail, on_delete=models.SET_NULL, null=True, blank=True)
     ratingType = models.CharField(max_length=50, choices=TYPE_CHOICES)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('trail', 'ratingType')
 
     def __str__(self):
         return f"{self.ratingType} - {self.minRating}"

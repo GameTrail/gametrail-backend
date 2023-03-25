@@ -43,6 +43,11 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['username', 'email']
 
+class UserSerializersub(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'plan']
+
 class UserLoginSerializer(serializers.Serializer):
 
     username = serializers.CharField()
@@ -103,12 +108,18 @@ class GameInListSerializer(ModelSerializer):
         model = GameInList
         fields = '__all__'
 
+class CUGameInListSerializer(ModelSerializer):
+
+    class Meta:
+        model = GameInList
+        fields = ['game','status','gameList']
+
 class RatingSerializer(ModelSerializer):
     class Meta:
         model = Rating
         fields = '__all__'
 
-class MinRatingTrailSerializer(ModelSerializer):
+class GetMinRatingTrailSerializer(ModelSerializer):
     class Meta:
         model = MinRatingTrail
         fields = '__all__'
@@ -117,6 +128,7 @@ class UserInTrailSerializer(ModelSerializer):
     class Meta:
         model = UserInTrail
         fields = '__all__'
+
 
 class AllUsersInTrailsSerializer(ModelSerializer):
     id = serializers.IntegerField(source='user.id')
@@ -133,7 +145,6 @@ class GameInTrailSerializer(ModelSerializer):
     class Meta:
         model = GameInTrail
         fields = '__all__'
-
 
 class GamesInTrailsSerializer(ModelSerializer):
     games = GetGameSerializer(source='game', read_only=True)
@@ -156,6 +167,12 @@ class TrailSerializer(ModelSerializer):
     class Meta:
         model = Trail
         fields = ['id', 'name', 'description', 'startDate','finishDate','maxPlayers','owner','platforms','games','users']
+
+class PostTrailSerializer(ModelSerializer):
+
+    class Meta:
+        model = Trail
+        fields = '__all__'
 
 class CommentsByUserIdSerializer(ModelSerializer):
     userWhoComments = serializers.SerializerMethodField()
@@ -227,4 +244,3 @@ class CUDCommentsSerializer(ModelSerializer):
     class Meta:
         model = Comment
         fields = '__all__'
-

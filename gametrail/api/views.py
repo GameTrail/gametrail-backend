@@ -1,7 +1,9 @@
+from django.shortcuts import get_object_or_404
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.permissions import IsAuthenticated
 from django.http import HttpResponse
 from gametrail import functions
-
+from django.db.models import Avg
 from gametrail.models import *
 from gametrail.api.serializers import *
 from django_filters.rest_framework import DjangoFilterBackend
@@ -16,11 +18,15 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from itertools import chain
 from django.db.models.query import QuerySet
+from datetime import datetime
 from django.core import serializers
 
 def check_user_is_admin(request):
     user = request.user
     return user.is_staff
+def check_user_is_the_same(request,usergametrail):
+    user = request.user
+    return user.username == usergametrail.username
 
 class GetGameApiViewSet(ModelViewSet):
     http_method_names = ['get']
@@ -152,11 +158,55 @@ class GameListApiViewSet(ModelViewSet):
     queryset = GameList.objects.all()
 
 class GameInListApiViewSet(ModelViewSet):
-    http_method_names = ['get', 'post', 'put']
+    http_method_names = ['get']
     serializer_class = GameInListSerializer
     queryset = GameInList.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ['gameList__user']
+
+class CUGameInListApiViewSet(APIView):
+    http_method_names = ['post', 'put']
+    serializer_class = CUGameInListSerializer
+
+    def post(self, request, format=None):
+
+        if not request.user.is_authenticated:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            userName = request.user.username
+            ownerList = GameList.objects.filter(pk = request.data['gameList'])[0].user
+        
+            if userName != ownerList.username:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                serializer = CUGameInListSerializer(data = request.data)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(status=status.HTTP_201_CREATED)
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+        
+    def put(self, request, format=None):
+
+        if not request.user.is_authenticated:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            userName = request.user.username
+            ownerList = GameList.objects.filter(pk = request.data['gameList'])[0].user
+        
+            if userName != ownerList.username:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                gameInList = GameInList.objects.get(pk = request.data['id'])
+                
+                if gameInList.gameList.id != request.data['gameList']:
+                    return Response(status=status.HTTP_401_UNAUTHORIZED)
+                
+                serializer = CUGameInListSerializer(gameInList, data = request.data)
+
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(status=status.HTTP_201_CREATED)
+                return Response(status=status.HTTP_400_BAD_REQUEST)
 
 def populate_database_little(request):
     result = functions.populate_database(True,base_json="./src/population/develop_database_little.json")
@@ -204,23 +254,77 @@ def populate_sabias_que(request):
     return HttpResponse(html)
 
 
-class TrailApiViewSet(ModelViewSet):
-    http_method_names = ['get','post', 'delete']
+def check_user_is_authenticated(request):
+    user = request.user
+    return user.is_authenticated
+
+class TrailApiViewSet(APIView):
+    
+    http_method_names = ['post', 'delete']
+    serializer_class = TrailSerializer
+
+    def post(self, request, format = None):
+        
+        if not check_user_is_authenticated(request):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            owner= User.objects.get(pk=request.data['owner'])
+            user = request.user.username
+            
+            if user != owner.username:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            start_date = request.data['startDate']
+            finish_date = request.data['finishDate']
+            if datetime.strptime(finish_date, '%Y-%m-%d') < datetime.strptime(start_date, '%Y-%m-%d'):
+                return Response('La fecha de fin no puede ser anterior a la fecha de inicio!', status=status.HTTP_400_BAD_REQUEST)
+        
+            elif datetime.strptime(start_date, '%Y-%m-%d') < datetime.now():
+                return Response('La fecha de inicio no puede ser un dia que ya ha pasado!', status=status.HTTP_400_BAD_REQUEST)
+            
+            serializer = PostTrailSerializer(data=request.data)
+            if serializer.is_valid():
+                try:
+                    trail=serializer.save()
+                    userInTrail = UserInTrail(user = owner, trail = trail)
+                    userInTrail.save()
+                    return Response(serializer.data, status=status.HTTP_201_CREATED)
+                except Exception as e:
+                    return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    def delete(self, request, format = None):
+        is_user_admin = check_user_is_admin(request)
+        if is_user_admin == False:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            try:
+                trail = Trail.objects.get(pk=request.data['id'])
+            except Trail.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            
+            trail.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class GetTrailApiViewSet(ModelViewSet):
+    
+    http_method_names = ['get']
     serializer_class = TrailSerializer
     queryset = Trail.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_fields  = ['games__game','users__user']
 
-
+    
 class RatingApiViewSet(ModelViewSet):
+    http_method_names = ['get']
     serializer_class = RatingSerializer
     queryset = Rating.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_fields  = ['ratedUser', 'userWhoRate']
 
-
-class MinRatingTrailApiViewSet(ModelViewSet):
-    serializer_class = MinRatingTrailSerializer
+class GetMinRatingTrailApiViewSet(ModelViewSet):
+    http_method_names = ['get']
+    serializer_class = GetMinRatingTrailSerializer
     queryset = MinRatingTrail.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_fields  = ['trail']
@@ -230,10 +334,49 @@ class SabiasqueApiViewSet(ModelViewSet):
     queryset = SabiasQue.objects.all()
 
 
-class GameInTrailViewSet(ModelViewSet):
+class GameInTrailViewSet(APIView):
     http_method_names = ['post', 'put']
     serializer_class = GameInTrailSerializer
-    queryset = GameInTrail.objects.all()
+    
+    def post(self, request, format=None):
+        owner= Trail.objects.get(pk=request.data['trail']).owner.username
+        user = request.user.username
+        
+        if user != owner:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else :
+            priority = request.data['priority']
+            if priority < 1 or priority > 5:
+                return Response("La prioridad debe estar comprendida entre 1 y 5", status=status.HTTP_400_BAD_REQUEST)          
+            serializer = GameInTrailSerializer(data=request.data)
+            if serializer.is_valid():
+                 serializer.save()
+                 return Response(serializer.data, status=status.HTTP_201_CREATED)         
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    def put(self, request, format = None):
+        owner= Trail.objects.get(pk=request.data['trail']).owner.username
+        user = request.user.username
+
+        if user != owner:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            try:
+                trail = GameInTrail.objects.get(pk=request.data['id'])
+            except GameInTrail.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            
+            priority = request.data['priority']
+            if priority < 1 or priority > 5:
+                return Response("La prioridad debe estar comprendida entre 1 y 5", status=status.HTTP_400_BAD_REQUEST)    
+            serializer = GameInTrailSerializer(trail, data=request.data)
+            if serializer.is_valid():
+                 serializer.save()
+                 return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+            
+
 
 class GamesInTrailViewSet(ModelViewSet):
     http_method_names = ['get']
@@ -242,7 +385,8 @@ class GamesInTrailViewSet(ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ['trail']
    
-class UserInTrailViewSet(ModelViewSet):
+class GetUserInTrailViewSet(ModelViewSet):
+    http_method_names = ['get']
     serializer_class = UserInTrailSerializer
     queryset = UserInTrail.objects.all()
 
@@ -300,3 +444,137 @@ class CUDCommentsAPIViewSet(APIView):
             
             comment.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
+        
+class POSTRatingAPIViewSet(APIView):
+
+    http_method_names = ['post']
+    serializer_class = RatingSerializer
+    
+    def post(self, request, format=None): 
+
+        userWhoRate= User.objects.filter(id=request.data['userWhoRate'])
+        is_user_valid = request.user.username == userWhoRate[0].username
+
+        rating_data = request.data.get("rating", None)
+        if is_user_valid:    
+            if rating_data is not None and len(rating_data) <= 5:# and is_user_valid:
+                
+                ratings = []
+
+                for rating_type, rating_value in rating_data.items(): 
+                    rating = {
+                        "ratedUser": request.data.get("ratedUser"),
+                        "userWhoRate": request.data.get("userWhoRate"),
+                        "rating": rating_value,
+                        "type": rating_type
+                    }  
+                    serializer = RatingSerializer(data=rating)
+                    
+                    if serializer.is_valid():
+                        serializer.save()
+                        ratings.append(serializer.data)
+
+                    else:
+                        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                    
+                return Response(ratings, status=status.HTTP_201_CREATED)
+            
+            else:
+                return Response({"error": "You must include between 1 and 5 ratings"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            
+class CreateMinRatingViewSet(APIView):
+    http_method_names = ['post']
+    serializer_class = GetMinRatingTrailSerializer
+
+    @classmethod
+    def post(self, request, format = None):
+        userGameTrail = User.objects.get(pk = request.data['user'])
+        is_username_same = check_user_is_the_same(request, userGameTrail)
+
+        if is_username_same == False:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            owner = Trail.objects.get(pk = request.data['trail']).owner
+            is_premium = owner.plan == "Premium"
+            if userGameTrail != owner or not is_premium:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                serializer = GetMinRatingTrailSerializer(data=request.data)
+                if serializer.is_valid():
+                    try:
+                        minRating = serializer.save()
+                        minRating.full_clean()
+                        minRating.save()
+                        return Response(serializer.data, status=status.HTTP_201_CREATED)
+                    except Exception as e:
+                        return Response(str(e), status=status.HTTP_400_BAD_REQUEST)     
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+def check_min_ratings(user, trail):
+    min_ratings = MinRatingTrail.objects.filter(trail = trail)
+    for min_rating in min_ratings:
+        min = min_rating.minRating
+        type = min_rating.ratingType
+        ratings_user = Rating.objects.filter(ratedUser_id = user, type = type).aggregate(Avg('rating'))['rating__avg']
+        if ratings_user == None or ratings_user < min:
+            return False
+    return True
+
+class AddUserInTrailViewSet(APIView):
+    http_method_names = ['post']
+    serializer_class = UserInTrailSerializer
+
+    @classmethod
+    def post(self, request, format = None):
+        is__user_authenticated = check_user_is_authenticated(request)
+
+        if is__user_authenticated == False:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            trailId = request.data['trail']
+            num_users = UserInTrail.objects.filter(trail = trailId).count()
+            trail = Trail.objects.get(pk = trailId)
+            if num_users >= trail.maxPlayers:
+                return Response("El trail ya está completo", status=status.HTTP_401_UNAUTHORIZED)
+            is_premium = trail.owner.plan == "Premium"
+            if is_premium:
+                is_valid_user = check_min_ratings(request.data['user'], trailId)
+                if not is_valid_user:
+                    return Response("No cumples los requisitos mínimos para entrar en este Trail con filtros Premium", status=status.HTTP_401_UNAUTHORIZED)
+            serializer = UserInTrailSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+class UpdateSubscriptionAPIViewSet(ModelViewSet):
+    http_method_names = ['put']
+    serializer_class = UserSerializersub
+    @classmethod
+    
+    def put(self, request, format=None):
+        user_id = request.data['userId']
+        action = request.data['action']
+        usergametrail = User.objects.get(id=user_id)
+        is_user_same = check_user_is_the_same(request,usergametrail)
+
+        if is_user_same == False:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            try:
+                user = User.objects.get(id=user_id)
+                if action == 'SUBSCRIBE':
+                    user.plan = 'Premium'
+                elif action == 'UNSUBSCRIBE':
+                    user.plan = 'Standard'
+                else:
+                    return Response(status=status.HTTP_400_BAD_REQUEST)
+                user.save()
+            except User.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+
+            
+            serializer = UserSerializersub(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)

@@ -21,6 +21,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=1000)),
                 ('releaseDate', models.DateField(blank=True, null=True)),
                 ('image', models.CharField(blank=True, max_length=1000, null=True)),
+                ('photos', models.CharField(blank=True, max_length=2000, null=True)),
                 ('description', models.TextField(default='Lorem Ipsum')),
             ],
         ),

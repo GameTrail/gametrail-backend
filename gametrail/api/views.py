@@ -213,10 +213,11 @@ class TrailApiViewSet(ModelViewSet):
 
 
 class RatingApiViewSet(ModelViewSet):
+    http_method_names = ['get']
     serializer_class = RatingSerializer
     queryset = Rating.objects.all()
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields  = ['ratedUser', 'userWhoRate', 'id']
+    filterset_fields  = ['ratedUser', 'userWhoRate']
 
 
 class MinRatingTrailApiViewSet(ModelViewSet):

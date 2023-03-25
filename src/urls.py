@@ -11,7 +11,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router_api.urls)),    
     path('api/auth/logout', Logout.as_view()),
-    path('api/gameList/game', CUGameInListApiViewSet.as_view())
+    path('api/gameList/game', CUGameInListApiViewSet.as_view()),
     path('api/auth/login', CustomAuthToken.as_view(), name='token_obtain_pair'),
     path('api/game', CUDGameApiViewSet.as_view()),
     path('api/populate_sabias_que', views.populate_sabias_que),

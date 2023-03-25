@@ -39,8 +39,6 @@ TYPE_CHOICES = [
     (AVAILABILITY, 'Availability'),
 ]
 
-# Create your models here.
-# Create your models here.
 class UserManager(BaseUserManager):
     def create_superuser(self, email, username, avatar, password):
         user = self.create_user(
@@ -53,6 +51,7 @@ class UserManager(BaseUserManager):
         user.is_active = True
         user.is_staff = True
         user.is_superadmin = True
+        user.is_authenticated = True
         user.save(using=self._db)
         return user
     
@@ -66,39 +65,40 @@ class UserManager(BaseUserManager):
         userDjango = UserDjango()
         userDjango.username = username
         userDjango.set_password(password)
-        userDjango.is_active = True
         userDjango.save()
+        userDjango.is_active = True
 
-        username_gameTrail = username + " "
+        username_gameTrail = username
 
         user = self.model(
             email=self.normalize_email(email),
             username=username_gameTrail,
-            avatar=avatar
+            avatar=avatar,
         )
 
         user.set_password(password)
-        user.save(using=self._db)
-        user.is_active = True
+        user.save()
 
         gameList = GameList()
         gameList.user = user
         gameList.save()
-
+        
         return user
 
 class User(AbstractBaseUser):
 
-    username = models.CharField(max_length=50, unique=True)
+    username = models.CharField(max_length=400, unique=True)
     email = models.EmailField(unique=True)
-    avatar = models.CharField(max_length=255)
-    password = models.CharField(max_length=50)
+    avatar = models.URLField(max_length=255)
+    password = models.CharField(max_length=500)
     plan = models.CharField(
         max_length=10,
         choices=PLAN_CHOICES,
         default=STANDARD,
     )
-    is_active               = models.BooleanField(default=False)
+
+    last_login = None
+
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email']
     objects = UserManager()

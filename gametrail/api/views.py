@@ -277,10 +277,10 @@ class TrailApiViewSet(APIView):
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
             start_date = request.data['startDate']
             finish_date = request.data['finishDate']
-            if datetime.strptime(finish_date, '%Y-%m-%d') < datetime.strptime(start_date, '%Y-%m-%d'):
+            if datetime.strptime(finish_date, '%Y-%m-%d').date() < datetime.strptime(start_date, '%Y-%m-%d').date():
                 return Response('La fecha de fin no puede ser anterior a la fecha de inicio!', status=status.HTTP_400_BAD_REQUEST)
         
-            elif datetime.strptime(start_date, '%Y-%m-%d') < datetime.now():
+            elif datetime.strptime(start_date, '%Y-%m-%d').date() < datetime.now().date():
                 return Response('La fecha de inicio no puede ser un dia que ya ha pasado!', status=status.HTTP_400_BAD_REQUEST)
             
             serializer = PostTrailSerializer(data=request.data)

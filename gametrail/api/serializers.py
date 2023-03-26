@@ -188,7 +188,7 @@ class GamesInTrailsSerializer(ModelSerializer):
 
     class Meta:
         model = GameInTrail
-        fields = ('games',)
+        fields = ('games', 'priority', 'message', 'status')
 
 class OwnerSerializer(ModelSerializer):
     class Meta:

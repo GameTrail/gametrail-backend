@@ -174,11 +174,13 @@ class CUGameInListApiViewSet(APIView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         else:
             userName = request.user.username
-            ownerList = GameList.objects.filter(pk = request.data['gameList'])[0].user
+            ownerList = User.objects.get(pk = request.data['user'])
         
             if userName != ownerList.username:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
             else:
+                gameList = GameList.objects.get(user_id = request.data['user'])
+                request.data['gameList'] = gameList.id
                 serializer = CUGameInListSerializer(data = request.data)
                 if serializer.is_valid():
                     serializer.save()

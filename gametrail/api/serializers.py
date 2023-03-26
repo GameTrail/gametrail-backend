@@ -20,14 +20,6 @@ class PlatformSerializer(ModelSerializer):
         model = Platform
         fields = ['platform']
 
-class GetGameSerializer(ModelSerializer):
-    genres = GenreSerializer(many=True, read_only=True)
-    platforms = PlatformSerializer(many=True, read_only=True)
-    
-    class Meta:
-        model = Game
-        fields = ['id', 'name', 'releaseDate', 'image', 'photos', 'description', 'genres', 'platforms']
-
 class CUDGameSerializer(ModelSerializer):
     class Meta:
         model = Game
@@ -94,11 +86,56 @@ class CreateUserSerializer(serializers.Serializer):
         user = User.objects.create_user(**data)
         print(user)
         return user
+
+class CommentsByUserIdSerializer(ModelSerializer):
+    userWhoComments = serializers.SerializerMethodField()
+    commentedUser = serializers.SerializerMethodField()
+
+    def get_userWhoComments(self,obj):
+        return {
+            'id': obj.userWhoComments.id,
+            'username' : obj.userWhoComments.username,
+            'avatar': obj.userWhoComments.avatar,
+        }
     
+    def get_commentedUser(self,obj):
+        return {
+            'id': obj.userCommented.id,
+            'username': obj.userCommented.username,
+            'avatar': obj.userCommented.avatar,
+        }
+    class Meta:
+        model = Comment
+        fields = ['id','commentText','commentedUser','userWhoComments']
+
+class CommentsOfAGameSerializer(ModelSerializer):
+    
+    userWhoComments = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Comment
+        fields = ('id','commentText','game','userWhoComments')
+
+    def get_userWhoComments(self, obj):
+        return {
+            'id': obj.userWhoComments.id,
+            'username': obj.userWhoComments.username,
+            'avatar': obj.userWhoComments.avatar,
+        }
+
 class GameListSerializer(ModelSerializer):
     class Meta:
         model = GameList
         fields = '__all__'
+
+class GetGameSerializer(ModelSerializer):
+    genres = GenreSerializer(many=True, read_only=True)
+    platforms = PlatformSerializer(many=True, read_only=True)
+    comments_games = CommentsOfAGameSerializer(many = True, read_only = True)
+    
+    class Meta:
+        model = Game
+        fields = ['id', 'name', 'releaseDate', 'image', 'photos', 'description', 'genres', 'platforms', 'comments_games']
 
 class GameInListSerializer(ModelSerializer):
 
@@ -173,42 +210,6 @@ class PostTrailSerializer(ModelSerializer):
     class Meta:
         model = Trail
         fields = '__all__'
-
-class CommentsByUserIdSerializer(ModelSerializer):
-    userWhoComments = serializers.SerializerMethodField()
-    commentedUser = serializers.SerializerMethodField()
-
-    def get_userWhoComments(self,obj):
-        return {
-            'id': obj.userWhoComments.id,
-            'username' : obj.userWhoComments.username,
-            'avatar': obj.userWhoComments.avatar,
-        }
-    
-    def get_commentedUser(self,obj):
-        return {
-            'id': obj.userCommented.id,
-            'username': obj.userCommented.username,
-            'avatar': obj.userCommented.avatar,
-        }
-    class Meta:
-        model = Comment
-        fields = ['id','commentText','commentedUser','userWhoComments']
-
-class CommentsOfAGameSerializer(ModelSerializer):
-    
-    userWhoComments = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Comment
-        fields = ('id','commentText','game','userWhoComments')
-
-    def get_userWhoComments(self, obj):
-        return {
-            'id': obj.userWhoComments.id,
-            'username': obj.userWhoComments.username,
-            'avatar': obj.userWhoComments.avatar,
-        }
 
 class TrailFromUser(ModelSerializer):
     id = serializers.IntegerField(source='trail.id')

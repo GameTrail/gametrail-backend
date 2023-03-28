@@ -1,3 +1,4 @@
+
 from rest_framework.serializers import ModelSerializer
 from gametrail.models import *
 from rest_framework import serializers
@@ -214,17 +215,16 @@ class Games1InTrailsSerializer(ModelSerializer):
     message = serializers.SerializerMethodField()
     priority = serializers.SerializerMethodField()
     status = serializers.SerializerMethodField()
-
+    
+    
     def get_genres(self, obj):
         return [genre.genre for genre in obj.game.genres.all()]
     def get_platform(self, obj):
         return [platform.platform for platform in obj.game.platforms.all()]
 
-            
- 
-
     def get_message(self, obj):
-        gameintrail = GameInTrail.objects.filter(game_id=obj.id).first()
+
+        gameintrail = GameInTrail.objects.get(pk=obj.id)
         if gameintrail:
             message =  gameintrail.message
            
@@ -232,16 +232,15 @@ class Games1InTrailsSerializer(ModelSerializer):
         return None
     
     def get_priority(self, obj):
-        gameintrail = GameInTrail.objects.filter(game_id=obj.id).first()
+        gameintrail = GameInTrail.objects.get(pk=obj.id)
         if gameintrail:
             priority =  gameintrail.priority
             return priority   
             
         return None
     
-
     def get_status(self, obj):
-        gameintrail = GameInTrail.objects.filter(game_id=obj.id).first()
+        gameintrail = GameInTrail.objects.get(pk=obj.id)
         if gameintrail:
             status =  gameintrail.status
             return  status       
@@ -252,7 +251,7 @@ class Games1InTrailsSerializer(ModelSerializer):
     class Meta:
         model = Game
         fields = ('id','name','releaseDate','image','photos','description','genres','platform','comments_games','message','priority','status')
-  
+    
 
 class OwnerSerializer(ModelSerializer):
     class Meta:
@@ -264,6 +263,7 @@ class TrailSerializer(ModelSerializer):
     users=AllUsersInTrailsSerializer(many=True,read_only=True)
     platforms= serializers.SerializerMethodField()
     owner = OwnerSerializer()
+
 
     def get_platforms(self, obj):
         return [platform.platform for platform in obj.platforms.all()]

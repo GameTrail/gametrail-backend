@@ -1,3 +1,4 @@
+
 from rest_framework.serializers import ModelSerializer
 from gametrail.models import *
 from rest_framework import serializers
@@ -14,6 +15,8 @@ class GenreSerializer(ModelSerializer):
     class Meta:
         model = Genre
         fields = ['genre']
+
+
 
 class PlatformSerializer(ModelSerializer):
     class Meta:
@@ -188,7 +191,67 @@ class GamesInTrailsSerializer(ModelSerializer):
 
     class Meta:
         model = GameInTrail
-        fields = ('games',)
+        fields = ('games', 'priority', 'message', 'status')
+
+class GenreSerializer1(ModelSerializer):
+   
+    class Meta:
+        model = Genre
+        fields = ('genre',)
+
+
+class Games1InTrailsSerializer(ModelSerializer):
+
+    id = serializers.IntegerField(source='game.id')
+    name = serializers.CharField(source='game.name')
+    releaseDate = serializers.CharField(source='game.releaseDate')
+    image = serializers.CharField(source='game.image')
+    photos = serializers.CharField(source='game.photos')
+    description = serializers.CharField(source='game.description')
+    genres = serializers.SerializerMethodField()
+    platform = serializers.SerializerMethodField()
+    comments_games = serializers.SerializerMethodField()
+    comments_games = CommentsOfAGameSerializer(many = True, read_only = True, source='game.comments_games')
+    message = serializers.SerializerMethodField()
+    priority = serializers.SerializerMethodField()
+    status = serializers.SerializerMethodField()
+    
+    
+    def get_genres(self, obj):
+        return [genre.genre for genre in obj.game.genres.all()]
+    def get_platform(self, obj):
+        return [platform.platform for platform in obj.game.platforms.all()]
+
+    def get_message(self, obj):
+
+        gameintrail = GameInTrail.objects.get(pk=obj.id)
+        if gameintrail:
+            message =  gameintrail.message
+           
+            return  message
+        return None
+    
+    def get_priority(self, obj):
+        gameintrail = GameInTrail.objects.get(pk=obj.id)
+        if gameintrail:
+            priority =  gameintrail.priority
+            return priority   
+            
+        return None
+    
+    def get_status(self, obj):
+        gameintrail = GameInTrail.objects.get(pk=obj.id)
+        if gameintrail:
+            status =  gameintrail.status
+            return  status       
+               
+        return None
+    
+   
+    class Meta:
+        model = Game
+        fields = ('id','name','releaseDate','image','photos','description','genres','platform','comments_games','message','priority','status')
+    
 
 class OwnerSerializer(ModelSerializer):
     class Meta:
@@ -196,10 +259,14 @@ class OwnerSerializer(ModelSerializer):
         fields = ['id', 'username', 'avatar', 'email']
 
 class TrailSerializer(ModelSerializer):
-    games= GamesInTrailsSerializer(many=True,read_only=True)
+    games= Games1InTrailsSerializer(many=True,read_only=True)
     users=AllUsersInTrailsSerializer(many=True,read_only=True)
-    platforms=PlatformSerializer(many=True,read_only=True)
+    platforms= serializers.SerializerMethodField()
     owner = OwnerSerializer()
+
+
+    def get_platforms(self, obj):
+        return [platform.platform for platform in obj.platforms.all()]
            
     class Meta:
         model = Trail

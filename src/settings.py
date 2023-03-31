@@ -18,7 +18,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-CSRF_TRUSTED_ORIGINS = ['https://gametrail.vercel.app', 'http://localhost:8000', 'http://localhost:3000']
+CSRF_TRUSTED_ORIGINS = ['http://gametrail-s3.vercel.app', 'http://localhost:8000', 'http://localhost:3000']
 
 # Application definition
 

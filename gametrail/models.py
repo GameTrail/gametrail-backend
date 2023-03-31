@@ -101,6 +101,7 @@ class User(AbstractBaseUser):
     )
 
     last_login = None
+    is_active = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email']
@@ -178,7 +179,7 @@ class Genre(models.Model):
 
 class Trail(models.Model):
     name = models.CharField(max_length=200)
-    description = models.TextField()
+    description = models.TextField(max_length=500)
     startDate = models.DateField()
     finishDate = models.DateField()
     maxPlayers = models.IntegerField(validators=[MinValueValidator(1)])

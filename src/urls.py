@@ -15,6 +15,7 @@ urlpatterns = [
     path('api/auth/login', CustomAuthToken.as_view(), name='token_obtain_pair'),
     path('api/game', CUDGameApiViewSet.as_view()),
     path('api/populate_sabias_que', views.populate_sabias_que),
+    path('api/populate', views.populate_gameLists),
     path('api/comment', views.CUDCommentsAPIViewSet.as_view()),
     path('api/rating', views.POSTRatingAPIViewSet.as_view()),
     path('api/trail/', views.TrailApiViewSet.as_view()),

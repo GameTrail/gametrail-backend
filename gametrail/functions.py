@@ -2,6 +2,29 @@ import json
 from . import models
 from datetime import datetime
 
+def populate_users(base_json = "./src/population/users/users.json"):
+    file = open_json_handler(base_json,encoding="utf-8")
+    data = json.loads(file)
+    for user in data:
+        models.User.objects.create_user(
+            email= str(user.get("email")),
+            username = str(user.get("username")),
+            avatar= str(user.get("avatar")),
+            password=str(user.get("password"))
+        )
+    return True
+
+def populate_gameLists(base_json = "./src/population/gameList/gameList.json"):
+    file = open_json_handler(base_json,encoding="utf-8")
+    data = json.loads(file)
+    for gameList in data:
+        models.GameInList.objects.create(
+            gameList_id = int(gameList.get("gameList")),
+            game_id = int(gameList.get("game")),
+            status = str(gameList.get("status"))
+        )
+    return True
+
 def populate_sabias_que(base_json="./src/population/sabiasque.json"):
     file = open_json_handler(base_json,encoding="utf-8")
     data = json.loads(file)

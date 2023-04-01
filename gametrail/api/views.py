@@ -270,6 +270,14 @@ def populate_gameLists(request):
         html = '<html><body>Database not populated<br>Maybe population is disabled.</body></html>' 
     return HttpResponse(html)
 
+def populate_trails(request):
+    result = functions.populate_trails(base_json="./src/population/trails/trail_copy.json")
+    if result:
+        html = '<html><body>Database populated successfully with a lot of Trails</body></html>'
+    else:
+        html = '<html><body>Database not populated<br>Maybe population is disabled.</body></html>' 
+    return HttpResponse(html)
+
 def check_user_is_authenticated(request):
     user = request.user
     return user.is_authenticated

@@ -36,6 +36,18 @@ def populate_comments(base_json = "./src/population/comments/comment.json"):
         )
     return True
 
+def populate_ratings(base_json = "./src/population/ratings/rating.json"):
+    file = open_json_handler(base_json,encoding="utf-8")
+    data = json.loads(file)
+    for rating in data:
+        models.Rating.objects.create(
+            ratedUser_id = int(rating.get("ratedUser")),
+            userWhoRate_id = int(rating.get("userWhoRate")),
+            type = str(rating.get("type")),
+            rating = int(rating.get("rating")),
+        )
+    return True
+
 def populate_trails(base_json = "./src/population/trails/trail_copy.json"):
     file = open_json_handler(base_json,encoding="utf-8")
     data = json.loads(file)

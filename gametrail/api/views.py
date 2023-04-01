@@ -278,6 +278,14 @@ def populate_trails(request):
         html = '<html><body>Database not populated<br>Maybe population is disabled.</body></html>' 
     return HttpResponse(html)
 
+def populate_comments(request):
+    result = functions.populate_comments(base_json="./src/population/comments/comment.json")
+    if result:
+        html = '<html><body>Database populated successfully with a lot of Comments</body></html>'
+    else:
+        html = '<html><body>Database not populated<br>Maybe population is disabled.</body></html>' 
+    return HttpResponse(html)
+
 def check_user_is_authenticated(request):
     user = request.user
     return user.is_authenticated

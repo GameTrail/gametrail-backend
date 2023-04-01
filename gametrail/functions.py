@@ -25,6 +25,17 @@ def populate_gameLists(base_json = "./src/population/gameList/gameList.json"):
         )
     return True
 
+def populate_comments(base_json = "./src/population/comments/comment.json"):
+    file = open_json_handler(base_json,encoding="utf-8")
+    data = json.loads(file)
+    for comment in data:
+        models.Comment.objects.create(
+            userWhoComments_id = int(comment.get("userWhoComments")),
+            userCommented_id = int(comment.get("userCommented")),
+            commentText = str(comment.get("commentText"))
+        )
+    return True
+
 def populate_trails(base_json = "./src/population/trails/trail_copy.json"):
     file = open_json_handler(base_json,encoding="utf-8")
     data = json.loads(file)
@@ -38,7 +49,6 @@ def populate_trails(base_json = "./src/population/trails/trail_copy.json"):
             maxPlayers = int(trail.get("maxPlayers")),
             owner_id = int(trail.get("owner"))
         )
-        new_trail.save()
         trail_id = new_trail.id
         games = conjunto.get("games")
         for game in games:

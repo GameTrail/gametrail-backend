@@ -317,12 +317,12 @@ class GetTrailApiViewSet(ModelViewSet):
     filterset_fields  = ['games__game','users__user']
 
     
-class RatingApiViewSet(ModelViewSet):
-    http_method_names = ['get']
-    serializer_class = RatingSerializer
-    queryset = Rating.objects.all()
-    filter_backends = (DjangoFilterBackend,)
-    filterset_fields  = ['ratedUser', 'userWhoRate']
+# class RatingApiViewSet(ModelViewSet):
+#     http_method_names = ['get']
+#     serializer_class = RatingSerializer
+#     queryset = Rating.objects.all()
+#     filter_backends = (DjangoFilterBackend,)
+#     filterset_fields  = ['ratedUser', 'userWhoRate']
 
 class GetMinRatingTrailApiViewSet(ModelViewSet):
     http_method_names = ['get']
@@ -523,6 +523,23 @@ def check_min_ratings(user, trail):
         if ratings_user == None or ratings_user < min:
             return False
     return True
+
+class GETAverageRatingsUser(APIView):
+    http_method_names = ['get']
+    @classmethod
+    def get(self, request, user_id):
+        ratings = Rating.objects.filter(ratedUser_id = user_id)
+        if not ratings:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        types = ["KINDNESS", "FUNNY", "TEAMWORK", "ABILITY", "AVAILABILITY"]
+        res = dict()
+        res["ratedUser"] = user_id
+        for type in types:
+            avg_rating = Rating.objects.filter(ratedUser_id = user_id, type = type).aggregate(Avg('rating'))['rating__avg']
+            res[type] = avg_rating
+        return Response(data=res, status=status.HTTP_200_OK)
+
+
 
 class AddUserInTrailViewSet(APIView):
     http_method_names = ['post']

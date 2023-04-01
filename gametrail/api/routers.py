@@ -9,7 +9,7 @@ router_api.register(prefix='auth', viewset=CreateUserApiViewSet, basename='auth'
 router_api.register(prefix='createList', viewset=GameListApiViewSet, basename='createList')
 router_api.register(prefix='gameList', viewset=GameInListApiViewSet, basename='gameList')
 router_api.register(prefix='getTrail', viewset=GetTrailApiViewSet, basename='getTrail')
-router_api.register(prefix='rating', viewset=RatingApiViewSet, basename='rating')
+# router_api.register(prefix='rating', viewset=RatingApiViewSet, basename='rating')
 router_api.register(prefix='minRating', viewset=GetMinRatingTrailApiViewSet, basename='minRating')
 router_api.register(prefix='sabiasque', viewset=SabiasqueApiViewSet, basename='sabiasque')
 router_api.register(prefix='allGamesInTrail', viewset=GamesInTrailViewSet, basename='allGamesInTrail')

@@ -25,6 +25,38 @@ def populate_gameLists(base_json = "./src/population/gameList/gameList.json"):
         )
     return True
 
+def populate_trails(base_json = "./src/population/trails/trail_copy.json"):
+    file = open_json_handler(base_json,encoding="utf-8")
+    data = json.loads(file)
+    for conjunto in data:
+        trail = conjunto.get("trail")
+        new_trail = models.Trail.objects.create(
+            name = str(trail.get("name")),
+            description = str(trail.get("description")),
+            startDate = str(trail.get("startDate")),
+            finishDate = str(trail.get("finishDate")),
+            maxPlayers = int(trail.get("maxPlayers")),
+            owner_id = int(trail.get("owner"))
+        )
+        new_trail.save()
+        trail_id = new_trail.id
+        games = conjunto.get("games")
+        for game in games:
+            models.GameInTrail.objects.create(
+                game_id = str(game.get("game")),
+                message = str(game.get("message")),
+                priority = int(game.get("priority")),
+                status = str(game.get("status")),
+                trail_id = trail_id
+            )
+        users = conjunto.get("users")
+        for user in users:
+            models.UserInTrail.objects.create(
+                user_id = int(user.get("user")),
+                trail_id = trail_id
+            )
+    return True
+
 def populate_sabias_que(base_json="./src/population/sabiasque.json"):
     file = open_json_handler(base_json,encoding="utf-8")
     data = json.loads(file)

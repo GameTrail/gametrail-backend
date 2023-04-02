@@ -9,6 +9,7 @@ from django.conf import settings
 # Django REST Framework
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
+from django.db.models import Avg
 
 class GenreSerializer(ModelSerializer):
     class Meta:
@@ -152,9 +153,48 @@ class CUGameInListSerializer(ModelSerializer):
         fields = ['game','status','gameList']
 
 class RatingSerializer(ModelSerializer):
+    funny = serializers.SerializerMethodField()
+    kindness = serializers.SerializerMethodField()
+    teamwork = serializers.SerializerMethodField()
+    ability = serializers.SerializerMethodField()
+    availability = serializers.SerializerMethodField()
+
     class Meta:
         model = Rating
-        fields = '__all__'
+        fields = ['ratedUser', 'userWhoRate', 'funny', 'teamwork', 'ability', 'availability', 'kindness']
+
+    def get_funny(self, obj):
+        funny = Rating.objects.filter(ratedUser_id = obj.ratedUser_id, type = "FUNNY").aggregate(Avg('rating'))['rating__avg']
+        if not funny:
+            return 0
+        return funny
+
+
+    def get_kindness(self, obj):
+        funny = Rating.objects.filter(ratedUser_id = obj.ratedUser_id, type = "KINDNESS").aggregate(Avg('rating'))['rating__avg']
+        if not funny:
+            return 0
+        return funny 
+
+
+    def get_teamwork(self, obj):
+        funny = Rating.objects.filter(ratedUser_id = obj.ratedUser_id, type = "TEAMWORK").aggregate(Avg('rating'))['rating__avg']
+        if not funny:
+            return 0
+        return funny 
+
+    def get_ability(self, obj):
+        funny = Rating.objects.filter(ratedUser_id = obj.ratedUser_id, type = "ABILITY").aggregate(Avg('rating'))['rating__avg']
+        if not funny:
+            return 0
+        return funny 
+
+
+    def get_availability(self, obj):
+        funny = Rating.objects.filter(ratedUser_id = obj.ratedUser_id, type = "AVAILABILITY").aggregate(Avg('rating'))['rating__avg']
+        if not funny:
+            return 0
+        return funny  
 
 class GetMinRatingTrailSerializer(ModelSerializer):
     class Meta:

@@ -284,7 +284,7 @@ def check_user_is_authenticated(request):
 
 class TrailApiViewSet(APIView):
     
-    http_method_names = ['post', 'delete']
+    http_method_names = ['post', 'put', 'delete']
     serializer_class = TrailSerializer
 
     def post(self, request, format = None):
@@ -315,6 +315,40 @@ class TrailApiViewSet(APIView):
                 except Exception as e:
                     return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+    def put(self, request, pk=None):
+        if not check_user_is_authenticated(request):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        
+        owner = Trail.objects.get(pk=request.data['id']).owner.username
+        user = request.user.username
+
+        if user != owner:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        try:
+            trail = Trail.objects.get(pk=request.data['id']) 
+        except Trail.DoesNotExist:
+            return Response('El Trail especificado no existe', status=status.HTTP_404_NOT_FOUND)
+
+        start_date = request.data['startDate']
+        finish_date = request.data['finishDate']
+        if datetime.strptime(finish_date, '%Y-%m-%d').date() < datetime.strptime(start_date, '%Y-%m-%d').date():
+            return Response('La fecha de fin no puede ser anterior a la fecha de inicio!', status=status.HTTP_400_BAD_REQUEST)
+        
+        elif datetime.strptime(start_date, '%Y-%m-%d').date() < datetime.now().date():
+            return Response('La fecha de inicio no puede ser un día que ya ha pasado!', status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = PutTrailSerializer(trail, data=request.data)
+        if serializer.is_valid():
+            try:
+                trail = serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            except Exception as e:
+                return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
         
     def delete(self, request, format = None):
         is_user_admin = check_user_is_admin(request)
@@ -388,14 +422,14 @@ class GameInTrailViewSet(APIView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         else:
             try:
-                trail = GameInTrail.objects.get(pk=request.data['id'])
+                trail = GameInTrail.objects.filter(trail_id=request.data['trail'], game_id = request.data['game'])[0]
             except GameInTrail.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
             
             priority = request.data['priority']
             if priority < 1 or priority > 5:
                 return Response("La prioridad debe estar comprendida entre 1 y 5", status=status.HTTP_400_BAD_REQUEST)    
-            serializer = GameInTrailSerializer(trail, data=request.data)
+            serializer = PutGameInTrailSerializer(trail, data=request.data)
             if serializer.is_valid():
                  serializer.save()
                  return Response(serializer.data, status=status.HTTP_201_CREATED)

@@ -120,7 +120,17 @@ class UserApiViewSet(ModelViewSet):
             
             serializer = PutUserSerializer(user, data=request.data)
             if serializer.is_valid():
+                userDjango = UserDjango.objects.get(username=request.user.username)
+                userDjango.set_password(request.data.get("password"))
+
                 serializer.save()
+
+                user = User.objects.get(pk=request.data.get("userId"))
+                user.set_password(request.data.get("password"))
+                user.save()   
+                             
+                userDjango.save()
+
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

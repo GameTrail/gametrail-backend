@@ -93,8 +93,8 @@ class UserApiViewSet(ModelViewSet):
     queryset = User.objects.all()
     
     def delete(self, request, format = None):
-        is_user_admin = request.user.is_staff
-        if is_user_admin == False:
+        is_user_valid = request.user.is_staff | (request.user.username == User.objects.get(pk=request.data['userId']).username)
+        if is_user_valid == False:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         else:
             try:
@@ -103,6 +103,8 @@ class UserApiViewSet(ModelViewSet):
                 return Response(status=status.HTTP_404_NOT_FOUND)
             
             user.delete()
+            userDjango = UserDjango.objects.get(username=user.username)
+            userDjango.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
     
     def put(self, request, format = None):
@@ -118,7 +120,17 @@ class UserApiViewSet(ModelViewSet):
             
             serializer = PutUserSerializer(user, data=request.data)
             if serializer.is_valid():
+                userDjango = UserDjango.objects.get(username=request.user.username)
+                userDjango.set_password(request.data.get("password"))
+
                 serializer.save()
+
+                user = User.objects.get(pk=request.data.get("userId"))
+                user.set_password(request.data.get("password"))
+                user.save()   
+                             
+                userDjango.save()
+
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

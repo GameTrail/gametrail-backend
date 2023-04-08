@@ -246,7 +246,7 @@ class GetUserSerializer(ModelSerializer):
 class PutUserSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = ['avatar']
+        fields = ['avatar','email']
         
 class CUDCommentsSerializer(ModelSerializer):
     class Meta:

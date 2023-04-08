@@ -398,7 +398,7 @@ class GameInTrailViewSet(APIView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         else:
             try:
-                trail = GameInTrail.objects.get(pk=request.data['id'])
+                trail = GameInTrail.objects.filter(trail_id=request.data['trail'], game_id = request.data['game'])[0]
             except GameInTrail.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
             

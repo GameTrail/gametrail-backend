@@ -101,6 +101,7 @@ class User(AbstractBaseUser):
     )
 
     last_login = None
+    is_active = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email']

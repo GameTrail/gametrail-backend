@@ -183,6 +183,13 @@ class GameInTrailSerializer(ModelSerializer):
         model = GameInTrail
         fields = '__all__'
 
+class PutGameInTrailSerializer(ModelSerializer):
+    game = serializers.IntegerField(source='trails.id')
+    trail = serializers.IntegerField(source='games.id')
+    class Meta:
+        model = GameInTrail
+        fields = ['id','trail','game','message' ,'priority', 'status']
+
 class GamesInTrailsSerializer(ModelSerializer):
     games = GetGameSerializer(source='game', read_only=True)
 
@@ -209,7 +216,7 @@ class PostTrailSerializer(ModelSerializer):
 
     class Meta:
         model = Trail
-        fields = '__all__'
+        fields = fields = ['id', 'name', 'description', 'startDate','finishDate','maxPlayers','owner']
 
 class TrailFromUser(ModelSerializer):
     id = serializers.IntegerField(source='trail.id')
@@ -245,3 +252,9 @@ class CUDCommentsSerializer(ModelSerializer):
     class Meta:
         model = Comment
         fields = '__all__'
+
+class PutTrailSerializer(ModelSerializer):
+
+    class Meta:
+        model = Trail
+        fields = ['id','name', 'description', 'startDate', 'finishDate','maxPlayers','owner']

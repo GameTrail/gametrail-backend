@@ -267,6 +267,44 @@ def populate_sabias_que(request):
 
     return HttpResponse(html)
 
+def populate_users(request):
+    result = functions.populate_users(base_json="./src/population/users/users.json")
+    if result:
+        html = '<html><body>Database populated successfully with a lot of users</body></html>'
+    else:
+        html = '<html><body>Database not populated<br>Maybe population is disabled.</body></html>' 
+
+def populate_gameLists(request):
+    result = functions.populate_gameLists(base_json="./src/population/gameList/gameList.json")
+    if result:
+        html = '<html><body>Database populated successfully with a lot of GameLists</body></html>'
+    else:
+        html = '<html><body>Database not populated<br>Maybe population is disabled.</body></html>' 
+    return HttpResponse(html)
+
+def populate_trails(request):
+    result = functions.populate_trails(base_json="./src/population/trails/trail_copy.json")
+    if result:
+        html = '<html><body>Database populated successfully with a lot of Trails</body></html>'
+    else:
+        html = '<html><body>Database not populated<br>Maybe population is disabled.</body></html>' 
+    return HttpResponse(html)
+
+def populate_comments(request):
+    result = functions.populate_comments(base_json="./src/population/comments/comment.json")
+    if result:
+        html = '<html><body>Database populated successfully with a lot of Comments</body></html>'
+    else:
+        html = '<html><body>Database not populated<br>Maybe population is disabled.</body></html>' 
+    return HttpResponse(html)
+
+def populate_ratings(request):
+    result = functions.populate_ratings(base_json="./src/population/ratings/rating.json")
+    if result:
+        html = '<html><body>Database populated successfully with a lot of Ratings</body></html>'
+    else:
+        html = '<html><body>Database not populated<br>Maybe population is disabled.</body></html>' 
+    return HttpResponse(html)
 
 def check_user_is_authenticated(request):
     user = request.user

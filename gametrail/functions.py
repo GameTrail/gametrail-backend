@@ -2,6 +2,83 @@ import json
 from . import models
 from datetime import datetime
 
+def populate_users(base_json = "./src/population/users/users.json"):
+    file = open_json_handler(base_json,encoding="utf-8")
+    data = json.loads(file)
+    for user in data:
+        models.User.objects.create_user(
+            email= str(user.get("email")),
+            username = str(user.get("username")),
+            avatar= str(user.get("avatar")),
+            password=str(user.get("password"))
+        )
+    return True
+
+def populate_gameLists(base_json = "./src/population/gameList/gameList.json"):
+    file = open_json_handler(base_json,encoding="utf-8")
+    data = json.loads(file)
+    for gameList in data:
+        models.GameInList.objects.create(
+            gameList_id = int(gameList.get("gameList")),
+            game_id = int(gameList.get("game")),
+            status = str(gameList.get("status"))
+        )
+    return True
+
+def populate_comments(base_json = "./src/population/comments/comment.json"):
+    file = open_json_handler(base_json,encoding="utf-8")
+    data = json.loads(file)
+    for comment in data:
+        models.Comment.objects.create(
+            userWhoComments_id = int(comment.get("userWhoComments")),
+            userCommented_id = int(comment.get("userCommented")),
+            commentText = str(comment.get("commentText"))
+        )
+    return True
+
+def populate_ratings(base_json = "./src/population/ratings/rating.json"):
+    file = open_json_handler(base_json,encoding="utf-8")
+    data = json.loads(file)
+    for rating in data:
+        models.Rating.objects.create(
+            ratedUser_id = int(rating.get("ratedUser")),
+            userWhoRate_id = int(rating.get("userWhoRate")),
+            type = str(rating.get("type")),
+            rating = int(rating.get("rating")),
+        )
+    return True
+
+def populate_trails(base_json = "./src/population/trails/trail_copy.json"):
+    file = open_json_handler(base_json,encoding="utf-8")
+    data = json.loads(file)
+    for conjunto in data:
+        trail = conjunto.get("trail")
+        new_trail = models.Trail.objects.create(
+            name = str(trail.get("name")),
+            description = str(trail.get("description")),
+            startDate = str(trail.get("startDate")),
+            finishDate = str(trail.get("finishDate")),
+            maxPlayers = int(trail.get("maxPlayers")),
+            owner_id = int(trail.get("owner"))
+        )
+        trail_id = new_trail.id
+        games = conjunto.get("games")
+        for game in games:
+            models.GameInTrail.objects.create(
+                game_id = str(game.get("game")),
+                message = str(game.get("message")),
+                priority = int(game.get("priority")),
+                status = str(game.get("status")),
+                trail_id = trail_id
+            )
+        users = conjunto.get("users")
+        for user in users:
+            models.UserInTrail.objects.create(
+                user_id = int(user.get("user")),
+                trail_id = trail_id
+            )
+    return True
+
 def populate_sabias_que(base_json="./src/population/sabiasque.json"):
     file = open_json_handler(base_json,encoding="utf-8")
     data = json.loads(file)

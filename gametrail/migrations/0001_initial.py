@@ -51,7 +51,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=200)),
-                ('description', models.TextField()),
+                ('description', models.TextField(max_length=500)),
                 ('startDate', models.DateField()),
                 ('finishDate', models.DateField()),
                 ('maxPlayers', models.IntegerField(validators=[django.core.validators.MinValueValidator(1)])),

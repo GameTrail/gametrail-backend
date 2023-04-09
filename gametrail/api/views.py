@@ -20,6 +20,7 @@ from itertools import chain
 from django.db.models.query import QuerySet
 from datetime import datetime
 from django.core import serializers
+from rest_framework.pagination import PageNumberPagination
 
 def check_user_is_admin(request):
     user = request.user
@@ -28,6 +29,11 @@ def check_user_is_the_same(request,usergametrail):
     user = request.user
     return user.username == usergametrail.username
 
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 16
+    page_size_query_param = 'page_size'
+    max_page_size = 16
+
 class GetGameApiViewSet(ModelViewSet):
     http_method_names = ['get']
     serializer_class = GetGameSerializer
@@ -35,6 +41,8 @@ class GetGameApiViewSet(ModelViewSet):
     filter_backends = [SearchFilter, DjangoFilterBackend]
     search_fields = ['name']
     filterset_fields = ['platforms__platform','genres__genre']
+    pagination_class = StandardResultsSetPagination
+
 
 class GetRecentGames(ModelViewSet):
     http_method_names = ['get']
@@ -86,6 +94,8 @@ class CUDGameApiViewSet(APIView):
             
             game.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 
 class UserApiViewSet(ModelViewSet):
     http_method_names = ['get', 'delete', 'put']
@@ -399,6 +409,8 @@ class GetTrailApiViewSet(ModelViewSet):
     queryset = Trail.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_fields  = ['games__game','users__user']
+    pagination_class = StandardResultsSetPagination
+
 
     
 class RatingApiViewSet(ModelViewSet):

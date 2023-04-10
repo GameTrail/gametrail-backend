@@ -21,4 +21,5 @@ urlpatterns = [
     path('api/gameInTrail', views.GameInTrailViewSet.as_view()),
     path('api/createMinRating', views.CreateMinRatingViewSet.as_view()),
     path('api/addUserInTrail', views.AddUserInTrailViewSet.as_view()),
+    path('api/trailRecomendation', views.UserTrailRecomendationViewSet.as_view())
 ]

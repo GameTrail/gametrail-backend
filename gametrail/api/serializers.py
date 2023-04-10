@@ -132,9 +132,14 @@ class GameListSerializer(ModelSerializer):
         fields = '__all__'
 
 class GetGameSerializer(ModelSerializer):
-    genres = GenreSerializer(many=True, read_only=True)
-    platforms = PlatformSerializer(many=True, read_only=True)
+    genres = serializers.SerializerMethodField()
+    platforms = serializers.SerializerMethodField()
     comments_games = CommentsOfAGameSerializer(many = True, read_only = True)
+
+    def get_genres(self, obj):
+        return [genre.genre for genre in obj.genres.all()]
+    def get_platforms(self, obj):
+        return [platform.platform for platform in obj.platforms.all()]
     
     class Meta:
         model = Game

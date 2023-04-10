@@ -284,6 +284,28 @@ class TrailSerializer(ModelSerializer):
         model = Trail
         fields = ['id', 'name', 'description', 'startDate','finishDate','maxPlayers','owner','platforms','games','users']
 
+class UserTrailRecommendation(ModelSerializer):
+    id = serializers.IntegerField(source='user.id')
+    username = serializers.CharField(source='user.username')
+
+    class Meta:
+        model = UserInTrail
+        fields = ['id', 'username']
+
+class GameImageSerializer(ModelSerializer):
+    image = serializers.CharField(source='game.image')
+    class Meta:
+        model = GameInTrail
+        fields = ['image']
+
+class RecommendedTrailSerializer(ModelSerializer):
+    users = UserTrailRecommendation(many=True,read_only=True)
+    games = GameImageSerializer(many=True,read_only=True)
+
+    class Meta:
+        model = Trail
+        fields = ['id', 'name', 'description', 'startDate', 'finishDate', 'maxPlayers', 'users', 'games']
+
 class PostTrailSerializer(ModelSerializer):
 
     class Meta:

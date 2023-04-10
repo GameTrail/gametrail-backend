@@ -22,6 +22,14 @@ from datetime import datetime
 from django.core import serializers
 from rest_framework.pagination import PageNumberPagination
 
+PLAYING = 'PLAYING'
+PENDING = 'PENDING'
+FINISHED = 'FINISHED'
+
+STATUS_RECOMMENDATIONS = {
+    PENDING : 1, PLAYING : 2, FINISHED : 3
+}
+
 def check_user_is_admin(request):
     user = request.user
     return user.is_staff
@@ -681,37 +689,41 @@ class UpdateSubscriptionAPIViewSet(ModelViewSet):
             serializer = UserSerializersub(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-class UserTrailRecomendationViewSet(APIView):
+class UserTrailRecomendationViewSet(ModelViewSet):
     http_method_names = ['get']
-    def get(self, request, format=None):
-        username=request.user.username
-        user = User.objects.filter(username=username)
-        gamelist=GameList.objects.filter(user__in=user)
-        games=GameInList.objects.filter(gameList__in=gamelist)
+    serializer_class = RecommendedTrailSerializer
+
+    def get_queryset(self):
+        username=self.request.user.username
+        user = User.objects.filter(username=username)[0]
+        if user.plan != "PREMIUM":
+            return []
+        gamelist=GameList.objects.filter(user=user)[0]
+        games=GameInList.objects.filter(gameList=gamelist)
         genres={}
         platforms={}
         for game in games:
             genresGame=Genre.objects.filter(game=game.game)
             platformsGame=Platform.objects.filter(game=game.game)
+            state = game.status
             for genre in genresGame:             
                 if genre.genre in genres:
-                    genres[genre.genre]=genres[genre.genre]+1
+                    genres[genre.genre]=genres[genre.genre] + STATUS_RECOMMENDATIONS[state]
                 else:
-                    genres[genre.genre]=1
+                    genres[genre.genre]= STATUS_RECOMMENDATIONS[state]
             for platform in platformsGame:
                 if platform.platform in platforms:
-                    platforms[platform.platform]=platforms[platform.platform]+1
+                    platforms[platform.platform]=platforms[platform.platform] + STATUS_RECOMMENDATIONS[state]
                 else:
-                    platforms[platform.platform]=1
+                    platforms[platform.platform]= STATUS_RECOMMENDATIONS[state]
         sortedGenres=sorted(genres.items(), key=lambda x:x[1])
         sortedPlatforms=sorted(platforms.items(), key=lambda x:x[1])
         genresFinal=sortedGenres[-3:]
         platformsFinal=sortedPlatforms[-2:]
-        gameInTrails=GameInTrail.objects.filter(game__genres__genre__in=dict(genresFinal).keys(), game__platforms__platform__in=dict(platformsFinal).keys())
-        trails=set([gameInTrail.trail for gameInTrail in gameInTrails])
-        print(trails)
-        serializer=TrailSerializer(trails,many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        gameInTrails=GameInTrail.objects.filter(game__genres__genre__in=dict(genresFinal).keys(), game__platforms__platform__in=dict(platformsFinal).keys()).distinct()
+        trails = Trail.objects.filter(games__in = gameInTrails).distinct()[:9]
+        return trails
+
 
 
 

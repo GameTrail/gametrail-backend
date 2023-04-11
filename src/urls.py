@@ -17,7 +17,6 @@ urlpatterns = [
     path('api/populate_sabias_que', views.populate_sabias_que),
     path('api/comment', views.CUDCommentsAPIViewSet.as_view()),
     path('api/rating', views.POSTRatingAPIViewSet.as_view()),
-    path('api/rating/<int:user_id>', views.GETAverageRatingsUser.as_view()),
     path('api/trail/', views.TrailApiViewSet.as_view()),
     path('api/gameInTrail', views.GameInTrailViewSet.as_view()),
     path('api/createMinRating', views.CreateMinRatingViewSet.as_view()),

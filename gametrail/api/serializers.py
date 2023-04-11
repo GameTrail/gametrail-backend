@@ -9,7 +9,6 @@ from django.conf import settings
 # Django REST Framework
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
-from django.db.models import Avg
 
 class GenreSerializer(ModelSerializer):
     class Meta:

@@ -470,7 +470,6 @@ class POSTRatingAPIViewSet(APIView):
                         "rating": rating_value,
                         "type": rating_type
                     } 
-                    print(rating) 
                     serializer = RatingSerializer(data=rating)
                     
                     if serializer.is_valid():

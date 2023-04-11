@@ -569,7 +569,7 @@ class POSTRatingAPIViewSet(APIView):
                         "userWhoRate": request.data.get("userWhoRate"),
                         "rating": rating_value,
                         "type": rating_type
-                    }  
+                    } 
                     serializer = RatingSerializer(data=rating)
                     
                     if serializer.is_valid():
@@ -693,4 +693,35 @@ def add_game_from_trail_to_gameList(request):
         if GameInList.objects.filter(game=gameFromTrail,gameList=gameList_from_user).count()==0:
             newGame = GameInList(game = gameFromTrail,gameList=gameList_from_user,status="PENDING")
             newGame.save()
-
+            
+class UserTrailRecomendationViewSet(APIView):
+    http_method_names = ['get']
+    def get(self, request, format=None):
+        username=request.user.username
+        user = User.objects.filter(username=username)
+        gamelist=GameList.objects.filter(user__in=user)
+        games=GameInList.objects.filter(gameList__in=gamelist)
+        genres={}
+        platforms={}
+        for game in games:
+            genresGame=Genre.objects.filter(game=game.game)
+            platformsGame=Platform.objects.filter(game=game.game)
+            for genre in genresGame:             
+                if genre.genre in genres:
+                    genres[genre.genre]=genres[genre.genre]+1
+                else:
+                    genres[genre.genre]=1
+            for platform in platformsGame:
+                if platform.platform in platforms:
+                    platforms[platform.platform]=platforms[platform.platform]+1
+                else:
+                    platforms[platform.platform]=1
+        sortedGenres=sorted(genres.items(), key=lambda x:x[1])
+        sortedPlatforms=sorted(platforms.items(), key=lambda x:x[1])
+        genresFinal=sortedGenres[-3:]
+        platformsFinal=sortedPlatforms[-2:]
+        gameInTrails=GameInTrail.objects.filter(game__genres__genre__in=dict(genresFinal).keys(), game__platforms__platform__in=dict(platformsFinal).keys())
+        trails=set([gameInTrail.trail for gameInTrail in gameInTrails])
+        print(trails)
+        serializer=TrailSerializer(trails,many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

@@ -680,3 +680,16 @@ class UpdateSubscriptionAPIViewSet(ModelViewSet):
             
             serializer = UserSerializersub(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+def addGameFromTrailToGameList(request):
+    trailId = request.data["trailId"]
+    userId = request.data["userId"]
+    gameListFromUser = GameList.objects.filter(user = userId).get
+    gameListTrail = GameInTrail.objects.filter(trail = trailId)
+    for game in gameListTrail:
+        gameFromTrail = game.game
+        if GameInList.objects.filter(game=gameFromTrail,gameList=gameListFromUser).count()==0:
+            newGame = GameInList(game = gameFromTrail,gameList=gameListFromUser,status="PENDING")
+            newGame.save()
+

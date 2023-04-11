@@ -648,6 +648,7 @@ class AddUserInTrailViewSet(APIView):
             serializer = UserInTrailSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
+                add_game_from_trail_to_gameList(request)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
@@ -681,6 +682,18 @@ class UpdateSubscriptionAPIViewSet(ModelViewSet):
             serializer = UserSerializersub(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+def add_game_from_trail_to_gameList(request):
+    trail_id = request.data["trail"]
+    user_id = request.data["user"]
+    gameList_from_user = GameList.objects.filter(user = user_id)[0]
+    gameList_trail = GameInTrail.objects.filter(trail = trail_id)
+    for game in gameList_trail:
+        gameFromTrail = game.game
+        if GameInList.objects.filter(game=gameFromTrail,gameList=gameList_from_user).count()==0:
+            newGame = GameInList(game = gameFromTrail,gameList=gameList_from_user,status="PENDING")
+            newGame.save()
+            
 class UserTrailRecomendationViewSet(APIView):
     http_method_names = ['get']
     def get(self, request, format=None):
@@ -712,12 +725,3 @@ class UserTrailRecomendationViewSet(APIView):
         print(trails)
         serializer=TrailSerializer(trails,many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-
-
-
-
-
-
-

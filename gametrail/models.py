@@ -7,6 +7,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import User as UserDjango
 from django.core.exceptions import ValidationError
+from django.db.models import Avg
 
 #Enum declarations
 
@@ -108,6 +109,19 @@ class User(AbstractBaseUser):
 
     def __str__(self):
         return f'{self.username}'
+    
+    @property
+    def average_ratings(self):
+        ratings = Rating.objects.filter(ratedUser_id = self.id)
+        if not ratings:
+            return []
+        types = ["KINDNESS", "FUNNY", "TEAMWORK", "ABILITY", "AVAILABILITY"]
+        res = dict()
+        res["ratedUser"] = self.id
+        for type in types:
+            avg_rating = Rating.objects.filter(ratedUser_id = self.id, type = type).aggregate(Avg('rating'))['rating__avg']
+            res[type] = avg_rating
+        return res
 
 class Rating(models.Model):
     

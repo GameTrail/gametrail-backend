@@ -153,48 +153,9 @@ class CUGameInListSerializer(ModelSerializer):
         fields = ['game','status','gameList']
 
 class RatingSerializer(ModelSerializer):
-    funny = serializers.SerializerMethodField()
-    kindness = serializers.SerializerMethodField()
-    teamwork = serializers.SerializerMethodField()
-    ability = serializers.SerializerMethodField()
-    availability = serializers.SerializerMethodField()
-
     class Meta:
         model = Rating
-        fields = ['ratedUser', 'userWhoRate', 'funny', 'teamwork', 'ability', 'availability', 'kindness']
-
-    def get_funny(self, obj):
-        funny = Rating.objects.filter(ratedUser_id = obj.ratedUser_id, type = "FUNNY").aggregate(Avg('rating'))['rating__avg']
-        if not funny:
-            return 0
-        return funny
-
-
-    def get_kindness(self, obj):
-        funny = Rating.objects.filter(ratedUser_id = obj.ratedUser_id, type = "KINDNESS").aggregate(Avg('rating'))['rating__avg']
-        if not funny:
-            return 0
-        return funny 
-
-
-    def get_teamwork(self, obj):
-        funny = Rating.objects.filter(ratedUser_id = obj.ratedUser_id, type = "TEAMWORK").aggregate(Avg('rating'))['rating__avg']
-        if not funny:
-            return 0
-        return funny 
-
-    def get_ability(self, obj):
-        funny = Rating.objects.filter(ratedUser_id = obj.ratedUser_id, type = "ABILITY").aggregate(Avg('rating'))['rating__avg']
-        if not funny:
-            return 0
-        return funny 
-
-
-    def get_availability(self, obj):
-        funny = Rating.objects.filter(ratedUser_id = obj.ratedUser_id, type = "AVAILABILITY").aggregate(Avg('rating'))['rating__avg']
-        if not funny:
-            return 0
-        return funny  
+        fields = '__all__'
 
 class GetMinRatingTrailSerializer(ModelSerializer):
     class Meta:
@@ -269,12 +230,11 @@ class TrailFromUser(ModelSerializer):
 class GetUserSerializer(ModelSerializer):
     games=GameInListSerializer(many=True,read_only=True, source="gameList.games_in_list")
     trails=TrailFromUser(many=True,read_only=True,source="trails_with_user")
-    rate_recieved=RatingSerializer(many=True, read_only=True)
     comments_received=CommentsByUserIdSerializer(many=True, read_only=True)
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'avatar', 'plan', 'games', 'trails', 'rate_recieved', 'comments_received']
+        fields = ['id', 'username', 'email', 'avatar', 'plan', 'games', 'trails', 'average_ratings', 'comments_received']
 
 class PutUserSerializer(ModelSerializer):
     class Meta:

@@ -330,12 +330,11 @@ class TrailFromUser(ModelSerializer):
 class GetUserSerializer(ModelSerializer):
     games=GameInListSerializer(many=True,read_only=True, source="gameList.games_in_list")
     trails=TrailFromUser(many=True,read_only=True,source="trails_with_user")
-    rate_recieved=RatingSerializer(many=True, read_only=True)
     comments_received=CommentsByUserIdSerializer(many=True, read_only=True)
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'avatar', 'plan', 'games', 'trails', 'rate_recieved', 'comments_received']
+        fields = ['id', 'username', 'email', 'avatar', 'plan', 'games', 'trails', 'average_ratings', 'comments_received']
 
 class PutUserSerializer(ModelSerializer):
     class Meta:

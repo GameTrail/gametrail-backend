@@ -138,18 +138,23 @@ class UserApiViewSet(ModelViewSet):
             
             serializer = PutUserSerializer(user, data=request.data)
             if serializer.is_valid():
-                userDjango = UserDjango.objects.get(username=request.user.username)
-                userDjango.set_password(request.data.get("password"))
+                if (request.data.get("password") != None):
+                    userDjango = UserDjango.objects.get(username=request.user.username)
+                    userDjango.set_password(request.data.get("password"))
 
-                serializer.save()
+                    serializer.save()
 
-                user = User.objects.get(pk=request.data.get("userId"))
-                user.set_password(request.data.get("password"))
-                user.save()   
+                    user = User.objects.get(pk=request.data.get("userId"))
+                    user.set_password(request.data.get("password"))
+                    user.save()   
                              
-                userDjango.save()
+                    userDjango.save()
 
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                    return Response(serializer.data, status=status.HTTP_201_CREATED)
+                else:                
+                    serializer.save()
+                    return Response(serializer.data, status=status.HTTP_201_CREATED)
+                
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class Logout(APIView):
@@ -419,7 +424,8 @@ class GetTrailApiViewSet(ModelViewSet):
     http_method_names = ['get']
     serializer_class = TrailSerializer
     queryset = Trail.objects.all()
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = [SearchFilter, DjangoFilterBackend]
+    search_fields = ['name']
     filterset_fields  = ['games__game','users__user']
     pagination_class = StandardResultsSetPagination
 

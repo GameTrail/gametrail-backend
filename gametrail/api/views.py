@@ -423,7 +423,7 @@ class GetTrailApiViewSet(ModelViewSet):
     
     http_method_names = ['get']
     serializer_class = TrailSerializer
-    queryset = Trail.objects.all()
+    queryset = Trail.objects.all().order_by('-pk')
     filter_backends = [SearchFilter, DjangoFilterBackend]
     search_fields = ['name']
     filterset_fields  = ['games__game','users__user']

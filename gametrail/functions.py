@@ -1,6 +1,13 @@
 import json
 from . import models
 from datetime import datetime
+import pytesseract
+
+def tesseract_image_read(image = "./src/images/test.png"):
+    pytesseract.pytesseract.tesseract_cmd = "./src/tesseract/Tesseract-OCR/tesseract.exe"
+    texto = pytesseract.image_to_string(image)
+    print(texto)
+    return texto
 
 def populate_users(base_json = "./src/population/users/users.json"):
     file = open_json_handler(base_json,encoding="utf-8")

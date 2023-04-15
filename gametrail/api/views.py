@@ -21,6 +21,7 @@ from django.db.models.query import QuerySet
 from datetime import datetime
 from django.core import serializers
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.decorators import api_view
 
 PLAYING = 'PLAYING'
 PENDING = 'PENDING'
@@ -248,6 +249,13 @@ class CUGameInListApiViewSet(APIView):
                     serializer.save()
                     return Response(status=status.HTTP_201_CREATED)
                 return Response(status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def tesseract_image_read(request):
+    image = request.GET.get("image")    
+    html = '<html><body>Work in progress</body></html>'
+    functions.tesseract_image_read(image)
+    return HttpResponse(html)
 
 def populate_database_little(request):
     result = functions.populate_database(True,base_json="./src/population/develop_database_little.json")

@@ -356,20 +356,18 @@ class TrailApiViewSet(APIView):
                 return Response('La fecha de inicio no puede ser un dia que ya ha pasado!', status=status.HTTP_400_BAD_REQUEST)
             
             datenow = timezone.now().date()
-            # Get current user
+            
             user = User.objects.get(pk=request.data['owner'])
             current_month = datetime.now().month
             trail_count = Trail.objects.filter(owner=user,creationdate__month=current_month).count()
             user.is_subscription_expired()
-            if trail_count > 3 and user.plan == "STANDARD":
+            if trail_count >= 3 and user.plan == "STANDARD":
                 return Response('No puedes crear más de 3 trails en este mes.', status=status.HTTP_400_BAD_REQUEST)
         
             serializer = PostTrailSerializer(data=request.data)
             if serializer.is_valid():
                 try:
                     trail=serializer.save()
-                    trail.creationdate =  datetime.now().date()
-                    trail.save()
                     userInTrail = UserInTrail(user = owner, trail = trail)
                     userInTrail.save()
                     return Response(serializer.data, status=status.HTTP_201_CREATED)

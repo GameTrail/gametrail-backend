@@ -208,7 +208,7 @@ class Trail(models.Model):
     finishDate = models.DateField()
     maxPlayers = models.IntegerField(validators=[MinValueValidator(1)])
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
-    creationdate = models.DateField(default=datetime(2023, 1, 1), null=True, blank=True)
+    creationdate = models.DateField(default= datetime.now().date(), null=True, blank=True)
 
     def clean(self):
         if self.finishDate < self.startDate:

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from datetime import date
 from django.db import models
 from django.forms import ValidationError
@@ -8,7 +8,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import User as UserDjango
 from django.core.exceptions import ValidationError
 from django.db.models import Avg
-
+from django.utils.timezone import now as currentDate
 #Enum declarations
 
 PLAYING = 'PLAYING'
@@ -100,13 +100,23 @@ class User(AbstractBaseUser):
         choices=PLAN_CHOICES,
         default=STANDARD,
     )
-
+    suscription_time = models.DateField(default=datetime(2023, 1, 1), null=True, blank=True)
     last_login = None
     is_active = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email']
     objects = UserManager()
+    
+    def is_subscription_expired(self):
+        if self.plan == PREMIUM and self.suscription_time:
+            tiempo = datetime.now().date() - self.suscription_time
+            if tiempo >= timedelta(days=30):
+                self.plan = STANDARD
+                self.suscription_time = None
+                self.save()
+                return True
+        return False
 
     def __str__(self):
         return f'{self.username}'
@@ -198,6 +208,7 @@ class Trail(models.Model):
     finishDate = models.DateField()
     maxPlayers = models.IntegerField(validators=[MinValueValidator(1)])
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    creationDate = models.DateField(default=currentDate, null=True, blank=True)
 
     def clean(self):
         if self.finishDate < self.startDate:

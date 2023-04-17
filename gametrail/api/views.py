@@ -359,7 +359,14 @@ class TrailApiViewSet(APIView):
         
             elif datetime.strptime(start_date, '%Y-%m-%d').date() < datetime.now().date():
                 return Response('La fecha de inicio no puede ser un dia que ya ha pasado!', status=status.HTTP_400_BAD_REQUEST)
-            
+                        
+            user = User.objects.get(pk=request.data['owner'])
+            current_month = datetime.now().month
+            trail_count = Trail.objects.filter(owner=user,creationate__month=current_month).count()
+            user.is_subscription_expired()
+            if trail_count >= 3 and user.plan == "STANDARD":
+                return Response('No puedes crear más de 3 trails en este mes.', status=status.HTTP_400_BAD_REQUEST)
+        
             serializer = PostTrailSerializer(data=request.data)
             if serializer.is_valid():
                 try:
@@ -613,6 +620,7 @@ class CreateMinRatingViewSet(APIView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         else:
             owner = Trail.objects.get(pk = request.data['trail']).owner
+            owner.is_subscription_expired()
             is_premium = owner.plan == "Premium"
             if userGameTrail != owner or not is_premium:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -654,6 +662,7 @@ class AddUserInTrailViewSet(APIView):
             trail = Trail.objects.get(pk = trailId)
             if num_users >= trail.maxPlayers:
                 return Response("El trail ya está completo", status=status.HTTP_401_UNAUTHORIZED)
+            trail.owner.is_subscription_expired()
             is_premium = trail.owner.plan == "Premium"
             if is_premium:
                 is_valid_user = check_min_ratings(request.data['user'], trailId)
@@ -684,6 +693,7 @@ class UpdateSubscriptionAPIViewSet(ModelViewSet):
                 user = User.objects.get(id=user_id)
                 if action == 'SUBSCRIBE':
                     user.plan = 'Premium'
+                    user.suscription_time =  datetime.now().date()
                 elif action == 'UNSUBSCRIBE':
                     user.plan = 'Standard'
                 else:
@@ -714,6 +724,7 @@ class UserTrailRecomendationViewSet(ModelViewSet):
     def get_queryset(self):
         username=self.request.user.username
         user = User.objects.filter(username=username)[0]
+        user.is_subscription_expired()
         if user.plan != "PREMIUM":
             return []
         gamelist=GameList.objects.filter(user=user)[0]

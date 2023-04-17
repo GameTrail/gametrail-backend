@@ -677,17 +677,23 @@ class AddUserInTrailViewSet(APIView):
                 if not is_valid_user:
                     return Response("No cumples los requisitos mínimos para entrar en este Trail con filtros Premium", status=status.HTTP_401_UNAUTHORIZED)
             userId = request.data['user']
-            num_trails = UserInTrail.objects.filter(user = userId).count()
-            user = User.objects.filter(id = userId ).first()
-            print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-            print(num_trails)
-            print("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
-            print(user)
-            print("ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc")
+            userintrails = UserInTrail.objects.filter(user = userId)
+            time_month = datetime.now().month
+            time_year = datetime.now().year
+            user = User.objects.get(pk = userId)
+            trail
             user.is_subscription_expired()
+            count = 0
+            if user.plan == "STANDARD":
+                for userintrail in userintrails:
+                    trail_month = userintrail.trail.startDate.month
+                    trail_year = userintrail.trail.startDate.year
+                    if time_month == trail_month and trail_year==time_year:
+                        count +=1
+                if count >= 4 :
+                    return Response("Ya te has unido a 4 trails", status=status.HTTP_401_UNAUTHORIZED)
             
-            if num_trails >= 4 and user.plan == "STANDARD":
-                return Response("Ya te has unido a 4 trails", status=status.HTTP_401_UNAUTHORIZED)
+            
             serializer = UserInTrailSerializer(data=request.data)
             if serializer.is_valid():
                 

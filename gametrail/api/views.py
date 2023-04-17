@@ -354,12 +354,10 @@ class TrailApiViewSet(APIView):
         
             elif datetime.strptime(start_date, '%Y-%m-%d').date() < datetime.now().date():
                 return Response('La fecha de inicio no puede ser un dia que ya ha pasado!', status=status.HTTP_400_BAD_REQUEST)
-            
-            datenow = timezone.now().date()
-            
+                        
             user = User.objects.get(pk=request.data['owner'])
             current_month = datetime.now().month
-            trail_count = Trail.objects.filter(owner=user,creationdate__month=current_month).count()
+            trail_count = Trail.objects.filter(owner=user,creationate__month=current_month).count()
             user.is_subscription_expired()
             if trail_count >= 3 and user.plan == "STANDARD":
                 return Response('No puedes crear más de 3 trails en este mes.', status=status.HTTP_400_BAD_REQUEST)

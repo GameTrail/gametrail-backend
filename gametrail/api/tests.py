@@ -205,6 +205,7 @@ class TrailApiViewSetTestCase(TestCase):
         self.url = '/api/getTrail/' 
         self.url1 = '/api/trail/' 
         self.url2= 'api/gameInTrail'
+        self.url3 = '/api/addUserInTrail'
 
     def test_get_trails(self):
     
@@ -294,7 +295,7 @@ class TrailApiViewSetTestCase(TestCase):
             'user': self.user2.id
         }
 
-        request = self.factory.post(self.url2, data_add_user, format='json')
+        request = self.factory.post(self.url3, data_add_user, format='json')
         force_authenticate(request, self.user)
         view = AddUserInTrailViewSet.as_view()
         response = view(request)
@@ -311,7 +312,7 @@ class TrailApiViewSetTestCase(TestCase):
             'user': '6' 
         }
 
-        request = self.factory.post(self.url2, data_add_user, format='json')
+        request = self.factory.post(self.url3, data_add_user, format='json')
         force_authenticate(request, self.user)
         view = AddUserInTrailViewSet.as_view()
         response = view(request)

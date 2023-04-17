@@ -138,18 +138,23 @@ class UserApiViewSet(ModelViewSet):
             
             serializer = PutUserSerializer(user, data=request.data)
             if serializer.is_valid():
-                userDjango = UserDjango.objects.get(username=request.user.username)
-                userDjango.set_password(request.data.get("password"))
+                if (request.data.get("password") != None):
+                    userDjango = UserDjango.objects.get(username=request.user.username)
+                    userDjango.set_password(request.data.get("password"))
 
-                serializer.save()
+                    serializer.save()
 
-                user = User.objects.get(pk=request.data.get("userId"))
-                user.set_password(request.data.get("password"))
-                user.save()   
+                    user = User.objects.get(pk=request.data.get("userId"))
+                    user.set_password(request.data.get("password"))
+                    user.save()   
                              
-                userDjango.save()
+                    userDjango.save()
 
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                    return Response(serializer.data, status=status.HTTP_201_CREATED)
+                else:                
+                    serializer.save()
+                    return Response(serializer.data, status=status.HTTP_201_CREATED)
+                
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class Logout(APIView):
@@ -354,12 +359,10 @@ class TrailApiViewSet(APIView):
         
             elif datetime.strptime(start_date, '%Y-%m-%d').date() < datetime.now().date():
                 return Response('La fecha de inicio no puede ser un dia que ya ha pasado!', status=status.HTTP_400_BAD_REQUEST)
-            
-            datenow = timezone.now().date()
-            
+                        
             user = User.objects.get(pk=request.data['owner'])
             current_month = datetime.now().month
-            trail_count = Trail.objects.filter(owner=user,creationdate__month=current_month).count()
+            trail_count = Trail.objects.filter(owner=user,creationate__month=current_month).count()
             user.is_subscription_expired()
             if trail_count >= 1 and user.plan == "STANDARD":
                 return Response('No puedes crear más de 1 trails en este mes siendo un usuario standard.', status=status.HTTP_400_BAD_REQUEST)
@@ -430,8 +433,9 @@ class GetTrailApiViewSet(ModelViewSet):
     
     http_method_names = ['get']
     serializer_class = TrailSerializer
-    queryset = Trail.objects.all()
-    filter_backends = (DjangoFilterBackend,)
+    queryset = Trail.objects.all().order_by('-pk')
+    filter_backends = [SearchFilter, DjangoFilterBackend]
+    search_fields = ['name']
     filterset_fields  = ['games__game','users__user']
     pagination_class = StandardResultsSetPagination
 

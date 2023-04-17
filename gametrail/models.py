@@ -8,7 +8,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import User as UserDjango
 from django.core.exceptions import ValidationError
 from django.db.models import Avg
-
+from django.utils.timezone import now as currentDate
 #Enum declarations
 
 PLAYING = 'PLAYING'
@@ -208,7 +208,7 @@ class Trail(models.Model):
     finishDate = models.DateField()
     maxPlayers = models.IntegerField(validators=[MinValueValidator(1)])
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
-    creationdate = models.DateField(default= datetime.now().date(), null=True, blank=True)
+    creationDate = models.DateField(default=currentDate, null=True, blank=True)
 
     def clean(self):
         if self.finishDate < self.startDate:

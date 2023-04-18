@@ -4,13 +4,18 @@ from gametrail.models import Game, GameInTrail, Rating, User, MinRatingTrail, Tr
 from rest_framework.test import APIRequestFactory
 from rest_framework import status
 from rest_framework.test import force_authenticate
+import secrets
+import string
+
+ALPHABET = string.ascii_letters + string.digits
+PASSWORD = ''.join(secrets.choice(ALPHABET) for i in range(20))
 
 class RatingApiViewSetTestCase(TestCase):
 
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.ratedUser = User.objects.create_user(username='miguelito', email='miguel_mola@gmail.com' ,avatar='kajnfawkef.jpg' ,password='miguelmolamucho')
-        self.userWhoRate = User.objects.create_user(username='pedrito', email='pedritodestroza@gmail.com' ,avatar='sfsfsfdsf.jpg' ,password='pedroteodia')
+        self.ratedUser = User.objects.create_user(username='miguelito', email='miguel_mola@gmail.com' ,avatar='kajnfawkef.jpg' ,password=PASSWORD)
+        self.userWhoRate = User.objects.create_user(username='pedrito', email='pedritodestroza@gmail.com' ,avatar='sfsfsfdsf.jpg' ,password=PASSWORD)
 
         self.ratedUser_id = self.ratedUser.pk
         self.userWhoRate_id = self.userWhoRate.pk
@@ -103,10 +108,10 @@ class MinRatingApiViewSetTestCase(TestCase):
 
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.premiumUser = User.objects.create_user(username='miguelito', email='miguel_mola@gmail.com' ,avatar='kajnfawkef.jpg' ,password='miguelmolamucho')
+        self.premiumUser = User.objects.create_user(username='miguelito', email='miguel_mola@gmail.com' ,avatar='kajnfawkef.jpg' ,password=PASSWORD)
         self.premiumUser.plan = "Premium"
         self.premiumUser.save()
-        self.standartUser = User.objects.create_user(username='pedrito', email='pedritodestroza@gmail.com' ,avatar='sfsfsfdsf.jpg' ,password='pedroteodia')
+        self.standartUser = User.objects.create_user(username='pedrito', email='pedritodestroza@gmail.com' ,avatar='sfsfsfdsf.jpg' ,password=PASSWORD)
 
         self.premiumUser_id = self.premiumUser.pk
         self.standartUser_id = self.standartUser.pk
@@ -186,9 +191,9 @@ class TrailApiViewSetTestCase(TestCase):
 
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.user = User.objects.create_user(username='Juanan1', email='juanan@gmail.com' ,avatar='kajnfawkef.jpg' ,password='holahola')
+        self.user = User.objects.create_user(username='Juanan1', email='juanan@gmail.com' ,avatar='kajnfawkef.jpg' ,password=PASSWORD)
 
-        self.user2 = User.objects.create_user(username='Juanan2', email='juanan2@gmail.com' ,avatar='kajnfawkef.jpg' ,password='holaholahola')
+        self.user2 = User.objects.create_user(username='Juanan2', email='juanan2@gmail.com' ,avatar='kajnfawkef.jpg' ,password=PASSWORD)
 
         self.trail1 = Trail.objects.create(owner=self.user, 
                                             name='Test Trail 1',

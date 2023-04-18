@@ -362,12 +362,12 @@ class TrailApiViewSet(APIView):
                         
             user = User.objects.get(pk=request.data['owner'])
             current_month = datetime.now().month
-            trail_count = Trail.objects.filter(owner=user,creationate__month=current_month).count()
+            trail_count = Trail.objects.filter(owner=user,creationDate__month=current_month).count()
             user.is_subscription_expired()
             if trail_count >= 1 and user.plan == "STANDARD":
                 return Response('No puedes crear más de 1 trails en este mes siendo un usuario standard.', status=status.HTTP_400_BAD_REQUEST)
             maxPlayers = request.data['maxPlayers']
-            if maxPlayers >= 4 and user.plan == "STANDARD":
+            if maxPlayers > 4 and user.plan == "STANDARD":
                 return Response('No puedes añadir a más de 4 jugadores a tu trail siendo un usuario standard.', status=status.HTTP_400_BAD_REQUEST)
         
             serializer = PostTrailSerializer(data=request.data)
@@ -476,9 +476,10 @@ class GameInTrailViewSet(APIView):
             if priority < 1 or priority > 5:
                 return Response("La prioridad debe estar comprendida entre 1 y 5", status=status.HTTP_400_BAD_REQUEST)          
             serializer = GameInTrailSerializer(data=request.data)
-            numJuegosTrail=trail.trails.count()
-            user.is_subscription_expired()
-            if numJuegosTrail >= 3 and user.plan == "STANDARD":
+            numJuegosTrail=trail.games.count()
+            object_user = User.objects.get(username = user)
+            object_user.is_subscription_expired()
+            if numJuegosTrail >= 3 and object_user.plan == "STANDARD":
                 return Response('No puedes añadir a más de 3 juegos a tu trail siendo un usuario standard.', status=status.HTTP_400_BAD_REQUEST)
             if serializer.is_valid():
                  serializer.save()
@@ -722,7 +723,7 @@ class UpdateSubscriptionAPIViewSet(ModelViewSet):
                     user.plan = 'Premium'
                     user.suscription_time =  datetime.now().date()
                 elif action == 'UNSUBSCRIBE':
-                    user.plan = 'Standard'
+                    user.plan = 'STANDARD'
                 else:
                     return Response(status=status.HTTP_400_BAD_REQUEST)
                 user.save()

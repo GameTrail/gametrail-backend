@@ -1,7 +1,7 @@
 from django.test import TestCase
-from gametrail.api.views import UserApiViewSet, POSTRatingAPIViewSet, CreateMinRatingViewSet, GetMinRatingTrailApiViewSet, AddUserInTrailViewSet
-from gametrail.models import Rating, User, MinRatingTrail, Trail
-from rest_framework.test import APIRequestFactory
+from gametrail.api.views import *
+from gametrail.models import *
+from rest_framework.test import APIRequestFactory, APIClient
 from rest_framework import status
 from rest_framework.test import force_authenticate
 
@@ -180,3 +180,25 @@ class MinRatingApiViewSetTestCase(TestCase):
         view = AddUserInTrailViewSet.as_view()
         response = view(request)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+class CreateUserApiViewTestCase(TestCase):
+
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.view = CreateUserApiViewSet.as_view({'post': 'register'})
+        self.valid_payload = {
+            "username": "prueba",
+            "email": "prueba@gmail.com",
+            "avatar": "prueba.jpg",
+            "plan": "Standard",
+            "password": "Pruebacontr10",
+            "password_confirmation": "Pruebacontr10"
+        }
+
+    def test_create_user(self):
+        request = self.factory.post('/api/auth/register/', data=self.valid_payload, format='json')
+        response = self.view(request)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['username'], self.valid_payload['username'])
+        self.assertEqual(response.data['email'], self.valid_payload['email'])
+

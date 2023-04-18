@@ -682,7 +682,6 @@ class AddUserInTrailViewSet(APIView):
             time_month = datetime.now().month
             time_year = datetime.now().year
             user = User.objects.get(pk = userId)
-            trail
             user.is_subscription_expired()
             count = 0
             if user.plan == "STANDARD":

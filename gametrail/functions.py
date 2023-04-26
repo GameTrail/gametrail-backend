@@ -2,12 +2,41 @@ import json
 from . import models
 from datetime import datetime
 import pytesseract
+from PIL import Image
+import re
 
 def tesseract_image_read(image = "./src/images/test.png"):
+    #Esta función se encarga de cargar los binarios de tesseract y la imagen (de momento esta se carga desde archivos locales, más adelante se hará desde request).
     pytesseract.pytesseract.tesseract_cmd = "./src/tesseract/Tesseract-OCR/tesseract.exe"
-    texto = pytesseract.image_to_string(image)
-    print(texto)
-    return texto
+    try:
+        #Si la lectura de la imagen, por cualquier motivo, tarda más de 5 segundos esta se cancela.
+        data = pytesseract.image_to_string(Image.open("./src/images/test.png"), timeout=5)
+        games = filter_data(data)
+        print(games)
+        for game in games:
+            try_add_game(game)
+        return games
+    except RuntimeError as timeout_error:
+        return False
+    
+def try_add_game(game):
+    #Aquí se iran añadiendo uno a uno los juegos, la forma en que estos se buscan en la base de datos aún debe ser estudiada.
+    return None
+
+def filter_data(data):
+    #Esta función recibe texto bruto leido desde tesseract y lo filtra para obtener de la forma más correcta los nombres de los juegos.
+    split_data = data.split("\n")
+    formated_split_data = []
+    for a in split_data:
+        if a != "":
+            first_clear = re.sub('[^a-zA-Z0-9\s]+', '', a)
+            second_clear = re.sub('[®]+','',first_clear)
+            tirth_clear = re.sub('[@]+','',second_clear)
+            if tirth_clear[0] == " ":
+                tirth_clear = tirth_clear[1:]
+            
+            formated_split_data.append(tirth_clear)
+    return formated_split_data
 
 def populate_users(base_json = "./src/population/users/users.json"):
     file = open_json_handler(base_json,encoding="utf-8")

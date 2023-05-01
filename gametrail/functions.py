@@ -88,9 +88,14 @@ def populate_sabias_que(base_json="./src/population/sabiasque.json"):
         )
     return True
 
-def populate(populate=True, base_json="./src/population/database.json"):
+def populate(populate=True, base_json="./src/population/database0.json"):
     #Change database.json to database.json to have all games 
-    return(populate_genres() & populate_platforms() & populate_database(base_json="./src/population/database.json"))
+    
+    return(populate_database(base_json="./src/population/database0.json"))
+
+def populate_generes_and_platforms(populate=True, base_json="./src/population/database0.json"):
+    #Change database.json to database.json to have all games 
+    return(populate_genres(base_json="./src/population/develop_database_genres.json") & populate_platforms(base_json="./src/population/develop_database_platforms.json"))
 
 
 def populate_database(populate=True, base_json="./src/population/database.json"):
@@ -154,32 +159,36 @@ def parse_data(data):
                 ddescription = ""
             else:
                 ddescription = d.get("summary")           
-            
-            game = models.Game.objects.create(
-            name = dname, releaseDate=dreleaseDate, image=dimage, photos=dphotos, description=ddescription)
+            try:
 
-            if d.get("platforms") == None:
-                pplatforms = []
-            else:
-                pplatforms = d.get("platforms")
-                if pplatforms != None:
-                    for platform in pplatforms:
-                        parsedPlatform = platform.get("name")
-                        if parsedPlatform != None:
-                            ePlatform = models.Platform.objects.get(platform=parsedPlatform)
-                            ePlatform.game.add(game)
             
-            if d.get("genres") == None:
-                ggenres = []
-            else:
-                ggenres = d.get("genres")
-                if ggenres != None:
-                    for genre in ggenres:
-                        parsedGenre = genre.get("name")
-                        if parsedGenre != None:
-                            eGenre = models.Genre.objects.get(genre=parsedGenre)
-                            eGenre.game.add(game)
+                game = models.Game.objects.create(
+                name = dname, releaseDate=dreleaseDate, image=dimage, photos=dphotos, description=ddescription)
 
+                if d.get("platforms") == None:
+                    pplatforms = []
+                else:
+                    pplatforms = d.get("platforms")
+                    if pplatforms != None:
+                        for platform in pplatforms:
+                            parsedPlatform = platform.get("name")
+                            if parsedPlatform != None:
+                                ePlatform = models.Platform.objects.get(platform=parsedPlatform)
+                                ePlatform.game.add(game)
+                
+                if d.get("genres") == None:
+                    ggenres = []
+                else:
+                    ggenres = d.get("genres")
+                    if ggenres != None:
+                        for genre in ggenres:
+                            parsedGenre = genre.get("name")
+                            if parsedGenre != None:
+                                eGenre = models.Genre.objects.get(genre=parsedGenre)
+                                eGenre.game.add(game)
+            except:
+                print('este juego no se ha añadido porque ya existe')
+                
     except:
         print("Data was not stored successfully")
         return False

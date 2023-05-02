@@ -364,8 +364,11 @@ class TrailApiViewSet(APIView):
             current_month = datetime.now().month
             trail_count = Trail.objects.filter(owner=user,creationDate__month=current_month).count()
             user.is_subscription_expired()
-            if trail_count >= 3 and user.plan == "STANDARD":
-                return Response('No puedes crear más de 3 trails en este mes.', status=status.HTTP_400_BAD_REQUEST)
+            if trail_count >= 1 and user.plan == "STANDARD":
+                return Response('No puedes crear más de 1 trails en este mes siendo un usuario standard.', status=status.HTTP_400_BAD_REQUEST)
+            maxPlayers = request.data['maxPlayers']
+            if maxPlayers > 4 and user.plan == "STANDARD":
+                return Response('No puedes añadir a más de 4 jugadores a tu trail siendo un usuario standard.', status=status.HTTP_400_BAD_REQUEST)
         
             serializer = PostTrailSerializer(data=request.data)
             if serializer.is_valid():
@@ -413,12 +416,13 @@ class TrailApiViewSet(APIView):
             
         
     def delete(self, request, format = None):
-        is_user_admin = check_user_is_admin(request)
-        if is_user_admin == False:
+        owner= Trail.objects.get(pk=request.data['trailId']).owner.username
+        user = request.user.username
+        if user != owner:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         else:
             try:
-                trail = Trail.objects.get(pk=request.data['id'])
+                trail = Trail.objects.get(pk=request.data['trailId'])
             except Trail.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
             
@@ -458,12 +462,13 @@ class SabiasqueApiViewSet(ModelViewSet):
 
 
 class GameInTrailViewSet(APIView):
-    http_method_names = ['post', 'put']
+    http_method_names = ['post', 'put','delete']
     serializer_class = GameInTrailSerializer
     
     def post(self, request, format=None):
         owner= Trail.objects.get(pk=request.data['trail']).owner.username
         user = request.user.username
+        trail = Trail.objects.get(pk=request.data['trail'])
         
         if user != owner:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -472,6 +477,11 @@ class GameInTrailViewSet(APIView):
             if priority < 1 or priority > 5:
                 return Response("La prioridad debe estar comprendida entre 1 y 5", status=status.HTTP_400_BAD_REQUEST)          
             serializer = GameInTrailSerializer(data=request.data)
+            numJuegosTrail=trail.games.count()
+            object_user = User.objects.get(username = user)
+            object_user.is_subscription_expired()
+            if numJuegosTrail >= 3 and object_user.plan == "STANDARD":
+                return Response('No puedes añadir a más de 3 juegos a tu trail siendo un usuario standard.', status=status.HTTP_400_BAD_REQUEST)
             if serializer.is_valid():
                  serializer.save()
                  return Response(serializer.data, status=status.HTTP_201_CREATED)         
@@ -497,6 +507,23 @@ class GameInTrailViewSet(APIView):
                  serializer.save()
                  return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    def delete(self, request, format = None):
+        owner= Trail.objects.get(pk=request.data['trailId']).owner.username
+        user = request.user.username
+        if user != owner:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            try:
+               trail = GameInTrail.objects.filter(trail_id=request.data['trailId'], game_id = request.data['gameToDelete'])[0]
+            except Trail.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            if trail.status != 'PENDING':
+                return Response("Deberia estar el trail en pending", status=status.HTTP_400_BAD_REQUEST)
+            
+            
+            trail.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
             
             
 
@@ -668,8 +695,26 @@ class AddUserInTrailViewSet(APIView):
                 is_valid_user = check_min_ratings(request.data['user'], trailId)
                 if not is_valid_user:
                     return Response("No cumples los requisitos mínimos para entrar en este Trail con filtros Premium", status=status.HTTP_401_UNAUTHORIZED)
+            userId = request.data['user']
+            userintrails = UserInTrail.objects.filter(user = userId)
+            time_month = datetime.now().month
+            time_year = datetime.now().year
+            user = User.objects.get(pk = userId)
+            user.is_subscription_expired()
+            count = 0
+            if user.plan == "STANDARD":
+                for userintrail in userintrails:
+                    trail_month = userintrail.trail.startDate.month
+                    trail_year = userintrail.trail.startDate.year
+                    if time_month == trail_month and trail_year==time_year:
+                        count +=1
+                if count >= 4 :
+                    return Response("Ya te has unido a 4 trails", status=status.HTTP_401_UNAUTHORIZED)
+            
+            
             serializer = UserInTrailSerializer(data=request.data)
             if serializer.is_valid():
+                
                 serializer.save()
                 add_game_from_trail_to_gameList(request)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -695,7 +740,7 @@ class UpdateSubscriptionAPIViewSet(ModelViewSet):
                     user.plan = 'Premium'
                     user.suscription_time =  datetime.now().date()
                 elif action == 'UNSUBSCRIBE':
-                    user.plan = 'Standard'
+                    user.plan = 'STANDARD'
                 else:
                     return Response(status=status.HTTP_400_BAD_REQUEST)
                 user.save()

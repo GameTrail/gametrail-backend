@@ -21,7 +21,8 @@ from django.db.models.query import QuerySet
 from datetime import datetime
 from django.core import serializers
 from rest_framework.pagination import PageNumberPagination
-
+import django_filters
+from django_filters import rest_framework as filters
 PLAYING = 'PLAYING'
 PENDING = 'PENDING'
 FINISHED = 'FINISHED'
@@ -429,7 +430,23 @@ class TrailApiViewSet(APIView):
             trail.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
+class TrailFilter(filters.FilterSet):
+    created_before = filters.DateFilter(field_name='creationDate', lookup_expr='lte')
+    created_after = filters.DateFilter(field_name='creationDate', lookup_expr='gte')
+    started_before = filters.DateFilter(field_name='startDate', lookup_expr='lte')
+    started_after = filters.DateFilter(field_name='startDate', lookup_expr='gte')
+    finished_before = filters.DateFilter(field_name='finishDate', lookup_expr='lte')
+    finished_after = filters.DateFilter(field_name='finishDate', lookup_expr='gte')
+    game_name = django_filters.CharFilter(field_name='games__game__name', lookup_expr='icontains')
+    min_rating = django_filters.NumberFilter(field_name='users__user__rate_recieved__rating', lookup_expr='gte')
+    max_rating = django_filters.NumberFilter(field_name='users__user__rate_recieved__rating', lookup_expr='lte')
 
+    class Meta:
+        model = Trail
+        fields = ['min_rating', 'max_rating']
+    class Meta:
+        model = Trail
+        fields = ['created_before', 'created_after','started_before', 'started_after','finished_before', 'finished_after','games__game','users__user','game_name','min_rating', 'max_rating']
 class GetTrailApiViewSet(ModelViewSet):
     
     http_method_names = ['get']
@@ -437,8 +454,9 @@ class GetTrailApiViewSet(ModelViewSet):
     queryset = Trail.objects.all().order_by('-pk')
     filter_backends = [SearchFilter, DjangoFilterBackend]
     search_fields = ['name']
-    filterset_fields  = ['games__game','users__user']
+    filterset_class = TrailFilter
     pagination_class = StandardResultsSetPagination
+
 
 
     

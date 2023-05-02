@@ -416,12 +416,13 @@ class TrailApiViewSet(APIView):
             
         
     def delete(self, request, format = None):
-        is_user_admin = check_user_is_admin(request)
-        if is_user_admin == False:
+        owner= Trail.objects.get(pk=request.data['trailId']).owner.username
+        user = request.user.username
+        if user != owner:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         else:
             try:
-                trail = Trail.objects.get(pk=request.data['id'])
+                trail = Trail.objects.get(pk=request.data['trailId'])
             except Trail.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
             
@@ -461,7 +462,7 @@ class SabiasqueApiViewSet(ModelViewSet):
 
 
 class GameInTrailViewSet(APIView):
-    http_method_names = ['post', 'put']
+    http_method_names = ['post', 'put','delete']
     serializer_class = GameInTrailSerializer
     
     def post(self, request, format=None):
@@ -506,6 +507,23 @@ class GameInTrailViewSet(APIView):
                  serializer.save()
                  return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    def delete(self, request, format = None):
+        owner= Trail.objects.get(pk=request.data['trailId']).owner.username
+        user = request.user.username
+        if user != owner:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            try:
+               trail = GameInTrail.objects.filter(trail_id=request.data['trailId'], game_id = request.data['gameToDelete'])[0]
+            except Trail.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            if trail.status != 'PENDING':
+                return Response("Deberia estar el trail en pending", status=status.HTTP_400_BAD_REQUEST)
+            
+            
+            trail.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
             
             
 

@@ -5,24 +5,54 @@ import pytesseract
 from PIL import Image
 import re
 
-def tesseract_image_read(image = "./src/images/test.png"):
+def tesseract_image_read(image):
     #Esta función se encarga de cargar los binarios de tesseract y la imagen (de momento esta se carga desde archivos locales, más adelante se hará desde request).
     pytesseract.pytesseract.tesseract_cmd = "./src/tesseract/Tesseract-OCR/tesseract.exe"
     try:
-        #Si la lectura de la imagen, por cualquier motivo, tarda más de 5 segundos esta se cancela.
-        data = pytesseract.image_to_string(Image.open("./src/images/test.png"), timeout=5)
+        #Si la lectura de la imagen por cualquier motivo tarda más de 5 segundos se cancela.
+        data = pytesseract.image_to_string(Image.open(image), timeout=5)
         games = filter_data(data)
-        print(games)
+        games_to_add = []
+        #print(games)
         for game in games:
-            try_add_game(game)
-        return games
+            if game[0].isdigit(): game = game[1:]
+            games_to_add.append(try_add_game(game))
+        #print(games_to_add)
+        return games_to_add
     except RuntimeError as timeout_error:
         return False
     
 def try_add_game(game):
     #Aquí se iran añadiendo uno a uno los juegos, la forma en que estos se buscan en la base de datos aún debe ser estudiada.
-    return None
-
+    possibleGames= dict()
+    
+    for word in game.split(" "):
+        game_len = len(game.split(" "))
+        #print(word)
+        result = models.Game.objects.filter(name__icontains=word)
+        if not result :
+            #Empty
+            print("")
+        else:
+            for element in result:
+                if element in possibleGames.keys():
+                    possibleGames[element] = possibleGames[element] + 1
+                else:
+                    possibleGames[element] = 1
+    for element in possibleGames.keys():
+        element_len = len(element.name)
+        if element_len > game_len:
+            reduction_factor = (element_len - game_len)/20
+            possibleGames[element] = possibleGames[element] - reduction_factor
+        elif element_len < game_len:
+            reduction_factor = (game_len - element_len)/20
+            possibleGames[element] = possibleGames[element] - reduction_factor
+    if not list(dict(sorted(possibleGames.items(), key=lambda item:item[1]))):
+        #Empty
+        return None
+    else:
+        return (list(dict(sorted(possibleGames.items(), key=lambda item:item[1])))[-1])
+    
 def filter_data(data):
     #Esta función recibe texto bruto leido desde tesseract y lo filtra para obtener de la forma más correcta los nombres de los juegos.
     split_data = data.split("\n")

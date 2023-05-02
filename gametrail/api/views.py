@@ -749,3 +749,36 @@ class UserTrailRecomendationViewSet(ModelViewSet):
         gameInTrails=GameInTrail.objects.filter(game__genres__genre__in=dict(genresFinal).keys(), game__platforms__platform__in=dict(platformsFinal).keys()).distinct()
         trails = Trail.objects.filter(games__in = gameInTrails).distinct()[:9]
         return trails
+
+class GameListImageIA(APIView):
+    http_method_names = ['post']
+    serializer_class = CUGameInListSerializer
+
+    def post(self, request, format=None):
+        if not request.user.is_authenticated:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            userName = request.user.username
+            ownerList = User.objects.get(pk = request.data['user'])
+            
+            if userName != ownerList.username:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                try:
+                    image = request.data['image']
+                    list_games_to_add = functions.tesseract_image_read(image)
+                    dgameList = GameList.objects.get(user_id = request.data['user'])
+                    try:
+                        for dgame in list_games_to_add:
+                            if dgame != None:
+                                #print(dgame.id)
+                                newGame = GameInList.objects.create(
+                                    game = dgame, gameList = dgameList, status = "PENDING"
+                                )
+                                newGame.save()
+                        return Response(str(len(list_games_to_add)) + " games added to list. " + str(list_games_to_add), status = status.HTTP_201_CREATED)
+                    except:
+                        return Response("Some games were already in list",status=status.HTTP_200_OK)
+
+                except:            
+                    return Response("Image was not read properly", status=status.HTTP_400_BAD_REQUEST)

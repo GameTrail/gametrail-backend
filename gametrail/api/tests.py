@@ -1,5 +1,5 @@
 from django.test import TestCase
-from gametrail.api.views import GameInTrailViewSet, GetTrailApiViewSet, TrailApiViewSet, UserApiViewSet, POSTRatingAPIViewSet, CreateMinRatingViewSet, GetMinRatingTrailApiViewSet, AddUserInTrailViewSet, CUGameInListApiViewSet
+from gametrail.api.views import GameInTrailViewSet, GetTrailApiViewSet, TrailApiViewSet, UserApiViewSet, POSTRatingAPIViewSet, CreateMinRatingViewSet, GetMinRatingTrailApiViewSet, AddUserInTrailViewSet, CUGameInListApiViewSet, GameInListApiViewSet
 from gametrail.models import Game, GameInTrail, Rating, User, MinRatingTrail, Trail, UserInTrail, GameList
 from rest_framework.test import APIRequestFactory
 from rest_framework import status
@@ -26,6 +26,7 @@ class GameListApiViewSetTestCase(TestCase):
 
         #URL
         self.url_gameList_game = '/api/gameList/game'
+        self.url_gameList_user = '/api/gameList/?gameList__user='
 
 
     #Test añadir juego a gameList con usuario no autenticado
@@ -84,3 +85,10 @@ class GameListApiViewSetTestCase(TestCase):
 
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
 
+    #Test ver gamelist de un usuario
+    def test_get_gameList(self): 
+        request = self.factory.get(self.url_gameList_user + str(self.userGameList_id))
+        view = GameInListApiViewSet.as_view({'get': 'list'})
+        response = view(request)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

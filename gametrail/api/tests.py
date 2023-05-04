@@ -31,7 +31,7 @@ class GameListApiViewSetTestCase(TestCase):
     #Test añadir juego a gameList con usuario no autenticado
     def test_post_gameList_not_authenticated(self):    
 
-        data = {'user' : '1','game': '1','status':'PENDING'}
+        data = {'user' : '1','game': self.game_id,'status':'PENDING'}
         request = self.factory.post(self.url_gameList_game,data,format='json')
 
         view =  CUGameInListApiViewSet.as_view()
@@ -42,19 +42,19 @@ class GameListApiViewSetTestCase(TestCase):
     #Test añadir juego a gameList propia con usuario de gameList autenticado
     def test_post_own_gameList_authenticated(self):
 
-        data = {'user' : '1','game': '1','status':'PENDING'}
+        data = {'user' : self.userGameList_id,'game': self.game_id,'status':'PENDING'}
         request = self.factory.post(self.url_gameList_game,data,format='json')
         force_authenticate(request, self.userGameList)
 
         view =  CUGameInListApiViewSet.as_view()
         response = view(request)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     #Test editar estado juego a gameList con usuario no autenticado
     def test_put_gameList_not_authenticated(self):  
         
-        data = {'user' : '1','game': '1','status':'PLAYING'}
+        data = {'user' : self.userGameList_id,'game': self.game_id,'status':'PLAYING'}
         request = self.factory.put(self.url_gameList_game,data,format='json')
 
         view =  CUGameInListApiViewSet.as_view()
@@ -64,13 +64,23 @@ class GameListApiViewSetTestCase(TestCase):
 
     #Test editar estado juego a gameList con usuario autenticado
     def test_put_gameList_authenticated(self):        
-    
-        data = {'user' : '1','game': '1','status':'PLAYING'}
-        request = self.factory.put(self.url_gameList_game,data,format='json')
-        force_authenticate(request, self.userGameList)
         
-        view =  CUGameInListApiViewSet.as_view()
-        response = view(request)
+        data1 = {'user' : self.userGameList_id,'game': self.game_id,'status':'PENDING'}
+        request1 = self.factory.post(self.url_gameList_game,data1,format='json')
+        force_authenticate(request1, self.userGameList)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        view1 =  CUGameInListApiViewSet.as_view()
+        response1 = view1(request1)
+
+        self.assertEqual(response1.status_code, status.HTTP_201_CREATED)
+
+
+        data2 = {'user' : self.userGameList_id,'game': self.game_id,'status':'PLAYING'}
+        request2 = self.factory.put(self.url_gameList_game,data2,format='json')
+        force_authenticate(request2, self.userGameList)
+        
+        view2 =  CUGameInListApiViewSet.as_view()
+        response2= view2(request2)
+
+        self.assertEqual(response2.status_code, status.HTTP_200_OK)
 

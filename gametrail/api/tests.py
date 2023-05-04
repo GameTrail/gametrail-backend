@@ -392,7 +392,7 @@ class GameListApiViewSetTestCase(TestCase):
         self.userGameList_id =  self.userGameList.pk
 
         #Juego
-        self.game= Game.objects.create( name= 'Juego Game List',releaseDate='2023-04-10',image='juegoPrueba1.jpg',photos='juegoPruebaGameList.jpg', description='lore ipsum')
+        self.game= Game.objects.create( name= 'Juego Game List',releaseDate='2022-04-10',image='juegoPrueba1.jpg',photos='juegoPruebaGameList.jpg', description='lore ipsum')
         self.game_id =  self.game.pk
 
         #GameList

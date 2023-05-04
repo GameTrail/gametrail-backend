@@ -436,9 +436,9 @@ class GameListApiViewSetTestCase(TestCase):
         view =  CUGameInListApiViewSet.as_view()
         response = view(request)
 
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    #Test editar estado juego a gameList con usuario autenticado
+    #Test editar estado juego a gameList con usuario no autenticado
     def test_put_gameList_not_authenticated(self):  
         
         data = {'user' : '1','game': '1','status':'PLAYING'}

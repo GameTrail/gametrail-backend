@@ -18,4 +18,3 @@ router_api.register(prefix='comment/user', viewset=CommentsByUserId, basename='c
 router_api.register(prefix='comment/game', viewset=GameCommentAPIView, basename='gameComments')
 router_api.register(prefix='sub', viewset=UpdateSubscriptionAPIViewSet, basename='subscription')
 router_api.register(prefix='recommendTrail', viewset=UserTrailRecomendationViewSet, basename='recommendTrail')
-   

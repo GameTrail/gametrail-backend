@@ -21,5 +21,8 @@ urlpatterns = [
     path('api/gameInTrail', views.GameInTrailViewSet.as_view()),
     path('api/createMinRating', views.CreateMinRatingViewSet.as_view()),
     path('api/addUserInTrail', views.AddUserInTrailViewSet.as_view()),
-    # path('api/trailRecomendation', views.UserTrailRecomendationViewSet.as_view())
+    path('api/iaGameList',views.GameListImageIA.as_view()),
+    #path('api/trailRecomendation', views.UserTrailRecomendationViewSet.as_view())
+    #path('api/tesseract_image_read', views.tesseract_image_read),
+    #path('api/populate',views.populate),
 ]

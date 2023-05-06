@@ -838,9 +838,14 @@ class GameListImageIA(APIView):
 
                 except:            
                     return Response("Image was not read properly", status=status.HTTP_400_BAD_REQUEST)
-                
+
+class GetTrailPatrocinedViewSet(ModelViewSet):
+    http_method_names = ['get']
+    serializer_class = TrailPatrocinedSerializer
+    queryset = TrailPatrocinado.objects.all()
+
 class CTrailPatrocinedViewSet(APIView):
-    http_method_names = ['post']
+    http_method_names = ['post', 'put']
     serializer_class = CTrailPatrocinedSerializer
 
     def post(self, request, format = None):
@@ -850,8 +855,8 @@ class CTrailPatrocinedViewSet(APIView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         else:
             trailsPatrocinados = TrailPatrocinado.objects.all()
-            for patrocinados in trailsPatrocinados:
-                patrocinados.delete()
+            if len(trailsPatrocinados) == 1:
+                return Response("Ya existe un Trail Patrocinado creado. Modificalo con un método PUT", status=status.HTTP_400_BAD_REQUEST)
 
             serializer = CTrailPatrocinedSerializer(data=request.data)
 
@@ -859,9 +864,19 @@ class CTrailPatrocinedViewSet(APIView):
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            
+   
+    def put(self, request, format = None):
+        is_user_admin = check_user_is_admin(request)
 
-class GetTrailPatrocinedViewSet(APIView):
-    http_method_names = ['get']
-    serializer_class = TrailPatrocinedSerializer
-    queryset = GameList.objects.all()
+        if is_user_admin == False:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            try:
+                trail = TrailPatrocinado.objects.get(pk=1)
+            except TrailPatrocinado.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            serializer = CTrailPatrocinedSerializer(trail, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)   

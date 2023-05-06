@@ -370,7 +370,6 @@ class TrailPatrocinedSerializer(ModelSerializer):
     users=AllUsersInTrailsSerializer(many=True,read_only=True, source="trail.users")
     platforms=PlatformSerializer(many=True,read_only=True, source="trail.platforms")
 
-
     class Meta:
         model = TrailPatrocinado
         fields = ('name','description','startDate','finishDate','maxPlayers', 'owner', 'games', 'users', 'platforms')

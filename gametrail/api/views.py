@@ -21,6 +21,7 @@ from django.db.models.query import QuerySet
 from datetime import datetime
 from django.core import serializers
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.decorators import api_view
 
 PLAYING = 'PLAYING'
 PENDING = 'PENDING'
@@ -246,8 +247,15 @@ class CUGameInListApiViewSet(APIView):
 
                 if serializer.is_valid():
                     serializer.save()
-                    return Response(status=status.HTTP_201_CREATED)
+                    return Response(status=status.HTTP_200_OK)
                 return Response(status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def tesseract_image_read(request):
+    image = request.GET.get("image")    
+    html = '<html><body>Work in progress</body></html>'
+    functions.tesseract_image_read(image)
+    return HttpResponse(html)
 
 def populate_database_little(request):
     result = functions.populate_database(True,base_json="./src/population/develop_database_little.json")
@@ -797,3 +805,78 @@ class UserTrailRecomendationViewSet(ModelViewSet):
         gameInTrails=GameInTrail.objects.filter(game__genres__genre__in=dict(genresFinal).keys(), game__platforms__platform__in=dict(platformsFinal).keys()).distinct()
         trails = Trail.objects.filter(games__in = gameInTrails).distinct()[:9]
         return trails
+
+class GameListImageIA(APIView):
+    http_method_names = ['post']
+    serializer_class = CUGameInListSerializer
+
+    def post(self, request, format=None):
+        if not request.user.is_authenticated:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            userName = request.user.username
+            ownerList = User.objects.get(pk = request.data['user'])
+            
+            if userName != ownerList.username:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                try:
+                    image = request.data['image']
+                    list_games_to_add = functions.tesseract_image_read(image)
+                    dgameList = GameList.objects.get(user_id = request.data['user'])
+                    try:
+                        for dgame in list_games_to_add:
+                            if dgame != None:
+                                #print(dgame.id)
+                                newGame = GameInList.objects.create(
+                                    game = dgame, gameList = dgameList, status = "PENDING"
+                                )
+                                newGame.save()
+                        return Response(str(len(list_games_to_add)) + " games added to list. " + str(list_games_to_add), status = status.HTTP_201_CREATED)
+                    except:
+                        return Response("Some games were already in list",status=status.HTTP_200_OK)
+
+                except:            
+                    return Response("Image was not read properly", status=status.HTTP_400_BAD_REQUEST)
+
+class GetTrailPatrocinedViewSet(ModelViewSet):
+    http_method_names = ['get']
+    serializer_class = TrailPatrocinedSerializer
+    queryset = TrailPatrocinado.objects.all()
+
+class CTrailPatrocinedViewSet(APIView):
+    http_method_names = ['post', 'put']
+    serializer_class = CTrailPatrocinedSerializer
+
+    def post(self, request, format = None):
+        is_user_admin = check_user_is_admin(request)
+
+        if is_user_admin == False:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            trailsPatrocinados = TrailPatrocinado.objects.all()
+            if len(trailsPatrocinados) == 1:
+                return Response("Ya existe un Trail Patrocinado creado. Modificalo con un método PUT", status=status.HTTP_400_BAD_REQUEST)
+
+            serializer = CTrailPatrocinedSerializer(data=request.data)
+
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+   
+    def put(self, request, format = None):
+        is_user_admin = check_user_is_admin(request)
+
+        if is_user_admin == False:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            try:
+                trail = TrailPatrocinado.objects.get(pk=1)
+            except TrailPatrocinado.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            serializer = CTrailPatrocinedSerializer(trail, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)   

@@ -292,3 +292,10 @@ class MinRatingTrail(models.Model):
 
     def __str__(self):
         return f"{self.ratingType} - {self.minRating}"
+
+
+class TrailPatrocinado(models.Model):
+    trail = models.ForeignKey(Trail, on_delete=models.CASCADE,related_name='trail')
+
+    def __str__(self):
+        return self.trail

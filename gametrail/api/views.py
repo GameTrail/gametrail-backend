@@ -838,3 +838,30 @@ class GameListImageIA(APIView):
 
                 except:            
                     return Response("Image was not read properly", status=status.HTTP_400_BAD_REQUEST)
+                
+class CTrailPatrocinedViewSet(APIView):
+    http_method_names = ['post']
+    serializer_class = CTrailPatrocinedSerializer
+
+    def post(self, request, format = None):
+        is_user_admin = check_user_is_admin(request)
+
+        if is_user_admin == False:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            trailsPatrocinados = TrailPatrocinado.objects.all()
+            for patrocinados in trailsPatrocinados:
+                patrocinados.delete()
+
+            serializer = CTrailPatrocinedSerializer(data=request.data)
+
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+
+class GetTrailPatrocinedViewSet(APIView):
+    http_method_names = ['get']
+    serializer_class = TrailPatrocinedSerializer
+    queryset = GameList.objects.all()

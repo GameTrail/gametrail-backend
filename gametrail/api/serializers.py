@@ -351,3 +351,26 @@ class PutTrailSerializer(ModelSerializer):
     class Meta:
         model = Trail
         fields = ['id','name', 'description', 'startDate', 'finishDate','maxPlayers','owner']
+
+class CTrailPatrocinedSerializer(ModelSerializer):
+
+    class Meta:
+        model = TrailPatrocinado
+        fields = '__all__'
+
+class TrailPatrocinedSerializer(ModelSerializer):
+
+    name = serializers.CharField(source='trail.name')
+    description = serializers.CharField(source='trail.description')
+    startDate = serializers.CharField(source='trail.startDate')
+    finishDate = serializers.CharField(source='trail.finishDate')
+    maxPlayers = serializers.CharField(source='trail.maxPlayers')
+    owner = OwnerSerializer(source='trail.owner')
+    games= GamesInTrailsSerializer(many=True,read_only=True, source="trail.games")
+    users=AllUsersInTrailsSerializer(many=True,read_only=True, source="trail.users")
+    platforms=PlatformSerializer(many=True,read_only=True, source="trail.platforms")
+
+
+    class Meta:
+        model = TrailPatrocinado
+        fields = ('name','description','startDate','finishDate','maxPlayers', 'owner', 'games', 'users', 'platforms')

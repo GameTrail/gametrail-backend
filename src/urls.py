@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from gametrail.api.views import Logout, CustomAuthToken, CUGameInListApiViewSet
-from gametrail.api.views import CUDGameApiViewSet, GetGameApiViewSet
+from gametrail.api.views import CUDGameApiViewSet, GetGameApiViewSet, CTrailPatrocinedViewSet
 # Importar rutas de la API de prueba 'demoapi'
 from gametrail.api.routers import router_api
 from gametrail.api import views
@@ -22,6 +22,7 @@ urlpatterns = [
     path('api/createMinRating', views.CreateMinRatingViewSet.as_view()),
     path('api/addUserInTrail', views.AddUserInTrailViewSet.as_view()),
     path('api/iaGameList',views.GameListImageIA.as_view()),
+    path('api/patrocinedTrail/trail', CTrailPatrocinedViewSet.as_view()),
     #path('api/trailRecomendation', views.UserTrailRecomendationViewSet.as_view())
     #path('api/tesseract_image_read', views.tesseract_image_read),
     #path('api/populate',views.populate),

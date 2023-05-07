@@ -38,6 +38,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     "django.middleware.common.CommonMiddleware",
@@ -47,7 +48,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    'https://gametrail.vercel.app',
+    'https://gametrail-s3.vercel.app',
+    'https://gametrail-s4.vercel.app',
+    'https://gametrail-backend-production-8fc0.up.railway.app'
+]
 
 ROOT_URLCONF = 'src.urls'
 

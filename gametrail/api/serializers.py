@@ -10,8 +10,15 @@ from django.conf import settings
 # Django REST Framework
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
+from rest_framework.pagination import PageNumberPagination
+
 
 class SabiasQueSerializer(ModelSerializer):
     class Meta:
         model = SabiasQue
         fields = '__all__'
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 16
+    page_size_query_param = 'page_size'
+    max_page_size = 16

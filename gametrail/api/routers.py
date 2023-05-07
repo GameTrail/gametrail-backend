@@ -2,7 +2,9 @@ from rest_framework.routers import DefaultRouter
 from gametrail.api.views import *
 from gametrail.api.Game.views import *
 from gametrail.api.Trail.views import *
-from gametrail.api.User.views import *
+from gametrail.api.Authentication.views import *
+from gametrail.api.Comments.views import *
+
 
 router_api = DefaultRouter()
 router_api.register(prefix='game', viewset=GetGameApiViewSet, basename='game')

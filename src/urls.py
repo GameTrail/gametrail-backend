@@ -1,7 +1,5 @@
 from django.contrib import admin
 from django.urls import path, include
-from gametrail.api.User.views import *
-from gametrail.api.Game.views import *
 from gametrail.api.Trail.views import *
 # Importar rutas de la API de prueba 'demoapi'
 from gametrail.api.routers import router_api

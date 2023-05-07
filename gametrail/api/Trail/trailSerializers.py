@@ -1,6 +1,8 @@
 from rest_framework.serializers import ModelSerializer
 from gametrail.models import *
 from gametrail.api.Game.gameSerializers import *
+from gametrail.api.Comments.commentSerializer import *
+
 from rest_framework import serializers
 # Django
 from django.contrib.auth import password_validation, authenticate

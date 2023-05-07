@@ -1,7 +1,6 @@
 from rest_framework.serializers import ModelSerializer
 from gametrail.models import *
 from gametrail.api.Trail.trailSerializers import *
-from gametrail.api.Game.gameSerializers import *
 from rest_framework import serializers
 # Django
 from django.contrib.auth import password_validation, authenticate
@@ -12,6 +11,16 @@ from django.conf import settings
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
+def check_user_is_admin(request):
+    user = request.user
+    return user.is_staff
+def check_user_is_the_same(request,usergametrail):
+    user = request.user
+    return user.username == usergametrail.username
+
+def check_user_is_authenticated(request):
+    user = request.user
+    return user.is_authenticated
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -86,26 +95,7 @@ class RatingSerializer(ModelSerializer):
         model = Rating
         fields = '__all__'
 
-class CommentsByUserIdSerializer(ModelSerializer):
-    userWhoComments = serializers.SerializerMethodField()
-    commentedUser = serializers.SerializerMethodField()
 
-    def get_userWhoComments(self,obj):
-        return {
-            'id': obj.userWhoComments.id,
-            'username' : obj.userWhoComments.username,
-            'avatar': obj.userWhoComments.avatar,
-        }
-    
-    def get_commentedUser(self,obj):
-        return {
-            'id': obj.userCommented.id,
-            'username': obj.userCommented.username,
-            'avatar': obj.userCommented.avatar,
-        }
-    class Meta:
-        model = Comment
-        fields = ['id','commentText','commentedUser','userWhoComments']
 
 class TrailFromUser(ModelSerializer):
     id = serializers.IntegerField(source='trail.id')

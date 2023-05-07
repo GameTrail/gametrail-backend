@@ -6,10 +6,7 @@ from gametrail import functions
 from django.db.models import Avg
 from gametrail.models import *
 from gametrail.api.serializers import *
-from gametrail.api.Game.gameSerializers import *
-from gametrail.api.User.userSerializers import *
 from gametrail.api.Trail.trailSerializers import *
-from gametrail.api.User.views import *
 from gametrail.api.Trail.views import *
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
@@ -27,20 +24,6 @@ from datetime import datetime
 from django.core import serializers
 from rest_framework.pagination import PageNumberPagination
 
-def check_user_is_admin(request):
-    user = request.user
-    return user.is_staff
-def check_user_is_the_same(request,usergametrail):
-    user = request.user
-    return user.username == usergametrail.username
-
-def check_user_is_authenticated(request):
-    user = request.user
-    return user.is_authenticated
-class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 16
-    page_size_query_param = 'page_size'
-    max_page_size = 16
 
 class GetGameApiViewSet(ModelViewSet):
     http_method_names = ['get']
@@ -103,13 +86,4 @@ class CUDGameApiViewSet(APIView):
             game.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
-
-class GameCommentAPIView(ModelViewSet):
-    http_method_names = ['get']
-    serializer_class = CommentsOfAGameSerializer
-
-    def get_queryset(self):
-        game_id = self.request.query_params.get('game_id', None)
-        queryset = Comment.objects.filter(game_id=game_id)
-        return queryset
         

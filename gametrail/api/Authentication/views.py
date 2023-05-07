@@ -6,9 +6,8 @@ from gametrail import functions
 from django.db.models import Avg
 from gametrail.models import *
 from gametrail.api.serializers import *
-from gametrail.api.Game.gameSerializers import *
-from gametrail.api.User.userSerializers import *
 from gametrail.api.Trail.trailSerializers import *
+from gametrail.api.Authentication.authSerializer import *
 from gametrail.api.Trail.views import *
 from gametrail.api.Game.views import *
 from django_filters.rest_framework import DjangoFilterBackend
@@ -188,43 +187,7 @@ class RatingApiViewSet(ModelViewSet):
     queryset = Rating.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_fields  = ['ratedUser', 'userWhoRate']
-class CommentsByUserId(ModelViewSet):    
-    http_method_names = ['get']
-    def get_queryset(self):
-        commentQueryset = Comment.objects.filter(userCommented_id=self.request.query_params.get("user_id"))
-        return commentQueryset 
 
-    serializer_class = CommentsByUserIdSerializer
-
-class CUDCommentsAPIViewSet(APIView):
-    http_method_names = ['post', 'delete']
-    serializer_class = CUDCommentsSerializer
-    
-    def post(self, request, format=None):
-        userWhoComments = User.objects.filter(id=request.data['userWhoComments'])
-        is_user_valid = request.user.username == userWhoComments[0].username
-
-        if is_user_valid == False:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
-        elif is_user_valid == True:
-            serializer = CUDCommentsSerializer(data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            
-
-    def delete(self, request, format=None):
-        if not request.user.is_staff:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
-        else:
-            try:
-                comment = Comment.objects.get(id=request.data['commentId'])
-            except:
-                return Response(status=status.HTTP_404_NOT_FOUND)
-            
-            comment.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
         
 class POSTRatingAPIViewSet(APIView):
 
@@ -295,14 +258,3 @@ class UpdateSubscriptionAPIViewSet(ModelViewSet):
             
             serializer = UserSerializersub(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
-
-def add_game_from_trail_to_gameList(request):
-    trail_id = request.data["trail"]
-    user_id = request.data["user"]
-    gameList_from_user = GameList.objects.filter(user = user_id)[0]
-    gameList_trail = GameInTrail.objects.filter(trail = trail_id)
-    for game in gameList_trail:
-        gameFromTrail = game.game
-        if GameInList.objects.filter(game=gameFromTrail,gameList=gameList_from_user).count()==0:
-            newGame = GameInList(game = gameFromTrail,gameList=gameList_from_user,status="PENDING")
-            newGame.save()

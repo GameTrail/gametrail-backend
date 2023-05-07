@@ -6,8 +6,6 @@ from gametrail import functions
 from django.db.models import Avg
 from gametrail.models import *
 from gametrail.api.serializers import *
-from gametrail.api.Game.gameSerializers import *
-from gametrail.api.User.userSerializers import *
 from gametrail.api.Trail.trailSerializers import *
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter

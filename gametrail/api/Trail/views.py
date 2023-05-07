@@ -6,10 +6,9 @@ from gametrail import functions
 from django.db.models import Avg
 from gametrail.models import *
 from gametrail.api.serializers import *
-from gametrail.api.User.views import *
 from gametrail.api.Game.views import *
-from gametrail.api.Game.gameSerializers import *
-from gametrail.api.User.userSerializers import *
+from gametrail.api.Authentication.views import *
+from gametrail.api.Comments.views import *
 from gametrail.api.Trail.trailSerializers import *
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
@@ -34,16 +33,6 @@ FINISHED = 'FINISHED'
 STATUS_RECOMMENDATIONS = {
     PENDING : 1, PLAYING : 2, FINISHED : 3
 }
-def check_user_is_admin(request):
-    user = request.user
-    return user.is_staff
-def check_user_is_the_same(request,usergametrail):
-    user = request.user
-    return user.username == usergametrail.username
-
-def check_user_is_authenticated(request):
-    user = request.user
-    return user.is_authenticated
 
 def add_game_from_trail_to_gameList(request):
     trail_id = request.data["trail"]
@@ -55,11 +44,8 @@ def add_game_from_trail_to_gameList(request):
         if GameInList.objects.filter(game=gameFromTrail,gameList=gameList_from_user).count()==0:
             newGame = GameInList(game = gameFromTrail,gameList=gameList_from_user,status="PENDING")
             newGame.save()
+            
 
-class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 16
-    page_size_query_param = 'page_size'
-    max_page_size = 16
 
 class TrailApiViewSet(APIView):
     

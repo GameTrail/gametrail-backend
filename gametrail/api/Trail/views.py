@@ -335,6 +335,10 @@ class UserAdvancedTrailRecomendationViewSet(ModelViewSet):
     serializer_class = RecommendedTrailSerializer
 
     def get_queryset(self):
+        is__user_authenticated = check_user_is_authenticated(self.request)
+
+        if is__user_authenticated == False:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
         username=self.request.user.username
         user = User.objects.filter(username=username)[0]
         user.is_subscription_expired()
@@ -437,6 +441,10 @@ class UserTrailRecomendationViewSet(ModelViewSet):
     serializer_class = RecommendedTrailSerializer
 
     def get_queryset(self):
+        is__user_authenticated = check_user_is_authenticated(self.request)
+
+        if is__user_authenticated == False:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
         username=self.request.user.username
         user = User.objects.filter(username=username)[0]
         user.is_subscription_expired()

@@ -164,3 +164,17 @@ class PutTrailSerializer(ModelSerializer):
     class Meta:
         model = Trail
         fields = ['id','name', 'description', 'startDate', 'finishDate','maxPlayers','owner']
+
+class CTrailPatrocinedSerializer(ModelSerializer):
+
+    class Meta:
+        model = TrailPatrocinado
+        fields = '__all__'
+
+class TrailPatrocinedSerializer(ModelSerializer):
+
+    trail = TrailSerializer(read_only = True)
+
+    class Meta:
+        model = TrailPatrocinado
+        fields = ['trail']

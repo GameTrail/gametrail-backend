@@ -330,7 +330,7 @@ class AddUserInTrailViewSet(APIView):
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-class UserTrailRecomendationViewSet(ModelViewSet):
+class UserAdvancedTrailRecomendationViewSet(ModelViewSet):
     http_method_names = ['get']
     serializer_class = RecommendedTrailSerializer
 
@@ -340,30 +340,7 @@ class UserTrailRecomendationViewSet(ModelViewSet):
         user.is_subscription_expired()
         if user.plan != "PREMIUM":
             return []
-        gamelist=GameList.objects.filter(user=user)[0]
-        games=GameInList.objects.filter(gameList=gamelist)
-        genres={}
-        platforms={}
-        for game in games:
-            genresGame=Genre.objects.filter(game=game.game)
-            platformsGame=Platform.objects.filter(game=game.game)
-            state = game.status
-            for genre in genresGame:             
-                if genre.genre in genres:
-                    genres[genre.genre]=genres[genre.genre] + STATUS_RECOMMENDATIONS[state]
-                else:
-                    genres[genre.genre]= STATUS_RECOMMENDATIONS[state]
-            for platform in platformsGame:
-                if platform.platform in platforms:
-                    platforms[platform.platform]=platforms[platform.platform] + STATUS_RECOMMENDATIONS[state]
-                else:
-                    platforms[platform.platform]= STATUS_RECOMMENDATIONS[state]
-        sortedGenres=sorted(genres.items(), key=lambda x:x[1])
-        sortedPlatforms=sorted(platforms.items(), key=lambda x:x[1])
-        genresFinal=sortedGenres[-3:]
-        platformsFinal=sortedPlatforms[-2:]
-        gameInTrails=GameInTrail.objects.filter(game__genres__genre__in=dict(genresFinal).keys(), game__platforms__platform__in=dict(platformsFinal).keys()).distinct()
-        trails = Trail.objects.filter(games__in = gameInTrails).distinct()[:9]
+        trails = sorted(Trail.objects.all().order_by(Trail.average_ratings), key=lambda x:x[1]).distinct()[:9]
         return trails
 
 class CreateMinRatingViewSet(APIView):

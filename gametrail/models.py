@@ -221,7 +221,17 @@ class Trail(models.Model):
 
     def __str__(self):
         
-        return self.name   
+        return self.name
+    
+    @property
+    def average_ratings(self):
+        res=0
+        for user in self.users:
+            avgRatings= user.average_ratings
+            avgRatings.pop("ratedUser")
+            if len(avgRatings):
+                res+=sum(avgRatings.values())/len(avgRatings.values())
+        res=res/len(self.users)
     
 class UserInTrail(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='trails_with_user')

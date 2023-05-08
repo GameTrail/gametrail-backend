@@ -338,13 +338,13 @@ class UserAdvancedTrailRecomendationViewSet(ModelViewSet):
         is__user_authenticated = check_user_is_authenticated(self.request)
 
         if is__user_authenticated == False:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return []
         username=self.request.user.username
         user = User.objects.filter(username=username)[0]
         user.is_subscription_expired()
-        if user.plan != "PREMIUM":
+        if user.plan != "Premium":
             return []
-        trails = sorted(Trail.objects.all().order_by(Trail.average_ratings), key=lambda x:x[1]).distinct()[:9]
+        trails = sorted(Trail.objects.all(), key=lambda x:-x.average_ratings)[:10]
         return trails
 
 class CreateMinRatingViewSet(APIView):

@@ -1,5 +1,5 @@
 from django.test import TestCase
-from gametrail.api.views import GameInTrailViewSet, GetTrailApiViewSet, TrailApiViewSet, UserApiViewSet, POSTRatingAPIViewSet, CreateMinRatingViewSet, GetMinRatingTrailApiViewSet, AddUserInTrailViewSet
+from gametrail.api.Trail.views import GameInTrailViewSet, GetTrailApiViewSet, TrailApiViewSet, UserApiViewSet, POSTRatingAPIViewSet, CreateMinRatingViewSet, GetMinRatingTrailApiViewSet, AddUserInTrailViewSet
 from gametrail.models import Game, GameInTrail, Rating, User, MinRatingTrail, Trail, UserInTrail
 from gametrail.api.tests import *
 from rest_framework.test import APIRequestFactory

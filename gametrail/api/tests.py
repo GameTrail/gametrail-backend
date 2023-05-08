@@ -7,4 +7,4 @@ import secrets
 import string
 
 ALPHABET = string.ascii_letters + string.digits
-PASSWORD = ''.join(secrets.choice(ALPHABET) for i in range(20))
+PASSWORD = ''.join(secrets.choice(ALPHABET) for i in range(20))      

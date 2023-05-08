@@ -49,4 +49,3 @@ log/
 
 #Migrations
 migrations
-__init__.py

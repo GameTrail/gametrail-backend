@@ -1,5 +1,10 @@
 from rest_framework.routers import DefaultRouter
 from gametrail.api.views import *
+from gametrail.api.Game.views import *
+from gametrail.api.Trail.views import *
+from gametrail.api.Authentication.views import *
+from gametrail.api.Comments.views import *
+
 
 router_api = DefaultRouter()
 router_api.register(prefix='game', viewset=GetGameApiViewSet, basename='game')
@@ -18,4 +23,5 @@ router_api.register(prefix='comment/user', viewset=CommentsByUserId, basename='c
 router_api.register(prefix='comment/game', viewset=GameCommentAPIView, basename='gameComments')
 router_api.register(prefix='sub', viewset=UpdateSubscriptionAPIViewSet, basename='subscription')
 router_api.register(prefix='recommendTrail', viewset=UserTrailRecomendationViewSet, basename='recommendTrail')
+router_api.register(prefix='recommendTrailByRating', viewset=UserAdvancedTrailRecomendationViewSet, basename='recommendTrailByRating')
 router_api.register(prefix='getPatrocinedTrail', viewset=GetTrailPatrocinedViewSet, basename='getPatrocinedTrail')

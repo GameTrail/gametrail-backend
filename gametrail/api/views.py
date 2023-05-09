@@ -23,6 +23,7 @@ from django.core import serializers
 from rest_framework.pagination import PageNumberPagination
 import django_filters
 from django_filters import rest_framework as filters
+from django.db.models import Avg
 PLAYING = 'PLAYING'
 PENDING = 'PENDING'
 FINISHED = 'FINISHED'
@@ -438,15 +439,12 @@ class TrailFilter(filters.FilterSet):
     finished_before = filters.DateFilter(field_name='finishDate', lookup_expr='lte')
     finished_after = filters.DateFilter(field_name='finishDate', lookup_expr='gte')
     game_name = django_filters.CharFilter(field_name='games__game__name', lookup_expr='icontains')
-    min_rating = django_filters.NumberFilter(field_name='users__user__rate_recieved__rating', lookup_expr='gte')
-    max_rating = django_filters.NumberFilter(field_name='users__user__rate_recieved__rating', lookup_expr='lte')
+   
+
 
     class Meta:
         model = Trail
-        fields = ['min_rating', 'max_rating']
-    class Meta:
-        model = Trail
-        fields = ['created_before', 'created_after','started_before', 'started_after','finished_before', 'finished_after','games__game','users__user','game_name','min_rating', 'max_rating']
+        fields = ['created_before', 'created_after','started_before', 'started_after','finished_before', 'finished_after','games__game','users__user','game_name']
 class GetTrailApiViewSet(ModelViewSet):
     
     http_method_names = ['get']

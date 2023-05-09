@@ -120,7 +120,8 @@ class User(AbstractBaseUser):
 
     def __str__(self):
         return f'{self.username}'
-    
+
+
     @property
     def average_ratings(self):
         ratings = Rating.objects.filter(ratedUser_id = self.id)

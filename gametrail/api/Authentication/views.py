@@ -38,10 +38,13 @@ def check_user_is_authenticated(request):
     return user.is_authenticated
 
 class UserApiViewSet(ModelViewSet):
-    http_method_names = ['get', 'delete', 'put']
+    http_method_names = ['get']
     serializer_class = GetUserSerializer
     queryset = User.objects.all()
-    
+        
+class DeleteUserViewSet(APIView):
+    http_method_names = ['delete']
+
     def delete(self, request, format = None):
         is_user_valid = request.user.is_staff | (request.user.username == User.objects.get(pk=request.data['userId']).username)
         if is_user_valid == False:
@@ -56,7 +59,9 @@ class UserApiViewSet(ModelViewSet):
             userDjango = UserDjango.objects.get(username=user.username)
             userDjango.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-    
+        
+class ModifyUserViewSet(APIView):
+    http_method_names = ['put']
     def put(self, request, format = None):
         user = request.user
         if not (request.user.username == User.objects.get(pk=request.data.get("userId")).username):            

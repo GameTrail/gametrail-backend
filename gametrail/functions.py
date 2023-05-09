@@ -74,7 +74,7 @@ def populate_users(base_json = "./src/population/users/users.json"):
     for user in data:
         models.User.objects.create_user(
             email= str(user.get("email")),
-            username = str(user.get("username")),
+            userName = str(user.get("userName")),
             avatar= str(user.get("avatar")),
             password=str(user.get("password"))
         )

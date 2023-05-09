@@ -14,9 +14,9 @@ class TrailApiViewSetTestCase(TestCase):
 
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.user = User.objects.create_user(username='Juanan1', email='juanan@gmail.com' ,avatar='kajnfawkef.jpg' ,password=PASSWORD)
+        self.user = User.objects.create_user(userName='Juanan1', email='juanan@gmail.com' ,avatar='kajnfawkef.jpg' ,password=PASSWORD)
 
-        self.user2 = User.objects.create_user(username='Juanan2', email='juanan2@gmail.com' ,avatar='kajnfawkef.jpg' ,password=PASSWORD)
+        self.user2 = User.objects.create_user(userName='Juanan2', email='juanan2@gmail.com' ,avatar='kajnfawkef.jpg' ,password=PASSWORD)
 
         self.trail1 = Trail.objects.create(owner=self.user, 
                                             name='Test Trail 1',

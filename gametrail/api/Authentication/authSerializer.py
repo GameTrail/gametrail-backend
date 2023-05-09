@@ -16,7 +16,7 @@ def check_user_is_admin(request):
     return user.is_staff
 def check_user_is_the_same(request,usergametrail):
     user = request.user
-    return user.username == usergametrail.username
+    return user.userName == usergametrail.userName
 
 def check_user_is_authenticated(request):
     user = request.user
@@ -25,7 +25,7 @@ def check_user_is_authenticated(request):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'email']
+        fields = ['userName', 'email']
 
 class UserSerializersub(serializers.ModelSerializer):
     class Meta:
@@ -34,12 +34,12 @@ class UserSerializersub(serializers.ModelSerializer):
 
 class UserLoginSerializer(serializers.Serializer):
 
-    username = serializers.CharField()
+    userName = serializers.CharField()
     password = serializers.CharField()
 
     def validate(self, data):
 
-        user = authenticate(username=data['username'], password=data['password'])
+        user = authenticate(userName=data['userName'], password=data['password'])
         if not user:
             raise serializers.ValidationError('Las credenciales no son válidas')
 
@@ -56,7 +56,7 @@ class CreateUserSerializer(serializers.Serializer):
     email = serializers.EmailField(
         validators=[UniqueValidator(queryset=User.objects.all())]
     )
-    username = serializers.CharField(
+    userName = serializers.CharField(
         validators=[UniqueValidator(queryset=User.objects.all())]
     )
 
@@ -127,7 +127,7 @@ class GetUserSerializer(ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'avatar', 'plan', 'games', 'trails', 'average_ratings', 'comments_received']
+        fields = ['id', 'userName', 'email', 'avatar', 'plan', 'games', 'trails', 'average_ratings', 'comments_received']
 
 class PutUserSerializer(ModelSerializer):
     class Meta:

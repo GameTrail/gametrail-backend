@@ -5,7 +5,7 @@ from django.forms import ValidationError
 from django.utils import timezone
 from django.core.validators import MaxValueValidator, MinValueValidator 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
-from django.contrib.auth.models import User as user_django
+from django.contrib.auth.models import User as userDjango
 from django.core.exceptions import ValidationError
 from django.db.models import Avg
 from django.utils.timezone import now as currentDate
@@ -44,10 +44,10 @@ TYPE_CHOICES = [
 ]
 
 class UserManager(BaseUserManager):
-    def create_superuser(self, email, username, avatar, password):
+    def create_superuser(self, email, userName, avatar, password):
         user = self.create_user(
             email = self.normalize_email(email),
-            username = username,
+            userName = userName,
             password = password,
             avatar = avatar
         )
@@ -59,24 +59,24 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
     
-    def create_user(self, username, email, avatar,password=None):
+    def create_user(self, userName, email, avatar,password=None):
         if not email:
             raise ValueError('El usuario debe tener un email')
 
-        if not username:
+        if not userName:
             raise ValueError('El usuario debe tener un nombre de usuario')
 
-        user_django = user_django()
-        user_django.username = username
-        user_django.set_password(password)
-        user_django.save()
-        user_django.is_active = True
+        userDjango = userDjango()
+        userDjango.userName = userName
+        userDjango.set_password(password)
+        userDjango.save()
+        userDjango.is_active = True
 
-        username_gameTrail = username
+        userName_gameTrail = userName
 
         user = self.model(
             email=self.normalize_email(email),
-            username=username_gameTrail,
+            userName=userName_gameTrail,
             avatar=avatar,
         )
 
@@ -91,7 +91,7 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser):
 
-    username = models.CharField(max_length=400, unique=True)
+    userName = models.CharField(max_length=400, unique=True)
     email = models.EmailField(unique=True)
     avatar = models.URLField(max_length=255)
     password = models.CharField(max_length=500)
@@ -104,7 +104,7 @@ class User(AbstractBaseUser):
     last_login = None
     is_active = models.BooleanField(default=False)
 
-    USERNAME_FIELD = 'username'
+    userName_FIELD = 'userName'
     REQUIRED_FIELDS = ['email']
     objects = UserManager()
     
@@ -119,7 +119,7 @@ class User(AbstractBaseUser):
         return False
 
     def __str__(self):
-        return f'{self.username}'
+        return f'{self.userName}'
     
     @property
     def average_ratings(self):
@@ -147,14 +147,14 @@ class Rating(models.Model):
     
 
     def __str__(self):
-        return f'{self.userWhoRate.username} rated {self.ratedUser.username} with {self.rating} for {self.type}'
+        return f'{self.userWhoRate.userName} rated {self.ratedUser.userName} with {self.rating} for {self.type}'
     
 class GameList(models.Model):
 
     user = models.OneToOneField('User',on_delete=models.CASCADE, unique=True, related_name='gameList')
     
     def __str__(self):
-        return f'{self.user.username}\'s game list'
+        return f'{self.user.userName}\'s game list'
     
 class Game(models.Model):
 
@@ -250,7 +250,7 @@ class UserInTrail(models.Model):
         return super().clean()
 
     def __str__(self):
-        return f"{self.user.username} in {self.trail.name}"
+        return f"{self.user.userName} in {self.trail.name}"
     
 class GameInTrail(models.Model):
     game = models.ForeignKey(Game, on_delete=models.CASCADE,related_name='trails')
@@ -285,7 +285,7 @@ class ChatTrail(models.Model):
     trail = models.ForeignKey(Trail, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.user.username} - {self.chatText}"
+        return f"{self.user.userName} - {self.chatText}"
     
 class SabiasQue(models.Model):
     curiosity = models.TextField()

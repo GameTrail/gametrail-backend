@@ -60,9 +60,9 @@ class TrailApiViewSet(APIView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         else:
             owner= User.objects.get(pk=request.data['owner'])
-            user = request.user.username
+            user = request.user.userName
             
-            if user != owner.username:
+            if user != owner.userName:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
             start_date = request.data['startDate']
             finish_date = request.data['finishDate']
@@ -98,8 +98,8 @@ class TrailApiViewSet(APIView):
         if not check_user_is_authenticated(request):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         
-        owner = Trail.objects.get(pk=request.data['id']).owner.username
-        user = request.user.username
+        owner = Trail.objects.get(pk=request.data['id']).owner.userName
+        user = request.user.userName
 
         if user != owner:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -128,8 +128,8 @@ class TrailApiViewSet(APIView):
             
         
     def delete(self, request, format = None):
-        owner= Trail.objects.get(pk=request.data['trailId']).owner.username
-        user = request.user.username
+        owner= Trail.objects.get(pk=request.data['trailId']).owner.userName
+        user = request.user.userName
         if user != owner:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         else:
@@ -190,8 +190,8 @@ class GameInTrailViewSet(APIView):
     serializer_class = GameInTrailSerializer
     
     def post(self, request, format=None):
-        owner= Trail.objects.get(pk=request.data['trail']).owner.username
-        user = request.user.username
+        owner= Trail.objects.get(pk=request.data['trail']).owner.userName
+        user = request.user.userName
         trail = Trail.objects.get(pk=request.data['trail'])
         
         if user != owner:
@@ -202,7 +202,7 @@ class GameInTrailViewSet(APIView):
                 return Response("La prioridad debe estar comprendida entre 1 y 5", status=status.HTTP_400_BAD_REQUEST)          
             serializer = GameInTrailSerializer(data=request.data)
             numJuegosTrail=trail.games.count()
-            object_user = User.objects.get(username = user)
+            object_user = User.objects.get(userName = user)
             object_user.is_subscription_expired()
             if numJuegosTrail >= 3 and object_user.plan == "STANDARD":
                 return Response('No puedes añadir a más de 3 juegos a tu trail siendo un usuario standard.', status=status.HTTP_400_BAD_REQUEST)
@@ -212,8 +212,8 @@ class GameInTrailViewSet(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
     def put(self, request, format = None):
-        owner= Trail.objects.get(pk=request.data['trail']).owner.username
-        user = request.user.username
+        owner= Trail.objects.get(pk=request.data['trail']).owner.userName
+        user = request.user.userName
 
         if user != owner:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -233,8 +233,8 @@ class GameInTrailViewSet(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
     def delete(self, request, format = None):
-        owner= Trail.objects.get(pk=request.data['trailId']).owner.username
-        user = request.user.username
+        owner= Trail.objects.get(pk=request.data['trailId']).owner.userName
+        user = request.user.userName
         if user != owner:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         else:
@@ -276,9 +276,9 @@ class CreateMinRatingViewSet(APIView):
     @classmethod
     def post(self, request, format = None):
         userGameTrail = User.objects.get(pk = request.data['user'])
-        is_username_same = check_user_is_the_same(request, userGameTrail)
+        is_userName_same = check_user_is_the_same(request, userGameTrail)
 
-        if is_username_same == False:
+        if is_userName_same == False:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         else:
             owner = Trail.objects.get(pk = request.data['trail']).owner
@@ -364,8 +364,8 @@ class UserAdvancedTrailRecomendationViewSet(ModelViewSet):
 
         if is__user_authenticated == False:
             return []
-        username=self.request.user.username
-        user = User.objects.filter(username=username)[0]
+        userName=self.request.user.userName
+        user = User.objects.filter(userName=userName)[0]
         user.is_subscription_expired()
         if user.plan != "Premium":
             return []
@@ -381,8 +381,8 @@ class UserTrailRecomendationViewSet(ModelViewSet):
 
         if is__user_authenticated == False:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
-        username=self.request.user.username
-        user = User.objects.filter(username=username)[0]
+        userName=self.request.user.userName
+        user = User.objects.filter(userName=userName)[0]
         user.is_subscription_expired()
         if user.plan != "PREMIUM":
             return []
@@ -420,10 +420,10 @@ class GameListImageIA(APIView):
         if not request.user.is_authenticated:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         else:
-            userName = request.user.username
+            userName = request.user.userName
             ownerList = User.objects.get(pk = request.data['user'])
             
-            if userName != ownerList.username:
+            if userName != ownerList.userName:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
             else:
                 try:

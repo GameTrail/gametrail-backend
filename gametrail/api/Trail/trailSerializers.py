@@ -30,14 +30,14 @@ class PlatformSerializer(ModelSerializer):
 
 class AllUsersInTrailsSerializer(ModelSerializer):
     id = serializers.IntegerField(source='user.id')
-    username = serializers.CharField(source='user.username')
+    userName = serializers.CharField(source='user.userName')
     email = serializers.CharField(source='user.email')
     avatar = serializers.CharField(source='user.avatar')
     plan = serializers.CharField(source='user.plan')
 
     class Meta:
         model = UserInTrail
-        fields = ('id','username','email','avatar','plan')
+        fields = ('id','userName','email','avatar','plan')
         
 class GameInTrailSerializer(ModelSerializer):
     class Meta:
@@ -114,7 +114,7 @@ class Games1InTrailsSerializer(ModelSerializer):
 class OwnerSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'avatar', 'email']
+        fields = ['id', 'userName', 'avatar', 'email']
 
 class TrailSerializer(ModelSerializer):
     games= Games1InTrailsSerializer(many=True,read_only=True)
@@ -132,11 +132,11 @@ class TrailSerializer(ModelSerializer):
 
 class UserTrailRecommendation(ModelSerializer):
     id = serializers.IntegerField(source='user.id')
-    username = serializers.CharField(source='user.username')
+    userName = serializers.CharField(source='user.userName')
 
     class Meta:
         model = UserInTrail
-        fields = ['id', 'username']
+        fields = ['id', 'userName']
 
 
 class GameImageSerializer(ModelSerializer):

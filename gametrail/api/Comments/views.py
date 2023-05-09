@@ -39,7 +39,7 @@ class CUDCommentsAPIViewSet(APIView):
     
     def post(self, request, format=None):
         userWhoComments = User.objects.filter(id=request.data['userWhoComments'])
-        is_user_valid = request.user.username == userWhoComments[0].username
+        is_user_valid = request.user.userName == userWhoComments[0].userName
 
         if is_user_valid == False:
             return Response(status=status.HTTP_401_UNAUTHORIZED)

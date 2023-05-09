@@ -17,14 +17,14 @@ class CommentsByUserIdSerializer(ModelSerializer):
     def get_userWhoComments(self,obj):
         return {
             'id': obj.userWhoComments.id,
-            'username' : obj.userWhoComments.username,
+            'userName' : obj.userWhoComments.userName,
             'avatar': obj.userWhoComments.avatar,
         }
     
     def get_commentedUser(self,obj):
         return {
             'id': obj.userCommented.id,
-            'username': obj.userCommented.username,
+            'userName': obj.userCommented.userName,
             'avatar': obj.userCommented.avatar,
         }
     class Meta:
@@ -42,7 +42,7 @@ class CommentsOfAGameSerializer(ModelSerializer):
     def get_userWhoComments(self, obj):
         return {
             'id': obj.userWhoComments.id,
-            'username': obj.userWhoComments.username,
+            'userName': obj.userWhoComments.userName,
             'avatar': obj.userWhoComments.avatar,
         }
     

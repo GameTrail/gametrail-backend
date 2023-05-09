@@ -12,8 +12,8 @@ class RatingApiViewSetTestCase(TestCase):
 
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.ratedUser = User.objects.create_user(username='miguelito', email='miguel_mola@gmail.com' ,avatar='kajnfawkef.jpg' ,password=PASSWORD)
-        self.userWhoRate = User.objects.create_user(username='pedrito', email='pedritodestroza@gmail.com' ,avatar='sfsfsfdsf.jpg' ,password=PASSWORD)
+        self.ratedUser = User.objects.create_user(userName='miguelito', email='miguel_mola@gmail.com' ,avatar='kajnfawkef.jpg' ,password=PASSWORD)
+        self.userWhoRate = User.objects.create_user(userName='pedrito', email='pedritodestroza@gmail.com' ,avatar='sfsfsfdsf.jpg' ,password=PASSWORD)
 
         self.ratedUser_id = self.ratedUser.pk
         self.userWhoRate_id = self.userWhoRate.pk
@@ -105,10 +105,10 @@ class MinRatingApiViewSetTestCase(TestCase):
 
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.premiumUser = User.objects.create_user(username='miguelito', email='miguel_mola@gmail.com' ,avatar='kajnfawkef.jpg' ,password=PASSWORD)
+        self.premiumUser = User.objects.create_user(userName='miguelito', email='miguel_mola@gmail.com' ,avatar='kajnfawkef.jpg' ,password=PASSWORD)
         self.premiumUser.plan = "Premium"
         self.premiumUser.save()
-        self.standartUser = User.objects.create_user(username='pedrito', email='pedritodestroza@gmail.com' ,avatar='sfsfsfdsf.jpg' ,password=PASSWORD)
+        self.standartUser = User.objects.create_user(userName='pedrito', email='pedritodestroza@gmail.com' ,avatar='sfsfsfdsf.jpg' ,password=PASSWORD)
 
         self.premiumUser_id = self.premiumUser.pk
         self.standartUser_id = self.standartUser.pk
@@ -190,7 +190,7 @@ class GameListApiViewSetTestCase(TestCase):
         self.factory = APIRequestFactory()
 
         #Usuario
-        self.userGameList = User.objects.create_user(username='pruebaGameList1', email='pruebagamelist@gmail.com' ,avatar='avatar.jpg' ,password=PASSWORD)
+        self.userGameList = User.objects.create_user(userName='pruebaGameList1', email='pruebagamelist@gmail.com' ,avatar='avatar.jpg' ,password=PASSWORD)
         self.userGameList_id =  self.userGameList.pk
 
         #Juego

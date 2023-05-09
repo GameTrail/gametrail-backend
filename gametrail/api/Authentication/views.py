@@ -31,7 +31,7 @@ def check_user_is_admin(request):
     return user.is_staff
 def check_user_is_the_same(request,usergametrail):
     user = request.user
-    return user.username == usergametrail.username
+    return user.userName == usergametrail.userName
 
 def check_user_is_authenticated(request):
     user = request.user
@@ -43,7 +43,7 @@ class UserApiViewSet(ModelViewSet):
     queryset = User.objects.all()
     
     def delete(self, request, format = None):
-        is_user_valid = request.user.is_staff | (request.user.username == User.objects.get(pk=request.data['userId']).username)
+        is_user_valid = request.user.is_staff | (request.user.userName == User.objects.get(pk=request.data['userId']).userName)
         if is_user_valid == False:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         else:
@@ -53,13 +53,13 @@ class UserApiViewSet(ModelViewSet):
                 return Response(status=status.HTTP_404_NOT_FOUND)
             
             user.delete()
-            user_django = user_django.objects.get(username=user.username)
-            user_django.delete()
+            userDjango = userDjango.objects.get(userName=user.userName)
+            userDjango.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
     
     def put(self, request, format = None):
         user = request.user
-        if not (request.user.username == User.objects.get(pk=request.data.get("userId")).username):            
+        if (request.user.userName != User.objects.get(pk=request.data.get("userId")).userName):            
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         
         else:            
@@ -71,8 +71,8 @@ class UserApiViewSet(ModelViewSet):
             serializer = PutUserSerializer(user, data=request.data)
             if serializer.is_valid():
                 if (request.data.get("password") != None):
-                    user_django = user_django.objects.get(username=request.user.username)
-                    user_django.set_password(request.data.get("password"))
+                    userDjango = userDjango.objects.get(userName=request.user.userName)
+                    userDjango.set_password(request.data.get("password"))
 
                     serializer.save()
 
@@ -80,7 +80,7 @@ class UserApiViewSet(ModelViewSet):
                     user.set_password(request.data.get("password"))
                     user.save()   
                              
-                    user_django.save()
+                    userDjango.save()
 
                     return Response(serializer.data, status=status.HTTP_201_CREATED)
                 else:                
@@ -103,10 +103,10 @@ class CustomAuthToken(ObtainAuthToken):
         user = serializer.validated_data['user']
         token, created = Token.objects.get_or_create(user=user)
 
-        user.username
+        user.userName
         return Response({
             'token': token.key,
-            'user_id': User.objects.get(username=user.username).id
+            'user_id': User.objects.get(userName=user.userName).id
         })
 
 class CreateUserApiViewSet(viewsets.GenericViewSet):
@@ -140,10 +140,10 @@ class CUGameInListApiViewSet(APIView):
         if not request.user.is_authenticated:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         else:
-            userName = request.user.username
+            userName = request.user.userName
             ownerList = User.objects.get(pk = request.data['user'])
         
-            if userName != ownerList.username:
+            if userName != ownerList.userName:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
             else:
                 gameList = GameList.objects.get(user_id = request.data['user'])
@@ -159,10 +159,10 @@ class CUGameInListApiViewSet(APIView):
         if not request.user.is_authenticated:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         else:
-            userName = request.user.username
+            userName = request.user.userName
             ownerList = User.objects.get(pk = request.data['user'])
         
-            if userName != ownerList.username:
+            if userName != ownerList.userName:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
             else:
                 gameList = GameList.objects.get(user_id = request.data['user'])
@@ -197,7 +197,7 @@ class POSTRatingAPIViewSet(APIView):
     def post(self, request, format=None): 
 
         userWhoRate= User.objects.filter(id=request.data['userWhoRate'])
-        is_user_valid = request.user.username == userWhoRate[0].username
+        is_user_valid = request.user.userName == userWhoRate[0].userName
 
         rating_data = request.data.get("rating", None)
         if is_user_valid:    

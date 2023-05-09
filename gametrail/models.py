@@ -5,7 +5,7 @@ from django.forms import ValidationError
 from django.utils import timezone
 from django.core.validators import MaxValueValidator, MinValueValidator 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
-from django.contrib.auth.models import User as UserDjango
+from django.contrib.auth.models import User as user_django
 from django.core.exceptions import ValidationError
 from django.db.models import Avg
 from django.utils.timezone import now as currentDate
@@ -66,11 +66,11 @@ class UserManager(BaseUserManager):
         if not username:
             raise ValueError('El usuario debe tener un nombre de usuario')
 
-        userDjango = UserDjango()
-        userDjango.username = username
-        userDjango.set_password(password)
-        userDjango.save()
-        userDjango.is_active = True
+        user_django = user_django()
+        user_django.username = username
+        user_django.set_password(password)
+        user_django.save()
+        user_django.is_active = True
 
         username_gameTrail = username
 

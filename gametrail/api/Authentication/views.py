@@ -53,8 +53,8 @@ class UserApiViewSet(ModelViewSet):
                 return Response(status=status.HTTP_404_NOT_FOUND)
             
             user.delete()
-            userDjango = UserDjango.objects.get(username=user.username)
-            userDjango.delete()
+            user_django = user_django.objects.get(username=user.username)
+            user_django.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
     
     def put(self, request, format = None):
@@ -71,8 +71,8 @@ class UserApiViewSet(ModelViewSet):
             serializer = PutUserSerializer(user, data=request.data)
             if serializer.is_valid():
                 if (request.data.get("password") != None):
-                    userDjango = UserDjango.objects.get(username=request.user.username)
-                    userDjango.set_password(request.data.get("password"))
+                    user_django = user_django.objects.get(username=request.user.username)
+                    user_django.set_password(request.data.get("password"))
 
                     serializer.save()
 
@@ -80,7 +80,7 @@ class UserApiViewSet(ModelViewSet):
                     user.set_password(request.data.get("password"))
                     user.save()   
                              
-                    userDjango.save()
+                    user_django.save()
 
                     return Response(serializer.data, status=status.HTTP_201_CREATED)
                 else:                

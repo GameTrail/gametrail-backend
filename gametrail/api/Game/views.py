@@ -7,6 +7,8 @@ from django.db.models import Avg
 from gametrail.models import *
 from gametrail.api.Trail.trailSerializers import *
 from gametrail.api.Trail.views import *
+from gametrail.api.Authentication.views import check_user_is_admin
+from gametrail.api.serializers import StandardResultsSetPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
 from rest_framework.decorators import action

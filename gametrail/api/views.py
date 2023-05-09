@@ -109,6 +109,7 @@ def populate_ratings(request):
     return HttpResponse(html)
    
 class SabiasqueApiViewSet(ModelViewSet):
+    http_method_names = ['get']
     serializer_class = SabiasQueSerializer
     queryset = SabiasQue.objects.all()
 

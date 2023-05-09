@@ -1,6 +1,6 @@
 # Getting started
 
-Follow this guide to setup the project
+Follow this guide to setup the project:
 
 ### Configure virtual enviroment
 - Install virtualenv `pip install virtualenv`

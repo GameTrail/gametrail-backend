@@ -3,6 +3,7 @@ from django.urls import path, include
 from gametrail.api.Trail.views import *
 from gametrail.api.Game.views import *
 from gametrail.api.Authentication.views import *
+from gametrail.api.Chat.views import PostChatAPIViewSet
 
 # Importar rutas de la API de prueba 'demoapi'
 from gametrail.api.routers import router_api
@@ -28,6 +29,7 @@ urlpatterns = [
     path('api/addUserInTrail', AddUserInTrailViewSet.as_view()),
     path('api/iaGameList', GameListImageIA.as_view()),
     path('api/patrocinedTrail', CTrailPatrocinedViewSet.as_view()),
+    path('api/chat', PostChatAPIViewSet.as_view()),
     # path('api/getPatrocinedTrail', GetTrailPatrocinedViewSet.as_view())
     # path('api/trailRecomendation', UserTrailRecomendationViewSet.as_view())
 ]

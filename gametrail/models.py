@@ -279,10 +279,10 @@ class Platform(models.Model):
         return self.platform
     
 class ChatTrail(models.Model):
-    chatText = models.TextField()
-    createdMoment = models.DateTimeField(default=timezone.now)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    trail = models.ForeignKey(Trail, on_delete=models.CASCADE)
+    text = models.TextField(max_length=350)
+    creationDate = models.DateTimeField(default=timezone.now)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="messages_made")
+    trail = models.ForeignKey(Trail, on_delete=models.CASCADE, related_name="messages_trail")
 
     def __str__(self):
         return f"{self.user.username} - {self.chatText}"

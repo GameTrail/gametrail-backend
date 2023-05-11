@@ -4,6 +4,7 @@ from gametrail.api.Game.views import *
 from gametrail.api.Trail.views import *
 from gametrail.api.Authentication.views import *
 from gametrail.api.Comments.views import *
+from gametrail.api.Chat.views import *
 
 
 router_api = DefaultRouter()
@@ -25,3 +26,4 @@ router_api.register(prefix='sub', viewset=UpdateSubscriptionAPIViewSet, basename
 router_api.register(prefix='recommendTrail', viewset=UserTrailRecomendationViewSet, basename='recommendTrail')
 router_api.register(prefix='recommendTrailByRating', viewset=UserAdvancedTrailRecomendationViewSet, basename='recommendTrailByRating')
 router_api.register(prefix='getPatrocinedTrail', viewset=GetTrailPatrocinedViewSet, basename='getPatrocinedTrail')
+router_api.register(prefix='chatByTrailId', viewset=ChatByTrailId, basename='chatByTrailId')

@@ -21,7 +21,7 @@ class PostChatAPIViewSet(APIView):
     def post(self, request, format=None):
         trailId = request.data['trailId']
         text = request.data['text']
-        creationDate = request.data['creationDate']
+        creationDate = datetime.now()
         userId = request.data["userId"]
         
         trail = Trail.objects.get(pk = trailId)

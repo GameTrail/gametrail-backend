@@ -16,7 +16,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 # ALLOWED_HOSTS = ['gametrail.vercel.app', 'gametrail-s3.vercel.app' ,'gametrail-s4.vercel.app', 'gametrail-backend-production-8fc0.up.railway.app', 'gametrail-backend-s4-production.up.railway.app']
 # CSRF_TRUSTED_ORIGINS = ['https://gametrail.vercel.app', 'https://gametrail-s3.vercel.app' ,'https://gametrail-s4.vercel.app', 'https://gametrail-backend-production-8fc0.up.railway.app', 'https://gametrail-backend-s4-production.up.railway.app']
 

@@ -5,9 +5,6 @@
 *.pyc
 __pycache__/
 
-# SQLite database file
-db.sqlite3
-
 # Media files
 media/
 

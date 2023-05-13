@@ -16,9 +16,9 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
 ALLOWED_HOSTS = ['*']
-CSRF_TRUSTED_ORIGINS = ['https://gametrail-s4.vercel.app', 'http://localhost:8000', 'http://localhost:3000']
+CSRF_TRUSTED_ORIGINS = ['https://gametrail-s4.vercel.app', 'http://localhost:8000', 'http://localhost:3000', 'https://gametrail-backend-s4-production.up.railway.app]
+CORS_ALLOW_ALL_ORIGINS = True
 
 # Application definition
 
@@ -30,24 +30,22 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_filters',
-#     "corsheaders",
     'rest_framework',
     'gametrail',
     'rest_framework.authtoken',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
-#     "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    "django.middleware.common.CommonMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
-# CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'src.urls'
 

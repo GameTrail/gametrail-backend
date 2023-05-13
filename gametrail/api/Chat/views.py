@@ -9,7 +9,7 @@ from rest_framework import status
 class ChatByTrailId(ModelViewSet):
     http_method_names = ['get']
     def get_queryset(self):
-        chatQuerySet = ChatTrail.objects.filter(trail_id = self.request.data["trailId"])
+        chatQuerySet = ChatTrail.objects.filter(trail_id = self.request.GET.get("trailId"))
         chatQuerySet = chatQuerySet.order_by('-creationDate')[:50]
         return chatQuerySet
 

@@ -86,6 +86,10 @@ DATABASES = {
         'PASSWORD': os.environ.get('PGPASSWORD'),
         'HOST': os.environ.get('PGHOST'),
         'PORT': os.environ.get('PGPORT'),
+    },
+    'test_': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'test_',
     }
 }
 

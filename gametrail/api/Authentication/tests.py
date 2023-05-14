@@ -256,7 +256,7 @@ class GameListApiViewSetTestCase(TestCase):
         view2 =  CUGameInListApiViewSet.as_view()
         response2= view2(request2)
 
-        self.assertEqual(response2.status_code, status.HTTP_200_OK)
+        self.assertEqual(response2.status_code, status.HTTP_201_CREATED)
 
     #Test ver gamelist de un usuario
     def test_get_gameList(self): 

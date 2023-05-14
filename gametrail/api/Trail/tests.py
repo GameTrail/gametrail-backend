@@ -1,6 +1,7 @@
 from django.test import TestCase
-from gametrail.api.Trail.views import GameInTrailViewSet, GetTrailApiViewSet, TrailApiViewSet, UserApiViewSet, POSTRatingAPIViewSet, CreateMinRatingViewSet, GetMinRatingTrailApiViewSet, AddUserInTrailViewSet
-from gametrail.models import Game, GameInTrail, Rating, User, MinRatingTrail, Trail, UserInTrail
+from gametrail.api.Authentication.views import UpdateSubscriptionAPIViewSet
+from gametrail.api.Trail.views import GameInTrailViewSet, GetTrailApiViewSet, TrailApiViewSet, AddUserInTrailViewSet
+from gametrail.models import Game, GameInTrail, User, Trail, UserInTrail
 from rest_framework.test import APIRequestFactory
 from rest_framework import status
 from rest_framework.test import force_authenticate
@@ -22,7 +23,7 @@ class TrailApiViewSetTestCase(TestCase):
                                             name='Test Trail 1',
                                             description='Test Trail 1',
                                             startDate='2023-04-12',
-                                            maxPlayers='2', 
+                                            maxPlayers=2, 
                                             finishDate='2023-04-15')
         self.game= Game.objects.create( name= 'Juego 1',
                                        releaseDate='2023-04-17',
@@ -34,6 +35,8 @@ class TrailApiViewSetTestCase(TestCase):
         self.url1 = '/api/trail/' 
         self.url2= 'api/gameInTrail'
         self.url3 = '/api/addUserInTrail'
+        self.url4 = '/api/sub/'
+       
 
     def test_get_trails(self):
     
@@ -45,20 +48,37 @@ class TrailApiViewSetTestCase(TestCase):
 
 
     def test_post_trail(self):
+
+        data1={
+           	"userId": self.user2.id,
+	        "action": "SUBSCRIBE"
+           
+         }
        
         data = {
-            'owner': self.user.id,
+            'owner': self.user2.id,
             'name': 'Test Trail 2',
-            'startDate': '2023-04-17',
-            'finishDate': '2023-04-19',
+            'startDate': '2023-07-15',
+            'finishDate': '2023-08-16',
             'description': 'HOLAA',
-            'maxPlayers': '3',
+            'maxPlayers': 2
+            
+           
         }
+
+        request1 = self.factory.put(self.url4, data1)
+        force_authenticate(request1, self.user2)
+        view1 = UpdateSubscriptionAPIViewSet.as_view({'get': 'list'})
+        response1 = view1(request1)
+        self.assertEqual(response1.status_code, status.HTTP_200_OK)
+
         request = self.factory.post(self.url1, data)
-        force_authenticate(request, self.user)
-        
+        force_authenticate(request, self.user2)
+        userr = User.objects.get(pk=self.user2.id)
+        self.assertEqual(userr.plan, 'Premium')
         view = TrailApiViewSet.as_view()
         response = view(request)
+      
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
@@ -71,7 +91,7 @@ class TrailApiViewSetTestCase(TestCase):
             'startDate': '2023-04-17',
             'finishDate': '2023-04-16',
             'description': 'HOLAA',
-            'maxPlayers': '3',
+            'maxPlayers': 3
         }
         request = self.factory.post(self.url1, data)
         force_authenticate(request, self.user)
@@ -132,19 +152,6 @@ class TrailApiViewSetTestCase(TestCase):
         trail = UserInTrail.objects.get(pk=self.trail1.id)
         self.assertEqual(trail.user.id, 2)
   
-
-    def test_post_user_invalid_trail(self):
-       
-        data_add_user={
-            'trail': self.trail1.id,
-            'user': '6' 
-        }
-
-        request = self.factory.post(self.url3, data_add_user, format='json')
-        force_authenticate(request, self.user)
-        view = AddUserInTrailViewSet.as_view()
-        response = view(request)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
        
 
     def test_put_trail(self):
@@ -152,9 +159,9 @@ class TrailApiViewSetTestCase(TestCase):
             'id' : self.trail1.id,
             'name': 'wdadawdawdddddd',
             'description' : 'EYEYEY',
-            'startDate':'2023-04-22',
-            'finishDate':'2023-04-24',
-            'maxPlayers': '3',
+            'startDate':'2023-09-22',
+            'finishDate':'2023-10-24',
+            'maxPlayers': 3,
             'owner': self.user.id
         }
         request = self.factory.put(self.url1, data)

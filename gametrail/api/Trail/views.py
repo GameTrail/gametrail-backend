@@ -78,8 +78,9 @@ class TrailApiViewSet(APIView):
             user.is_subscription_expired()
             if trail_count >= 1 and user.plan == "STANDARD":
                 return Response('No puedes crear más de 1 trails en este mes siendo un usuario standard.', status=status.HTTP_400_BAD_REQUEST)
+            
             maxPlayers = request.data['maxPlayers']
-            if maxPlayers > 4 and user.plan == "STANDARD":
+            if int(maxPlayers) > 4 and user.plan == "STANDARD":
                 return Response('No puedes añadir a más de 4 jugadores a tu trail siendo un usuario standard.', status=status.HTTP_400_BAD_REQUEST)
         
             serializer = PostTrailSerializer(data=request.data)

@@ -149,12 +149,12 @@ class TrailFilter(filters.FilterSet):
     finished_before = filters.DateFilter(field_name='finishDate', lookup_expr='lte')
     finished_after = filters.DateFilter(field_name='finishDate', lookup_expr='gte')
     game_name = django_filters.CharFilter(field_name='games__game__name', lookup_expr='icontains')
-   
-
+    user_name = django_filters.CharFilter(field_name='users__user__username', lookup_expr='icontains')   
+    platform = django_filters.CharFilter(field_name='platforms__platform', lookup_expr='icontains')   
 
     class Meta:
         model = Trail
-        fields = ['created_before', 'created_after','started_before', 'started_after','finished_before', 'finished_after','games__game','users__user','game_name']
+        fields = ['created_before', 'created_after','started_before', 'started_after','finished_before', 'finished_after','games__game','users__user','game_name', 'user_name', 'platform']
 class GetTrailApiViewSet(ModelViewSet):
     
     http_method_names = ['get']
@@ -164,20 +164,7 @@ class GetTrailApiViewSet(ModelViewSet):
     search_fields = ['name']
     filterset_class = TrailFilter
     pagination_class = StandardResultsSetPagination
-
-class GetTrailApiViewSet(ModelViewSet):
     
-    http_method_names = ['get']
-    serializer_class = TrailSerializer
-    queryset = Trail.objects.all().order_by('-pk')
-    filter_backends = [SearchFilter, DjangoFilterBackend]
-    search_fields = ['name']
-    filterset_fields  = ['games__game','users__user']
-    pagination_class = StandardResultsSetPagination
-
-
-    
-
 class GetMinRatingTrailApiViewSet(ModelViewSet):
     http_method_names = ['get']
     serializer_class = GetMinRatingTrailSerializer

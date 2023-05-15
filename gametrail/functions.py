@@ -1,26 +1,21 @@
 import json
 from . import models
 from datetime import datetime
-import pytesseract
-from PIL import Image
 import re
+import requests
 
-def tesseract_image_read(image):
-    #Esta función se encarga de cargar los binarios de tesseract y la imagen (de momento esta se carga desde archivos locales, más adelante se hará desde request).
-    pytesseract.pytesseract.tesseract_cmd = "./src/tesseract/Tesseract-OCR/tesseract.exe"
-    try:
-        #Si la lectura de la imagen por cualquier motivo tarda más de 5 segundos se cancela.
-        data = pytesseract.image_to_string(Image.open(image), timeout=5)
-        games = filter_data(data)
-        games_to_add = []
-        #print(games)
-        for game in games:
-            if game[0].isdigit(): game = game[1:]
-            games_to_add.append(try_add_game(game))
-        #print(games_to_add)
-        return games_to_add
-    except RuntimeError as timeout_error:
-        return False
+def image_read(image):
+
+    url = "https://freeocrapi.com/api"
+    data = requests.request("POST", url, files={'file':image}).json()['text']
+    games = filter_data(data)
+    games_to_add = []
+    #print(games)
+    for game in games:
+        if game[0].isdigit(): game = game[1:]
+        games_to_add.append(try_add_game(game))
+    #print(games_to_add)
+    return games_to_add
     
 def try_add_game(game):
     #Aquí se iran añadiendo uno a uno los juegos, la forma en que estos se buscan en la base de datos aún debe ser estudiada.
@@ -51,10 +46,11 @@ def try_add_game(game):
         #Empty
         return None
     else:
+        print((list(dict(sorted(possibleGames.items(), key=lambda item:item[1])))[-1]))
         return (list(dict(sorted(possibleGames.items(), key=lambda item:item[1])))[-1])
     
 def filter_data(data):
-    #Esta función recibe texto bruto leido desde tesseract y lo filtra para obtener de la forma más correcta los nombres de los juegos.
+    #Esta función recibe texto bruto leido y lo filtra para obtener de la forma más correcta los nombres de los juegos.
     split_data = data.split("\n")
     formated_split_data = []
     for a in split_data:
@@ -64,7 +60,6 @@ def filter_data(data):
             tirth_clear = re.sub('[@]+','',second_clear)
             if tirth_clear[0] == " ":
                 tirth_clear = tirth_clear[1:]
-            
             formated_split_data.append(tirth_clear)
     return formated_split_data
 

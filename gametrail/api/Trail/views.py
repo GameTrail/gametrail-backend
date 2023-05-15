@@ -413,21 +413,23 @@ class GameListImageIA(APIView):
             if userName != ownerList.username:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
             else:
-                image = request.data['image']
-                list_games_to_add = functions.image_read(image)
-                dgameList = GameList.objects.get(user_id = request.data['user'])
                 try:
-                    for dgame in list_games_to_add:
-                        if dgame != None:
-                            #print(dgame.id)
-                            newGame = GameInList.objects.create(
-                                game = dgame, gameList = dgameList, status = "PENDING"
-                            )
-                            newGame.save()
-                    return Response(str(len(list_games_to_add)) + " games added to list. " + str(list_games_to_add), status = status.HTTP_201_CREATED)
+                    image = request.data['image']
+                    list_games_to_add = functions.image_read(image)
+                    print(str(list_games_to_add))
+                    dgameList = GameList.objects.get(user_id = request.data['user'])
+                    try:
+                        for dgame in list_games_to_add:
+                            if dgame != None:
+                                newGame = GameInList.objects.create(
+                                    game = dgame, gameList = dgameList, status = "PENDING"
+                                )
+                                newGame.save()
+                        return Response(str(len(list_games_to_add)) + " games added to list. " + str(list_games_to_add), status = status.HTTP_201_CREATED)
+                    except:
+                        return Response(str(len(list_games_to_add)) + " games added to list: " + str(list_games_to_add) + " BUT SOME GAMES WERE ALREADY IN LIST",status=status.HTTP_200_OK)
                 except:
-                    return Response(str(len(list_games_to_add)) + " games added to list: " + str(list_games_to_add) + " BUT SOME GAMES WERE ALREADY IN LIST",status=status.HTTP_200_OK)
-
+                    return Response("Image was not read properly", status=status.HTTP_400_BAD_REQUEST)
                 
 
 class GetTrailPatrocinedViewSet(ModelViewSet):

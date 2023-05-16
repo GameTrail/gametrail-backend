@@ -16,8 +16,13 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
-CSRF_TRUSTED_ORIGINS = ['https://gametrail-s4.vercel.app', 'https://gametrail-backend-s4-production.up.railway.app', 'https://freeocrapi.com/api', 'https://gametrail.vercel.app']
-
+ALLOWED_HOSTS = ['gametrail.vercel.app', 'gametrail-backend-s4-production.up.railway.app', 'freeocrapi.com']
+CSRF_TRUSTED_ORIGINS = ['https://gametrail-s4.vercel.app', 'https://gametrail-backend-s4-production.up.railway.app', 'https://freeocrapi.com', 'https://gametrail.vercel.app']
+CORS_ALLOWED_ORIGINS = [
+    'https://gametrail.vercel.app',
+    'https://gametrail-backend-s4-production.up.railway.app',
+    'https://freeocrapi.com'
+]
 # Application definition
 
 INSTALLED_APPS = [

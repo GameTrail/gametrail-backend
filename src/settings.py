@@ -15,10 +15,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY') 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-ALLOWED_HOSTS = ['*']
-CSRF_TRUSTED_ORIGINS = ['https://gametrail-s4.vercel.app', 'http://localhost:8000', 'http://localhost:3000', 'https://gametrail-backend-s4-production.up.railway.app', 'https://freeocrapi.com/api']
-CORS_ALLOW_ALL_ORIGINS = True
+DEBUG = False
+CSRF_TRUSTED_ORIGINS = ['https://gametrail-s4.vercel.app', 'https://gametrail-backend-s4-production.up.railway.app', 'https://freeocrapi.com/api', 'gametrail.vercel.app']
 
 # Application definition
 

@@ -64,7 +64,7 @@ class ModifyUserViewSet(APIView):
     http_method_names = ['put']
     def put(self, request, format = None):
         user = request.user
-        if not (request.user.username == User.objects.get(pk=request.data.get("userId")).username):            
+        if (request.user.username != User.objects.get(pk=request.data.get("userId")).username):            
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         
         else:            

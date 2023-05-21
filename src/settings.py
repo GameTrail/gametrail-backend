@@ -1,8 +1,5 @@
 from pathlib import Path
-from dotenv import load_dotenv
-import os
 
-load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -11,18 +8,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-
-SECRET_KEY = os.environ.get('SECRET_KEY') 
+SECRET_KEY = 'django-insecure-w(!grhbyuc6g)+fopix3fer#_gdl)ml5ew2svgu*&1ox#og=&m'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-ALLOWED_HOSTS = ['gametrail.vercel.app', 'gametrail-backend-s4-production.up.railway.app', 'freeocrapi.com']
-CSRF_TRUSTED_ORIGINS = ['https://gametrail-s4.vercel.app', 'https://gametrail-backend-s4-production.up.railway.app', 'https://freeocrapi.com', 'https://gametrail.vercel.app']
-CORS_ALLOWED_ORIGINS = [
-    'https://gametrail.vercel.app',
-    'https://gametrail-backend-s4-production.up.railway.app',
-    'https://freeocrapi.com'
-]
+DEBUG = True
+
+ALLOWED_HOSTS = []
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -36,14 +29,12 @@ INSTALLED_APPS = [
     'rest_framework',
     'gametrail',
     'rest_framework.authtoken',
-    'corsheaders',
 ]
 
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",
-    "django.middleware.common.CommonMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -81,12 +72,8 @@ WSGI_APPLICATION = 'src.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'railway',
-        'USER': os.environ.get('PGUSER'),
-        'PASSWORD': os.environ.get('PGPASSWORD'),
-        'HOST': os.environ.get('PGHOST'),
-        'PORT': os.environ.get('PGPORT'),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
